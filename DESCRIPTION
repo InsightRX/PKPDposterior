@@ -1,0 +1,21 @@
+Package: pkpdmcmctbd
+Version: 0.0.0.9000
+Title: MCMC-Based MIPD
+Description: MCMC-based inference based a population PK model and individual
+    TDM data.
+Authors@R: c(
+    person("Ron", "Keizer", email = "ron@insight-rx.com",
+           role = c("aut", "cre")),
+    person("Jasmine", "Hughes", email = "jasmine@insight-rx.com",
+           role = "aut"),
+    person("Dominic", "Tong", email = "dominic@insight-rx.com", role = "aut"),
+    person("Kara", "Woo", email = "kara@insight-rx.com", role = "aut"),
+    person("InsightRX", role = c("cph", "fnd"))
+    )
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
