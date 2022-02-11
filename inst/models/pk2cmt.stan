@@ -45,8 +45,8 @@ transformed parameters{
   theta[2] = Q;
   theta[3] = V1;
   theta[4] = V2;
-  theta[5] = ka;
-  
+  theta[5] = 0;
+
   x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
   
   cHat = x[2, :] ./ V1; // we're interested in the amount in the second compartment
@@ -60,7 +60,6 @@ model{
   Q ~ lognormal(log(15), 0.5);
   V1 ~ lognormal(log(35), 0.25);
   V2 ~ lognormal(log(105), 0.5);
-  ka ~ lognormal(log(2.5), 1);
   sigma ~ cauchy(0, 1);
   
   logCObs ~ normal(log(cHatObs), sigma);

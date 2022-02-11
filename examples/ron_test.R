@@ -49,9 +49,6 @@ post <- get_mcmc_posterior(
   parallel_chains = chains,
   iter_warmup = 500,
   iter_sampling = 500
-  # regimen = reg,
-  # covariates = covs,
-  # data = tdm_data
 )
 
 ## Plot parameters

@@ -33,7 +33,6 @@ parameters{
   real<lower = 0> Q;
   real<lower = 0> V1;
   real<lower = 0> V2;
-  real<lower = 0> ka;
   real<lower = 0> sigma;
 }
 
@@ -51,7 +50,7 @@ transformed parameters{
   
   x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
   
-  cHat = x[2, :] ./ V1; // we're interested in the amount in the second compartment
+  cHat = x[2, :] ./ (V1 * mean(WT)); // we're interested in the amount in the second compartment
 
   cHatObs = cHat'[iObs]; // predictions for observed data recors
 }

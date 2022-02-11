@@ -20,21 +20,33 @@ mod <- load_model(
 ## for our models this should be read from pkvancothomson::parameters() and 
 ## pkvancothomson::ruv(). Should create a get_prior() fucntion.
 prior <- get_init("pkvancothomson")
+prior$V1 <- prior$V
+prior$V <- NULL
 prior$TH_CRCL <- NULL
 prior$TDM_INIT <- NULL
 
-# ## Patient data using PKPDsim-style data:
-# data <- prepare_data(
-#   regimen = ,
-#   covariates = ,
-#   data = 
-# )
+data <- list(
+  addl = rep(0, 3), 
+  ii = rep(0, 3),
+  amt = c(1000, 0, 0),
+  cmt = c(2, 2, 2),
+  cObs = c(40, 10),
+  evid = c(1, 0, 0),
+  iObs = c(2, 3),
+  nObs = 2,
+  nt = 3,
+  rate = c(500, 0, 0),
+  ss = c(0, 0, 0),
+  time = c(0, 2.5, 11.5),
+  WT = c(70, 70, 70),
+  CRCL = c(5, 5, 5)
+)
 
 ## Sample from posterior
-chains <- 2
+chains <- 1
 post <- get_mcmc_posterior(
   mod,
-  data = nm_data,
+  data = data,
   init = prior,
   chains = chains,
   parallel_chains = chains,
@@ -44,3 +56,17 @@ post <- get_mcmc_posterior(
   # covariates = covs,
   # data = tdm_data
 )
+
+## Plot parameters
+par_table <- post$draws_df %>%
+  select(CL, V1, Q, V2)
+par_table_long <- par_table %>%
+  pivot_longer(cols = c(CL, V1, Q, V2))
+prior_df <- data.frame(prior[c("CL", "V1", "Q", "V2")]) %>%
+  pivot_longer(cols = c(CL, V1, Q, V2))
+ggplot(par_table_long) +
+  geom_histogram(aes(x = value)) + 
+  facet_wrap(~name, scale = "free") +
+  geom_vline(data=prior_df, aes(xintercept = value), colour = 'red') +
+  irxreports::theme_irx_minimal()
+
