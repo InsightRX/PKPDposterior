@@ -13,8 +13,16 @@
 #'   type = 'infusion'
 #' )
 #' covariates <- list(
-#'   WT = PKPDsim::new_covariate(value = 150, unit = "kg"),
-#'   CRCL = PKPDsim::new_covariate(value = 6.5, unit = "l/hr")
+#'   WT = PKPDsim::new_covariate(
+#'     value = c(150, 149.5),
+#'     times = c(0, 30),
+#'     unit = "kg"
+#'   ),
+#'   CRCL = PKPDsim::new_covariate(
+#'     value = c(6.5, 6.7),
+#'     times = c(0, 12),
+#'     unit = "l/hr"
+#'   )
 #' )
 #' tdm_data <- data.frame(
 #'   t = c(1, 2), 
@@ -29,10 +37,12 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   tdm <- tdm_to_nm(tdm_data)
 
   ## Combine into one dataset
-  nm_data <- dplyr::bind_rows(reg, tdm) %>%
-    dplyr::arrange(.data$ID, .data$TIME, .data$EVID)
-  nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
-  
+  nm_data <- dplyr::bind_rows(reg, tdm, cov) %>%
+    dplyr::arrange(.data$ID, .data$TIME, .data$EVID) %>%
+    ## Fill in timevarying covariates
+    tidyr::fill(names(covariates), .direction = "downup")
+
+
   ## Not using ADDL, SS, II
   nm_data$CMT <- 2 # TODO
   nm_data$addl <- 0
@@ -60,8 +70,17 @@ prepare_data <- function(regimen, covariates, tdm_data) {
 #'
 #' @inheritParams prepare_data
 covariates_to_nm <- function(covariates) {
-  dat <- data.frame(lapply(covariates, `[[`, "value"))
+  dat <- dplyr::bind_rows(covariates, .id = "cov") %>%
+    dplyr::select(.data$cov, .data$value, .data$times) %>%
+    tidyr::pivot_wider(names_from = cov, values_from = value) %>%
+    dplyr::rename(TIME = times)
   dat$ID <- 1
+  dat$EVID <- 2
+  dat$MDV <- 0
+  dat$AMT <- 0
+  dat$RATE <- 0
+  dat$DV <- 0
+  dat$CMT <- 2 # TODO: don't hard code
   dat
 }
 

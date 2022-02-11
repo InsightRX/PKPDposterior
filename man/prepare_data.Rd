@@ -27,13 +27,21 @@ regimen <- PKPDsim::new_regimen(
   type = 'infusion'
 )
 covariates <- list(
-  WT = PKPDsim::new_covariate(value = 150, unit = "kg"),
-  CRCL = PKPDsim::new_covariate(value = 6.5, unit = "l/hr")
+  WT = PKPDsim::new_covariate(
+    value = c(150, 149.5),
+    times = c(0, 30),
+    unit = "kg"
+  ),
+  CRCL = PKPDsim::new_covariate(
+    value = c(6.5, 6.7),
+    times = c(0, 12),
+    unit = "l/hr"
+  )
 )
 tdm_data <- data.frame(
   t = c(1, 2), 
   dv = c(900, 800), 
-  cmt = c(1, 1)
+  cmt = c(2, 2)
 )
 prepare_data(regimen, covariates, tdm_data)
 }
