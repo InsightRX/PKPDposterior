@@ -38,7 +38,7 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
   
   ## Not using ADDL, SS, II
-  nm_data$cmt <- 2 # TODO
+  nm_data$CMT <- 2 # TODO
   nm_data$addl <- 0
   nm_data$ss <- 0
   nm_data$ii <- 0

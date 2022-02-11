@@ -33,8 +33,8 @@ regimen <- PKPDsim::new_regimen(
    t_inf = 2
 )
 covariates <- list(
-   WT = PKPDsim::new_covariate(value = 150, unit = "kg"),
-   CRCL = PKPDsim::new_covariate(value = 6.5, unit = "l/hr")
+   WT = PKPDsim::new_covariate(value = 70, unit = "kg"),
+   CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr")
 )
 tdm_data <- data.frame(
    t = c(2.5, 11.5), 
@@ -72,7 +72,7 @@ post <- get_mcmc_posterior(
   init = prior,
   chains = chains,
   parallel_chains = chains,
-  iter_warmup = 500,
+  iter_warmup = 1500,
   iter_sampling = 500
   # regimen = reg,
   # covariates = covs,
@@ -99,20 +99,22 @@ mod1 <- pkvancothomson::model()
 # run simulation
 
 par_table <- par_table %>%
-  mutate(V = V1, TH_CRCL = 0, TDM_INIT = 0)
+  mutate(V = V1, TH_CRCL = 0.0154, TDM_INIT = 0)
 covs <- list(
-  WT = new_covariate(150),
-  CRCL = new_covariate(6.5),
+  WT = new_covariate(70),
+  CRCL = new_covariate(5),
   CL_HEMO = new_covariate(0)
 )
 res <- sim(
   ode = mod1,
   parameters_table = as.data.frame(par_table) %>% slice(1:100),
-  regimen = PKPDsim::new_regimen(amt = 1000, n = 12, interval = 12),
+  regimen = regimen,
   covariates = covs,
-  t_obs = seq(0, 72, .5),
+  t_obs = seq(0, 24, .5),
   only_obs = TRUE
 )
 ggplot(res, aes(x = t, y = y, group = id)) +
-  geom_line(alpha = 0.1)
-irxreports::theme_irx_minimal()
+  geom_line(alpha = 0.25) +
+  geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
+  geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
+  irxreports::theme_irx_minimal()
