@@ -5,28 +5,12 @@
 \title{Draw samples from the posterior given a Stan/Torsten model
 and patient data}
 \usage{
-get_mcmc_posterior(
-  mod,
-  prior,
-  regimen = NULL,
-  covariates = NULL,
-  data = NULL,
-  nm_data = NULL,
-  seed = 12345,
-  output_dir = getwd(),
-  ...
-)
+get_mcmc_posterior(mod, prior, data, seed = 12345, output_dir = getwd(), ...)
 }
 \arguments{
 \item{mod}{compiled Stan model}
 
-\item{regimen}{drug regimen data created using \code{PKPDsim::new_regimen()}}
-
-\item{covariates}{patient covariate data created using \code{PKPDsim::covariates()}}
-
-\item{data}{data.frame with observed data.}
-
-\item{nm_data}{NONMEM-style dataset. If \code{nm_data} supplied, then \code{regimen}, \code{covariates}, and \code{data} are not required.}
+\item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
 
 \item{seed}{seed for sampling}
 
@@ -47,4 +31,7 @@ Common arguments to cmdstanr include:
 \description{
 Draw samples from the posterior given a Stan/Torsten model
 and patient data
+}
+\seealso{
+\code{\link[=prepare_data]{prepare_data()}}
 }
