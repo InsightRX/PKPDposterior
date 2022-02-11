@@ -30,11 +30,8 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   tdm$RATE <- 0
 
   ## Combine into one dataset
-  nm_data <- dplyr::bind_rows(
-    reg, 
-    tdm
-  ) %>%
-    dplyr::arrange(ID, TIME, EVID)
+  nm_data <- dplyr::bind_rows(reg, tdm) %>%
+    dplyr::arrange(.data$ID, .data$TIME, .data$EVID)
   nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
   
   ## Not using ADDL, SS, II
@@ -51,8 +48,8 @@ prepare_data <- function(regimen, covariates, tdm_data) {
 
   ## Additional info
   out$cObs <- nm_data %>%
-    filter(EVID == 0) %>%
-    .$DV
+    dplyr::filter(.data$EVID == 0) %>%
+    dplyr::pull(.data$DV)
   out$nt <- nrow(nm_data)
   out$iObs <- which(out$evid == 0)
   out$nObs <- length(out$iObs)
