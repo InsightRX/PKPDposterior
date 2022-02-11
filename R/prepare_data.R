@@ -29,6 +29,11 @@ prepare_data <- function(dat) {
   names(out)[lowercase] <- tolower(names(out)[lowercase])
   names(out)[names(out) == "DV"] <- "cObs"
 
+  ## Not using ADDL, SS, II
+  out$addl <- 0
+  out$ss <- 0
+  out$ii <- 0
+
   ## Additional info
   out$nt <- nrow(dat)
   out$iObs <- which(out$evid == 0)
