@@ -27,24 +27,32 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   reg <- regimen_to_nm(regimen)
   cov <- covariates_to_nm(covariates)
   tdm <- tdm_to_nm(tdm_data)
+  tdm$RATE <- 0
 
   ## Combine into one dataset
-  nm_data <- rbind(reg, tdm)
-  nm_data <- merge(nm_data, cov, by = "ID")
-  nm_data <- nm_data[order(nm_data$ID, nm_data$TIME), ]
+  nm_data <- dplyr::bind_rows(
+    reg, 
+    tdm
+  ) %>%
+    dplyr::arrange(ID, TIME, EVID)
+  nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
+  
+  ## Not using ADDL, SS, II
+  nm_data$cmt <- 2 # TODO
+  nm_data$addl <- 0
+  nm_data$ss <- 0
+  nm_data$ii <- 0
   out <- as.list(nm_data)
 
   ## Lowercase some names
   lowercase <- names(out) %in% c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
   names(out)[lowercase] <- tolower(names(out)[lowercase])
-  names(out)[names(out) == "DV"] <- "cObs"
-
-  ## Not using ADDL, SS, II
-  out$addl <- 0
-  out$ss <- 0
-  out$ii <- 0
+  # names(out)[names(out) == "DV"] <- "cObs"
 
   ## Additional info
+  out$cObs <- nm_data %>%
+    filter(EVID == 0) %>%
+    .$DV
   out$nt <- nrow(nm_data)
   out$iObs <- which(out$evid == 0)
   out$nObs <- length(out$iObs)
