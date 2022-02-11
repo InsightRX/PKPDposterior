@@ -10,12 +10,16 @@ Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
 # Compile or reload model
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/pkpdmcmctbd/models/
-mod <- load_model("pk2cmt", verbose = FALSE)
+mod <- load_model(
+  "pk2cmt", 
+  force = TRUE,
+  verbose = TRUE
+)
 
 ## define prior. 
 ## for our models this should be read from pkvancothomson::parameters() and 
 ## pkvancothomson::ruv(). Should create a get_prior() fucntion.
-prior <- list( 
+prior <- list(
   CL = 7.43,
   ka = 1.08,
   Q = 28.0,
@@ -38,8 +42,9 @@ source("examples/example_data.R")
 chains <- 2
 post <- get_mcmc_posterior(
   mod,
+  init = prior,
   data = nm_data,
-  prior = prior,
+  # prior = prior,
   chains = chains,
   parallel_chains = chains,
   iter_warmup = 500,

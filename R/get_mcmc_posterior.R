@@ -2,6 +2,7 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
+#' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
 #' @param output_dir 
@@ -19,7 +20,7 @@
 #' @seealso [prepare_data()]
 get_mcmc_posterior <- function(
   mod,
-  prior,
+  init,
   data,
   seed = 12345,
   output_dir = getwd(),
@@ -33,7 +34,7 @@ get_mcmc_posterior <- function(
 
   res <- mod$sample(
     data = data,
-    init = function() { prior },
+    init = function() { init },
     seed = seed,
     output_dir = output_dir,
     ...

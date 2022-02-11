@@ -2,12 +2,14 @@
 #' If model is not compiled yet, than compile it. Otherwise used the binary.
 #' 
 #' @param model model to be compiled, from the models available in the package in `inst/models`
+#' @param force force recompile
 #' @param verbose show output from Stan / cmdstanr? Defaults to `FALSE`.
 #' @param ... passed onto 
 #' 
 #' @export
 load_model <- function(
   model,
+  force = FALSE,
   verbose = FALSE,
   ...
 ) {
@@ -24,6 +26,9 @@ load_model <- function(
   model_file <- system.file("models", paste0(model, ".stan"), package = "pkpdmcmctbd")
   if(model_file == "") {
     stop("The requested model was not found.")
+  }
+  if(force) {
+    unlink(system.file("models", model, package = "pkpdmcmctbd"))
   }
   messages(
     stan_out <- cmdstanr::cmdstan_model(

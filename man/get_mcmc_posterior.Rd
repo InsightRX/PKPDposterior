@@ -5,10 +5,12 @@
 \title{Draw samples from the posterior given a Stan/Torsten model
 and patient data}
 \usage{
-get_mcmc_posterior(mod, prior, data, seed = 12345, output_dir = getwd(), ...)
+get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = getwd(), ...)
 }
 \arguments{
 \item{mod}{compiled Stan model}
+
+\item{init}{initial parameter set for sampler}
 
 \item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
 
