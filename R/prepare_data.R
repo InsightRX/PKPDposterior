@@ -19,22 +19,18 @@
 #' tdm_data <- data.frame(
 #'   t = c(1, 2), 
 #'   dv = c(900, 800), 
-#'   cmt = c(1, 1)
+#'   cmt = c(2, 2)
 #' )
 #' prepare_data(regimen, covariates, tdm_data)
 prepare_data <- function(regimen, covariates, tdm_data) {
   ## Convert regimen, covariates, tdm data
-  reg <- regimen_to_nm(regimen)
+  reg <- regimen_to_nm(regimen, dose_cmt = 2) # TODO: don't hard code this
   cov <- covariates_to_nm(covariates)
   tdm <- tdm_to_nm(tdm_data)
-  tdm$RATE <- 0
 
   ## Combine into one dataset
-  nm_data <- dplyr::bind_rows(
-    reg, 
-    tdm
-  ) %>%
-    dplyr::arrange(ID, TIME, EVID)
+  nm_data <- dplyr::bind_rows(reg, tdm) %>%
+    dplyr::arrange(.data$ID, .data$TIME, .data$EVID)
   nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
   
   ## Not using ADDL, SS, II
@@ -51,8 +47,8 @@ prepare_data <- function(regimen, covariates, tdm_data) {
 
   ## Additional info
   out$cObs <- nm_data %>%
-    filter(EVID == 0) %>%
-    .$DV
+    dplyr::filter(.data$EVID == 0) %>%
+    dplyr::pull(.data$DV)
   out$nt <- nrow(nm_data)
   out$iObs <- which(out$evid == 0)
   out$nObs <- length(out$iObs)
@@ -77,6 +73,7 @@ tdm_to_nm <- function(tdm_data) {
   tdm_data$ID <- 1
   tdm_data$MDV <- 0
   tdm_data$AMT <- 0
+  tdm_data$RATE <- 0
   names(tdm_data)[names(tdm_data) == "t"] <- "TIME"
   names(tdm_data) <- toupper(names(tdm_data))
   tdm_data
