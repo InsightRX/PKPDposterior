@@ -20,11 +20,20 @@ Named list suitable for passing on to Torsten
 Prepare data
 }
 \examples{
-regimen <- PKPDsim::new_regimen(interval = 12)
+regimen <- PKPDsim::new_regimen(
+  amt = 1500, 
+  n = 4, 
+  times = c(0, 12, 24, 36), 
+  type = 'infusion'
+)
 covariates <- list(
   WT = PKPDsim::new_covariate(value = 150, unit = "kg"),
   CRCL = PKPDsim::new_covariate(value = 6.5, unit = "l/hr")
 )
-tdm_data <- data.frame(t = c(1, 2), dv = c(900, 800), cmt = c(1, 1))
+tdm_data <- data.frame(
+  t = c(1, 2), 
+  dv = c(900, 800), 
+  cmt = c(1, 1)
+)
 prepare_data(regimen, covariates, tdm_data)
 }
