@@ -2,8 +2,8 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
-#' @param regimen drug regimen data created using `PKPDsim::new_regimen()`
-#' @param covariates patient covariate data created using `PKPDsim::covariates()`
+#' @param data dataset (see [prepare_data()])
+#' @param seed seed for sampling
 #' @param output_dir 
 #' @param ... arguments passed to `mod$sample()`
 #' 
@@ -16,11 +16,12 @@
 #' - adapt_delta
 #' 
 #' @export
+#' @seealso [prepare_data()]
 get_mcmc_posterior <- function(
   mod,
-  regimen,
-  covariates,
+  prior,
   data,
+  seed = 12345,
   output_dir = getwd(),
   ...
 ) {
@@ -29,24 +30,21 @@ get_mcmc_posterior <- function(
   if(! "CmdStanModel" %in% class(mod)) {
     stop("Supplied model is not a valid cmdstanr model. Please use `load_model()` to load/compile models.")
   }
-  
-  ## Check data OK?
-  ## TODO
-  
-  ## convert regimen, covariates, and data to NONMEM-like data
-  data <- prepare_data(
-    regimen,
-    covariates,
-    data
-  )
-  
+
   res <- mod$sample(
     data = data,
+    init = function() { prior },
+    seed = seed,
     output_dir = output_dir,
     ...
   )
   
-  ## Post-processing & return
-  res
-  
+  ## Post-processing
+  out <- list(
+    raw = res,
+    draws_df =  posterior::as_draws_df(res$draws())
+  )
+
+  ## return
+  out
 }
