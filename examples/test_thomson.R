@@ -88,11 +88,25 @@ res <- sim(
   parameters_table = as.data.frame(par_table) %>% slice(1:100),
   regimen = regimen,
   covariates = covs,
-  t_obs = seq(0, 24, .5),
-  only_obs = TRUE
+  t_obs = seq(0, 48, .5),
+  only_obs = FALSE
 )
-ggplot(res, aes(x = t, y = y, group = id)) +
+
+res %>%
+  filter(comp == "obs") %>%
+  ggplot(aes(x = t, y = y, group = id)) +
   geom_line(alpha = 0.25) +
   geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
   geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
   irxreports::theme_irx_minimal()
+
+res %>%
+  filter(t %in% c(36, 48)) %>%
+  filter(comp == 3) %>%
+  group_by(id) %>%
+  tidyr::pivot_wider(names_from = t, values_from = y) %>%
+  mutate(auc24 = 2 * (`48` - `36`)) %>%
+  ggplot() + 
+  aes(x = auc24) +
+  geom_histogram()
+  
