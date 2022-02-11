@@ -19,12 +19,12 @@
 #' tdm_data <- data.frame(
 #'   t = c(1, 2), 
 #'   dv = c(900, 800), 
-#'   cmt = c(1, 1)
+#'   cmt = c(2, 2)
 #' )
 #' prepare_data(regimen, covariates, tdm_data)
 prepare_data <- function(regimen, covariates, tdm_data) {
   ## Convert regimen, covariates, tdm data
-  reg <- regimen_to_nm(regimen)
+  reg <- regimen_to_nm(regimen, dose_cmt = 2) # TODO: don't hard code this
   cov <- covariates_to_nm(covariates)
   tdm <- tdm_to_nm(tdm_data)
 
@@ -34,7 +34,6 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   nm_data <- merge(nm_data, cov, by = "ID") # TODO: timevarying covs
   
   ## Not using ADDL, SS, II
-  nm_data$cmt <- 2 # TODO
   nm_data$addl <- 0
   nm_data$ss <- 0
   nm_data$ii <- 0
