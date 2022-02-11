@@ -27,7 +27,6 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   reg <- regimen_to_nm(regimen)
   cov <- covariates_to_nm(covariates)
   tdm <- tdm_to_nm(tdm_data)
-  tdm$RATE <- 0
 
   ## Combine into one dataset
   nm_data <- dplyr::bind_rows(reg, tdm) %>%
@@ -74,6 +73,7 @@ tdm_to_nm <- function(tdm_data) {
   tdm_data$ID <- 1
   tdm_data$MDV <- 0
   tdm_data$AMT <- 0
+  tdm_data$RATE <- 0
   names(tdm_data)[names(tdm_data) == "t"] <- "TIME"
   names(tdm_data) <- toupper(names(tdm_data))
   tdm_data
