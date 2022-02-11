@@ -1,41 +1,13 @@
-//
-// This Stan program defines the 2cmt IV vanco model
-//originally published by Thomson et al.
-//
+// TwoCptModel.stan
+// Run two compartment model using built-in analytical solution 
+// Heavily anotated to help new users
 
-functions {
-  vector TwoCptIV_Model(real t, vector cmt, real[] parms, real[] x_r, int[] x_i){
-    
-    real CL  = parms[1];
-    real V1  = parms[2];
-    real Q   = parms[3];
-    real V2  = parms[4];
-    
-    vector[2] dxdt_cmt;
-
-    dxdt_cmt[1] = (Q/V2) * cmt[2] - (CL + Q) * cmt[1] / V1;
-    dxdt_cmt[2] = (Q/V1) * cmt[1] - (Q/V2) * cmt[2];
-
-    return dxdt_cmt;
-  }
-
-  real cv_to_sd(real cv) {
-    return sqrt(log(cv^2+1));
-  }
-
-  real sigma(real conc){
-    return (conc * 0.15 + 1.6);  // proportional and residual error
-  }
-}
-
-
-// The input data is a vector 'y' of length 'N'.
 data{
   int<lower = 1> nt;  // number of events
   int<lower = 1> nObs;  // number of observation
   int<lower = 1> iObs[nObs];  // index of observation
   
-  // NONMEM data, general columns
+  // NONMEM data
   int<lower = 1> cmt[nt];
   int evid[nt];
   int addl[nt];
@@ -44,72 +16,61 @@ data{
   real time[nt];
   real rate[nt];
   real ii[nt];
-  
-  // Covariates specific to model
-  real<lower=0> CRCL[nt];
-  real<lower=0> WT[nt];
-  
-  // Model parameters
-  real Prior_CL;
-  real Prior_V1;
-  real Prior_Q;
-  real Prior_V2;
-
-  real Prior_CL_omega;
-  real Prior_V1_omega;
-  real Prior_Q_omega;
-  real Prior_V2_omega;
+  real WT[nt];
+  real CRCL[nt];
   
   vector<lower = 0>[nObs] cObs;  // observed concentration (Dependent Variable)
 }
 
-// The parameters accepted by the model. Our model
-// accepts four parameters: CL, V1, V2, Q
-parameters {
-  real<lower=0.0> CL;
-  real<lower=0.0> V1;
-  real<lower=0.0> Q;
-  real<lower=0.0> V2;
+transformed data{
+  vector[nObs] logCObs = log(cObs);
+  int nTheta = 5;  // number of ODE parameters in Two Compartment Model
+  int nCmt = 3;  // number of compartments in model
 }
 
-transformed parameters {
-  real theta[4];
+parameters{
+  real<lower = 0> CL;
+  real<lower = 0> Q;
+  real<lower = 0> V1;
+  real<lower = 0> V2;
+  real<lower = 0> ka;
+  real<lower = 0> sigma;
+}
 
-  row_vector[nt] cHat;
-  row_vector[nObs] cHatObs;
-
-  real<lower=0> sigmaEPS[nObs];
-  real CLi;
-  real Vi;
-  real V2i;
+transformed parameters{
+  real theta[nTheta];  // ODE parameters
+  row_vector<lower = 0>[nt] cHat;
+  vector<lower = 0>[nObs] cHatObs;
+  matrix<lower = 0>[nCmt, nt] x;
   
-  CLi = CL .* (1 .+ 0.0154 .* (CRCL .* 16.66667 .- 66));
-  V1i = V1 .* WT;
-  V2i = V2 .* WT;
+  theta[1] = CL * (1.0 + 0.0154 * (mean(CRCL) * 16.6667 - 66.0));
+  theta[2] = Q;
+  theta[3] = V1 * mean(WT);
+  theta[4] = V2 * mean(WT);
+  theta[5] = 0; //ka = 0, IV model
+  
+  x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
+  
+  cHat = x[2, :] ./ V1; // we're interested in the amount in the second compartment
 
-  theta[1] = CLi;
-  theta[2] = V1i;
-  theta[3] = Q;
-  theta[4] = V2i;
-
-  matrix[nCmt, nt] x = pmx_solve_rk45(TwoCptIV_Model, nCmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
-
-  cHat = x[1, ] ./ V1;
-
-  for (i in 1:nObs) {
-    cHatObs[i] = cHat[iObs[i]];
-    sigmaEPS[i] = sigma(cHatObs[i]);
-  }
+  cHatObs = cHat'[iObs]; // predictions for observed data recors
 }
 
-// The model to be estimated
-model {
+model{
+  // informative prior
   CL ~ lognormal(log(2.99), 0.27);
+  Q ~ lognormal(log(2.28), 0.49);
   V1 ~ lognormal(log(0.675), 0.15);
-  Q  ~ lognormal(log(2.28),  0.49);
-  V2 ~ lognormal(log(0.732), 1.30);
+  V2 ~ lognormal(log(0.732), 1.3);
+  sigma ~ cauchy(0, 1);
+  
+  logCObs ~ normal(log(cHatObs), sigma);
+}
 
-  for ( i in 1:nObs){
-    cObs[i] ~ normal(cHatObs[i], sigmaEPS[i]);
+generated quantities{
+  real cObsPred[nObs];
+  
+  for(i in 1:nObs){
+    cObsPred[i] = exp(normal_rng(log(cHatObs[i]), sigma));
   }
 }
