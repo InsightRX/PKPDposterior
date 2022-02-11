@@ -72,8 +72,8 @@ prepare_data <- function(regimen, covariates, tdm_data) {
 covariates_to_nm <- function(covariates) {
   dat <- dplyr::bind_rows(covariates, .id = "cov") %>%
     dplyr::select(.data$cov, .data$value, .data$times) %>%
-    tidyr::pivot_wider(names_from = cov, values_from = value) %>%
-    dplyr::rename(TIME = times)
+    tidyr::pivot_wider(names_from = .data$cov, values_from = .data$value) %>%
+    dplyr::rename(TIME = .data$times)
   dat$ID <- 1
   dat$EVID <- 2
   dat$MDV <- 0
