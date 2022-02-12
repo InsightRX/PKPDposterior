@@ -2,11 +2,13 @@
 // Run two compartment model using built-in analytical solution 
 // Heavily anotated to help new users
 
+// using proportional + additive error model!!
+
 data{
   int<lower = 1> nt;  // number of events
   int<lower = 1> nObs;  // number of observation
   int<lower = 1> iObs[nObs];  // index of observation
-
+  
   // NONMEM data
   int<lower = 1> cmt[nt];
   int evid[nt];
@@ -23,7 +25,7 @@ data{
 }
 
 transformed data{
-  vector[nObs] logCObs = log(cObs);
+  vector[nObs] logCObs = cObs;
   int nTheta = 5;  // number of ODE parameters in Two Compartment Model
   int nCmt = 3;  // number of compartments in model
 }
@@ -62,20 +64,15 @@ model{
   Q ~ lognormal(log(2.28), 0.49);
   V1 ~ lognormal(log(0.675), 0.15);
   V2 ~ lognormal(log(0.732), 1.3);
-  logCObs ~ normal(log(cHatObs), 0.3);
+  cObs ~ normal(cHatObs, (0.15 * cHatObs + 1.6));
 }
 
 generated quantities{
   real cObsPred[nObs];
   
-  // sample prior
-  real prior_CL = lognormal_rng(log(2.99), 0.27);
-  real prior_Q = lognormal_rng(log(2.28), 0.49);
-  real prior_V1 = lognormal_rng(log(0.675), 0.15);
-  real prior_V2 = lognormal_rng(log(0.732), 1.3);
-  
-  // posterior
   for(i in 1:nObs){
-    cObsPred[i] = exp(normal_rng(log(cHatObs[i]), 0.3));
+    cObsPred[i] = cHatObs[i];
+    cObsPred[i] += normal_rng(0, 0.15);
+    cObsPred[i] += normal_rng(0, 0.1);
   }
 }

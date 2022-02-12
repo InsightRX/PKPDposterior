@@ -23,7 +23,7 @@ get_mcmc_posterior <- function(
   init,
   data,
   seed = 12345,
-  output_dir = getwd(),
+  output_dir = tempdir(),
   ...
 ) {
   
@@ -37,6 +37,7 @@ get_mcmc_posterior <- function(
     init = function() { init },
     seed = seed,
     output_dir = output_dir,
+    chains = 1,
     ...
   )
   
