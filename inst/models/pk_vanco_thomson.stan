@@ -37,17 +37,19 @@ parameters{
 }
 
 transformed parameters{
-  real theta[nTheta];  // ODE parameters
+  array[nt, nTheta] real theta;  // ODE parameters
   row_vector<lower = 0>[nt] cHat;
   vector<lower = 0>[nObs] cHatObs;
   matrix<lower = 0>[nCmt, nt] x;
   
-  theta[1] = CL * (1.0 + 0.0154 * (mean(CRCL) * 16.6667 - 66.0));
-  theta[2] = Q;
-  theta[3] = V1 * mean(WT);
-  theta[4] = V2 * mean(WT);
-  theta[5] = 0; //ka = 0, IV model
-  
+  for(j in 1:nt) {
+    theta[j, 1] = CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0));
+    theta[j, 2] = Q;
+    theta[j, 3] = V1 * WT[j];
+    theta[j, 4] = V2 * WT[j];
+    theta[j, 5] = 0; //ka = 0, IV model
+  }
+
   x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
   
   cHat = x[2, :] ./ (V1 * mean(WT)); // we're interested in the amount in the second compartment
