@@ -5,7 +5,7 @@
 \title{Draw samples from the posterior given a Stan/Torsten model
 and patient data}
 \usage{
-get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = getwd(), ...)
+get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = tempdir(), ...)
 }
 \arguments{
 \item{mod}{compiled Stan model}

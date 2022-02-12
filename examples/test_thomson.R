@@ -3,6 +3,7 @@ library(pkpdmcmctbd)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(pkvancothomson)
 
 # set Stan path
 Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
@@ -38,13 +39,13 @@ covariates <- list(
 )
 tdm_data <- data.frame(
    t = c(2.5, 11.5), 
-   dv = c(40, 14), 
-   cmt = c(2, 2)
+   dv = c(40, 14)
 )
 data <- prepare_data(
   regimen, 
   covariates, 
-  tdm_data
+  tdm_data,
+  dose_cmt = 2
 )
 
 ## Sample from posterior
@@ -74,7 +75,6 @@ ggplot(par_table_long) +
   irxreports::theme_irx_minimal()
 
 ## Simulate using PKPDsim to get posterior for concentration and AUC
-library(pkvancothomson)
 mod1 <- pkvancothomson::model()
 
 par_table <- par_table %>% mutate(V = V1, TH_CRCL = 0.0154, TDM_INIT = 0)
@@ -101,14 +101,14 @@ res_prior <- sim(
   only_obs = FALSE
 )
 
-## Plot all posterior samples
-res %>%
-  filter(comp == "obs") %>%
-  ggplot(aes(x = t, y = y, group = id)) +
-    geom_line(alpha = 0.25) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
-    irxreports::theme_irx_minimal()
+# ## Plot all posterior samples
+# res %>%
+#   filter(comp == "obs") %>%
+#   ggplot(aes(x = t, y = y, group = id)) +
+#     geom_line(alpha = 0.25) +
+#     geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
+#     geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
+#     irxreports::theme_irx_minimal()
 
 ## Plot confidence interval prior
 res_prior %>%

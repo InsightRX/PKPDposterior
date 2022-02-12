@@ -3,6 +3,7 @@
 #' @param regimen Regimen object (created by [PKPDsim::new_regimen()])
 #' @param covariates List of covariate objects created by [PKPDsim::new_covariate()]
 #' @param tdm_data Data frame with columns t, dv, and cmt
+#' @param dose_cmt Specify what dose compartment. Observation compartment in dataset is irrelevant, handled in model.
 #' @return Named list suitable for passing on to Torsten
 #' @export
 #' @examples
@@ -30,9 +31,17 @@
 #'   cmt = c(2, 2)
 #' )
 #' prepare_data(regimen, covariates, tdm_data)
-prepare_data <- function(regimen, covariates, tdm_data) {
+prepare_data <- function(
+  regimen, 
+  covariates, 
+  tdm_data,
+  dose_cmt = 1
+) {
   ## Convert regimen, covariates, tdm data
-  reg <- regimen_to_nm(regimen, dose_cmt = 2) # TODO: don't hard code this
+  reg <- regimen_to_nm(
+    regimen, 
+    dose_cmt = dose_cmt
+  )
   cov <- covariates_to_nm(covariates)
   tdm <- tdm_to_nm(tdm_data)
 
@@ -85,6 +94,7 @@ covariates_to_nm <- function(covariates) {
 #'
 #' @inheritParams prepare_data
 tdm_to_nm <- function(tdm_data) {
+  tdm_data$CMT <- 1 # irrelevant, handled in Stan model
   tdm_data$EVID <- 0
   tdm_data$ID <- 1
   tdm_data$MDV <- 0
