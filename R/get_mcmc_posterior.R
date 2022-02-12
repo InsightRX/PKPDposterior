@@ -5,7 +5,7 @@
 #' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
-#' @param output_dir 
+#' @param output_dir output directory
 #' @param ... arguments passed to `mod$sample()`
 #' 
 #' Common arguments to cmdstanr include:

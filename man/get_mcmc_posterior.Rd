@@ -16,7 +16,7 @@ get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = getwd(), ...)
 
 \item{seed}{seed for sampling}
 
-\item{output_dir}{}
+\item{output_dir}{output directory}
 
 \item{...}{arguments passed to \code{mod$sample()}
 

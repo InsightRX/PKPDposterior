@@ -42,9 +42,7 @@ prepare_data <- function(regimen, covariates, tdm_data) {
     ## Fill in timevarying covariates
     tidyr::fill(names(covariates), .direction = "downup")
 
-
   ## Not using ADDL, SS, II
-  nm_data$CMT <- 2 # TODO
   nm_data$addl <- 0
   nm_data$ss <- 0
   nm_data$ii <- 0
@@ -53,7 +51,6 @@ prepare_data <- function(regimen, covariates, tdm_data) {
   ## Lowercase some names
   lowercase <- names(out) %in% c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
   names(out)[lowercase] <- tolower(names(out)[lowercase])
-  # names(out)[names(out) == "DV"] <- "cObs"
 
   ## Additional info
   out$cObs <- nm_data %>%
