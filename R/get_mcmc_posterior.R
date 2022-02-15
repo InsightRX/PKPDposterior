@@ -44,9 +44,14 @@ get_mcmc_posterior <- function(
   ## Post-processing
   out <- list(
     raw = res,
-    draws_df =  posterior::as_draws_df(res$draws())
+    draws_df =  posterior::as_draws_df(res$draws()),
+    settings = list(
+      init = init,
+      seed = seed
+    )
   )
-
+  out$map <- extract_map_estimates(out)
+    
   ## return
   out
 }
