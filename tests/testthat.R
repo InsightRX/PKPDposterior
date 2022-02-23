@@ -1,4 +1,4 @@
 library(testthat)
-library(pkpdmcmctbd)
+library(PKPDposterior)
 
-test_check("pkpdmcmctbd")
+test_check("PKPDposterior")

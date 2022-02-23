@@ -94,7 +94,9 @@ covariates_to_nm <- function(covariates) {
 #'
 #' @inheritParams prepare_data
 tdm_to_nm <- function(tdm_data) {
-  tdm_data$CMT <- 1 # irrelevant, handled in Stan model
+  if(is.null(tdm_data$cmt)) {
+    tdm_data$CMT <- 1 # irrelevant, handled in Stan model
+  }
   tdm_data$EVID <- 0
   tdm_data$ID <- 1
   tdm_data$MDV <- 0

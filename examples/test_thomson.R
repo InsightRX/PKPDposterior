@@ -1,5 +1,5 @@
 library(PKPDsim)
-library(pkpdmcmctbd)
+library(PKPDposterior)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -10,7 +10,7 @@ Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
 
 # Compile or reload model
 # this creates a binary in the installed package folder
-# at ~/R/x86_64-pc-linux-gnu-library/4.1/pkpdmcmctbd/models/
+# at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
   "pk_vanco_thomson", 
   force = T,

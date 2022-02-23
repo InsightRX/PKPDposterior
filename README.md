@@ -1,4 +1,4 @@
-# pkpdmcmctbd
+# PKPDposterior
 
 ## Introduction
 
@@ -9,7 +9,7 @@ The software is intended for use in education and research, and is **not intende
 ## Installation
 
 ``` r
-remotes::install_github("InsightRX/pkpdmcmctbd")
+remotes::install_github("InsightRX/PKPDposterior")
 ```
 
 ## Disclaimer
