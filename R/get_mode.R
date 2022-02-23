@@ -8,5 +8,5 @@
 #' @export
 get_mode <- function(x) { # simple mode estimation
   xdens <- density(x)
-  modex <- xdens$x[which.max(xdens$y)]
+  xdens$x[which.max(xdens$y)]
 }
