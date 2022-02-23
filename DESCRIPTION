@@ -1,4 +1,4 @@
-Package: pkpdmcmctbd
+Package: PKPDposterior
 Version: 0.0.0.9000
 Title: MCMC-Based MIPD
 Description: MCMC-based inference based a population PK model and individual

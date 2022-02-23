@@ -23,12 +23,12 @@ load_model <- function(
   )
 
   ## Compile Stan/Torsten model, or re-use old model
-  model_file <- system.file("models", paste0(model, ".stan"), package = "pkpdmcmctbd")
+  model_file <- system.file("models", paste0(model, ".stan"), package = "PKPDposterior")
   if(model_file == "") {
     stop("The requested model was not found.")
   }
   if(force) {
-    unlink(system.file("models", model, package = "pkpdmcmctbd"))
+    unlink(system.file("models", model, package = "PKPDposterior"))
   }
   messages(
     stan_out <- cmdstanr::cmdstan_model(
