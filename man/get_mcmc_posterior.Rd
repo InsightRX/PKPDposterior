@@ -5,7 +5,16 @@
 \title{Draw samples from the posterior given a Stan/Torsten model
 and patient data}
 \usage{
-get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = tempdir(), ...)
+get_mcmc_posterior(
+  mod,
+  init,
+  data,
+  seed = 12345,
+  output_dir = tempdir(),
+  verbose = TRUE,
+  refresh = 0,
+  ...
+)
 }
 \arguments{
 \item{mod}{compiled Stan model}
@@ -17,6 +26,11 @@ get_mcmc_posterior(mod, init, data, seed = 12345, output_dir = tempdir(), ...)
 \item{seed}{seed for sampling}
 
 \item{output_dir}{output directory}
+
+\item{verbose}{verbosity}
+
+\item{refresh}{show output from sampler. Default is 0, meaning no output
+from sampler is shown.}
 
 \item{...}{arguments passed to \code{mod$sample()}
 
