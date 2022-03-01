@@ -57,6 +57,7 @@ post <- get_mcmc_posterior(
   iter_sampling = 500,
   adapt_delta = 0.95
 )
+post
 
 #############################################################################
 ## Plots

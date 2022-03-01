@@ -6,12 +6,19 @@
 Includes e.g. the quantile of the observed data in the posterior draws
 and the meanm, 95\% CI, and standard deviations of the posterior.}
 \usage{
-extract_posterior_observation_info(post, data, verbose = TRUE)
+extract_posterior_observation_info(
+  post,
+  data,
+  filter = "cHatObs",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{post}{posterior object from CmdStanR}
 
 \item{data}{data.frame with observed data}
+
+\item{filter}{column name filter to use}
 
 \item{verbose}{verbosity}
 }

@@ -4,14 +4,19 @@
 #' 
 #' @param post posterior object from CmdStanR
 #' @param data data.frame with observed data
+#' @param filter column name filter to use
 #' @param verbose verbosity
 #' 
 extract_posterior_observation_info <- function(
   post, 
   data,
+  filter = "cHatObs",
   verbose = TRUE
 ) {
-  post_info <- subset_draws(post$draws_df, "cHatObs") %>%
+  
+  obs_post <- as.data.frame(post$draws_df)
+  obs_post <- obs_post[, stringr::str_detect(names(obs_post), filter)]
+  post_info <- obs_post %>%
     summarise_draws(c("mean", "median", "sd"))
   obs_data <- data.frame(
     time = data$time,
@@ -25,9 +30,12 @@ extract_posterior_observation_info <- function(
   for(i in 1:nrow(obs_data)) {
     obs_data$pct[i] <- get_quantile(
       obs_data$dv[i], 
-      obs_post[,i]
+      as.numeric(obs_post[,i])
     )
   }
+
+  ## add visualization of percentiles for the print function
+  obs_data$loc <- plot_percentile(obs_data$pct)
   
   ## add quantiles
   obs_data$pct2.5 <- as.numeric(apply(obs_post, 2, quantile, 0.025))

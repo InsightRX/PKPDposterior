@@ -59,12 +59,20 @@ get_mcmc_posterior <- function(
     )
   )
   out$map <- extract_map_estimates(out)
-  out$observed <- extract_posterior_observation_info(
+  out$observed_post <- extract_posterior_observation_info(
     out, 
     data,
+    filter = "cHatObs",
     verbose
   )
-    
-  ## return
+  out$observed_prior <- extract_posterior_observation_info(
+    out, 
+    data,
+    filter = "cObsPred",
+    verbose = FALSE
+  )
+
+  ## Finalize & return
+  class(out) <- c("PKPDposterior", "list")
   out
 }
