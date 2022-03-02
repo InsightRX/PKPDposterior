@@ -59,6 +59,8 @@ get_mcmc_posterior <- function(
     )
   )
   out$map <- extract_map_estimates(out)
+  
+  ## Model diagnostics
   out$observed_post <- extract_posterior_observation_info(
     out, 
     data,
@@ -70,6 +72,11 @@ get_mcmc_posterior <- function(
     data,
     filter = "cObsPred",
     verbose = FALSE
+  )
+  
+  ## Sampler diagnostics
+  out$sampler_diag <- posterior::summarise_draws(
+    res$sampler_diagnostics()
   )
 
   ## Finalize & return
