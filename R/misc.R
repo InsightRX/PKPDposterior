@@ -5,5 +5,5 @@
 #' 
 #' @export
 get_quantile <- function(x, y) {
-  ecdf(y)(x)
+  stats::ecdf(y)(x)
 }

@@ -15,20 +15,20 @@ extract_map_estimates <- function(
   if(is.null(parameters)) { # attempt to identify parameters
     parameters <- names(post$draws_df)
     idx <- c(
-      stringr::str_detect(parameters, "^lp__") |
-      stringr::str_detect(parameters, "^x\\[") |
-      stringr::str_detect(parameters, "^cHat") |
-      stringr::str_detect(parameters, "^cObs") |
-      stringr::str_detect(parameters, "^theta\\[") |
-      stringr::str_detect(parameters, "^prior_") |
-      stringr::str_detect(parameters, "\\.") 
+      grepl("^lp__", parameters) |
+      grepl("^x\\[", parameters) |
+      grepl("^cHat", parameters) |
+      grepl("^cObs", parameters) |
+      grepl("^theta\\[", parameters) |
+      grepl("^prior_", parameters) |
+      grepl("\\.", parameters) 
     )
     par_fetch <- !idx
   } else {
     par_fetch <- parameters[parameters %in% names(post$draws_df)]
   }
   suppressWarnings(
-    par_samples <- post$draws_df[,!idx]
+    par_samples <- post$draws_df[, par_fetch]
   )
   lapply(par_samples, get_mode)
   

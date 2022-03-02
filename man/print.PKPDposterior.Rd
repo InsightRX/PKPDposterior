@@ -4,10 +4,12 @@
 \alias{print.PKPDposterior}
 \title{Print function for PKPDposterior object}
 \usage{
-\method{print}{PKPDposterior}(post)
+\method{print}{PKPDposterior}(x, ...)
 }
 \arguments{
-\item{post}{posterior object (from get_mcmc_posterior())}
+\item{x}{posterior object (from get_mcmc_posterior())}
+
+\item{...}{arguments passed onto print function}
 }
 \description{
 Print function for PKPDposterior object
