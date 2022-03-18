@@ -17,14 +17,12 @@ mod <- load_model(
   force = T
 )
 
-## define prior. 
-## for our models this should be read from pkvancothomson::parameters() and 
-## pkvancothomson::ruv(). Should create a get_prior() fucntion.
-prior <- get_init("pkvancothomson")
-prior$V1 <- prior$V
-prior$V <- NULL
-prior$TH_CRCL <- NULL
-prior$TDM_INIT <- NULL
+## define init values (use population values): 
+prior <- get_init(
+  "pkvancothomson", 
+  map = list("V1" = "V"), 
+  drop = c("TH_CRCL", "TDM_INIT")
+)
 
 regimen <- PKPDsim::new_regimen(
    amt = 1500, 
