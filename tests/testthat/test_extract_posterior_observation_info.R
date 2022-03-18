@@ -19,8 +19,8 @@ data <- list(
   nObs = 2L
 )
 
-test_that("extract_posterior_observation_info works correctly on prior", {
-  res <- PKPDposterior:::extract_posterior_observation_info(
+test_that("extract_from_draws works correctly on prior", {
+  res <- PKPDposterior:::extract_from_draws(
     post, 
     data,
     filter = "cHatObs",
@@ -52,8 +52,8 @@ test_that("extract_posterior_observation_info works correctly on prior", {
     )                                                                                          )
 })
 
-test_that("extract_posterior_observation_info works correctly on posterior", {
-  res <- PKPDposterior:::extract_posterior_observation_info(
+test_that("extract_from_draws works correctly on posterior", {
+  res <- PKPDposterior:::extract_from_draws(
     post,
     data,
     filter = "cObsPred",
