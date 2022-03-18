@@ -57,23 +57,17 @@ post <- get_mcmc_posterior(
   iter_sampling = 500,
   adapt_delta = 0.95
 )
+
+## Info about the posterior draws
 post
+
+## Plot parameter distributions
+plot_params(post)
 
 #############################################################################
 ## Plots
 #############################################################################
 
-## Plot parameters
-par_table <- post$draws_df              %>% select(CL, V1, Q, V2)
-par_table_prior <- post$draws_df        %>% select(prior_CL, prior_V1, prior_Q, prior_V2)
-names(par_table_prior) <- gsub("prior_", "", names(par_table_prior))
-par_table_long <- par_table             %>% pivot_longer(cols = c(CL, V1, Q, V2))
-par_table_prior_long <- par_table_prior %>% pivot_longer(cols = c(CL, V1, Q, V2))
-ggplot(par_table_long) +
-  geom_histogram(data = par_table_prior_long, aes(x = value), alpha = 0.2, fill="blue") + 
-  geom_histogram(aes(x = value), alpha = 0.3, fill = "red") + 
-  facet_wrap(~name, scale = "free") +
-  irxreports::theme_irx_minimal()
 
 ## Simulate using PKPDsim to get posterior for concentration and AUC
 mod1 <- pkvancothomson::model()
