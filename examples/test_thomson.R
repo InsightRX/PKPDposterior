@@ -24,6 +24,7 @@ prior <- get_init(
   drop = c("TH_CRCL", "TDM_INIT")
 )
 
+## Define regimen, covariates, and TDM data
 regimen <- PKPDsim::new_regimen(
    amt = 1500, 
    n = 4, 
@@ -39,6 +40,8 @@ tdm_data <- data.frame(
    t = c(2.5, 11.5), 
    dv = c(40, 14)
 )
+
+## Create combined dataset for Torsten/Stan to read:
 data <- prepare_data(
   regimen, 
   covariates, 
@@ -48,7 +51,7 @@ data <- prepare_data(
 
 ## Sample from posterior
 post <- get_mcmc_posterior(
-  mod,
+  mod = mod,
   data = data,
   init = prior,
   iter_warmup = 500,
@@ -56,52 +59,29 @@ post <- get_mcmc_posterior(
   adapt_delta = 0.95
 )
 
-## Info about the posterior draws
+## Show info about the posterior draws
 post
 
 ## Plot parameter distributions
 plot_params(post)
 
-#############################################################################
-## Plots
-#############################################################################
-
-
-## Simulate using PKPDsim to get posterior for concentration and AUC
-mod1 <- pkvancothomson::model()
-
-par_table <- par_table %>% mutate(V = V1, TH_CRCL = 0.0154, TDM_INIT = 0)
-par_table_prior <- par_table_prior %>% mutate(V = V1, TH_CRCL = 0.0154, TDM_INIT = 0)
-covs <- list(
-  WT = new_covariate(70),
-  CRCL = new_covariate(5),
-  CL_HEMO = new_covariate(0)
-)
-res <- sim(
-  ode = mod1,
-  parameters_table = as.data.frame(par_table), # %>% slice(1:100),
+## Simulate from posterior
+covariates$CL_HEMO <- new_covariate(0)
+res_post <- sim_from_draws(
+  post, 
+  model = pkvancothomson::model(), 
   regimen = regimen,
-  covariates = covs,
-  t_obs = seq(0, 48, .5),
-  only_obs = FALSE
+  covariates = covariates,
+  n = 200
 )
-res_prior <- sim(
-  ode = mod1,
-  parameters_table = as.data.frame(par_table_prior), # %>% slice(1:100),
+res_prior <- sim_from_draws(
+  post, 
+  model = pkvancothomson::model(), 
   regimen = regimen,
-  covariates = covs,
-  t_obs = seq(0, 48, .5),
-  only_obs = FALSE
+  covariates = covariates,
+  prior = TRUE,
+  n = 200
 )
-
-# ## Plot all posterior samples
-# res %>%
-#   filter(comp == "obs") %>%
-#   ggplot(aes(x = t, y = y, group = id)) +
-#     geom_line(alpha = 0.25) +
-#     geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
-#     geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
-#     irxreports::theme_irx_minimal()
 
 ## Plot confidence interval prior
 res_prior %>%
@@ -111,14 +91,14 @@ res_prior %>%
             ymin = quantile(y, 0.05),
             ymax = quantile(y, 0.95)) %>%
   ggplot(aes(x = t, y = ymedian)) +
-  geom_ribbon(aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
-  geom_line(size = 1) +
-  geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
-  geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
-  irxreports::theme_irx_minimal()
+    geom_ribbon(aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
+    geom_line(size = 1) +
+    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
+    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
+    irxreports::theme_irx_minimal()
 
 ## Plot confidence interval posterior
-res %>%
+res_post %>%
   filter(comp == "obs") %>%
   group_by(t) %>%
   summarise(ymedian = median(y), 
