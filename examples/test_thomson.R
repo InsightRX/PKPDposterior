@@ -67,7 +67,7 @@ plot_params(post)
 
 ## Simulate from posterior and prior:
 covariates$CL_HEMO <- new_covariate(0)
-res_post <- sim_from_draws(
+pred_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(), 
   regimen = regimen,
@@ -75,7 +75,7 @@ res_post <- sim_from_draws(
   n = 200,
   summarize = TRUE
 )
-res_prior <- sim_from_draws(
+pred_prior <- sim_from_draws(
   post, 
   model = pkvancothomson::model(), 
   regimen = regimen,
@@ -86,22 +86,29 @@ res_prior <- sim_from_draws(
 )
 
 ## Plot confidence interval posterior and prior predictions
-plot_predictions(res_prior, obs = tdm_data)
-plot_predictions(res_post, obs = tdm_data)
+plot_predictions(pred_prior, obs = tdm_data)
+plot_predictions(pred_post, obs = tdm_data)
 
-## Plot AUC dist
-res %>%
+## Plot posterior AUC distribution
+pred_post_full <- sim_from_draws( # don't summarize
+  post, 
+  model = pkvancothomson::model(), 
+  regimen = regimen,
+  covariates = covariates,
+  n = 200
+)
+pred_post_full %>%
   filter(t %in% c(36, 48)) %>%
   filter(comp == 3) %>%
   group_by(id) %>%
   tidyr::pivot_wider(names_from = t, values_from = y) %>%
   mutate(auc24 = 2 * (`48` - `36`)) %>%
   ggplot() + 
-  aes(x = auc24) +
-  geom_histogram()
+    aes(x = auc24) +
+    geom_histogram()
 
 ## Probability that 400 < AUC < 700
-res %>%
+pred_post_full %>%
   filter(t %in% c(36, 48)) %>%
   filter(comp == 3) %>%
   group_by(id) %>%
