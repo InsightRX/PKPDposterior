@@ -4,6 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(pkvancothomson)
+library(posterior)
 
 # set Stan path
 Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
@@ -13,8 +14,7 @@ Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
   "pk_vanco_thomson", 
-  force = T,
-  verbose = TRUE
+  force = T
 )
 
 ## define prior. 
@@ -57,6 +57,7 @@ post <- get_mcmc_posterior(
   iter_sampling = 500,
   adapt_delta = 0.95
 )
+post
 
 #############################################################################
 ## Plots

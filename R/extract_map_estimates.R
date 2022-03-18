@@ -11,14 +11,25 @@ extract_map_estimates <- function(
   post,
   parameters = NULL
 ) {
-  
-  if(is.null(parameters)) {
-    par_samples <- post$draws_df
+
+  if(is.null(parameters)) { # attempt to identify parameters
+    parameters <- names(post$draws_df)
+    idx <- c(
+      grepl("^lp__", parameters) |
+      grepl("^x\\[", parameters) |
+      grepl("^cHat", parameters) |
+      grepl("^cObs", parameters) |
+      grepl("^theta\\[", parameters) |
+      grepl("^prior_", parameters) |
+      grepl("\\.", parameters) 
+    )
+    par_fetch <- !idx
   } else {
     par_fetch <- parameters[parameters %in% names(post$draws_df)]
-    par_samples <- post$draws_df[, par_fetch]
   }
-
+  suppressWarnings(
+    par_samples <- post$draws_df[, par_fetch]
+  )
   lapply(par_samples, get_mode)
   
 }
