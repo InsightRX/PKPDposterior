@@ -65,14 +65,15 @@ post
 ## Plot parameter distributions
 plot_params(post)
 
-## Simulate from posterior
+## Simulate from posterior and prior:
 covariates$CL_HEMO <- new_covariate(0)
 res_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(), 
   regimen = regimen,
   covariates = covariates,
-  n = 200
+  n = 200,
+  summarize = TRUE
 )
 res_prior <- sim_from_draws(
   post, 
@@ -80,36 +81,13 @@ res_prior <- sim_from_draws(
   regimen = regimen,
   covariates = covariates,
   prior = TRUE,
-  n = 200
+  n = 200,
+  summarize = TRUE
 )
 
-## Plot confidence interval prior
-res_prior %>%
-  filter(comp == "obs") %>%
-  group_by(t) %>%
-  summarise(ymedian = median(y), 
-            ymin = quantile(y, 0.05),
-            ymax = quantile(y, 0.95)) %>%
-  ggplot(aes(x = t, y = ymedian)) +
-    geom_ribbon(aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
-    geom_line(size = 1) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
-    irxreports::theme_irx_minimal()
-
-## Plot confidence interval posterior
-res_post %>%
-  filter(comp == "obs") %>%
-  group_by(t) %>%
-  summarise(ymedian = median(y), 
-            ymin = quantile(y, 0.05),
-            ymax = quantile(y, 0.95)) %>%
-  ggplot(aes(x = t, y = ymedian)) +
-    geom_ribbon(aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
-    geom_line(size = 1) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "red", size=2.5) +
-    geom_point(data = tdm_data, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size=1.5) +
-    irxreports::theme_irx_minimal()
+## Plot confidence interval posterior and prior predictions
+plot_predictions(res_prior, obs = tdm_data)
+plot_predictions(res_post, obs = tdm_data)
 
 ## Plot AUC dist
 res %>%

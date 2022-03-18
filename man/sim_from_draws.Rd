@@ -4,7 +4,15 @@
 \alias{sim_from_draws}
 \title{Simulate from posterior or prior draws using PKPDsim::sim()}
 \usage{
-sim_from_draws(post, model, prior = FALSE, n = NULL, ...)
+sim_from_draws(
+  post,
+  model,
+  prior = FALSE,
+  n = NULL,
+  summarize = FALSE,
+  ci = c(0.05, 0.95),
+  ...
+)
 }
 \arguments{
 \item{post}{posterior object from \code{get_mcmc_posterior()}}
@@ -16,6 +24,13 @@ posterior}
 
 \item{n}{number of parameter draws / simulations to do. Defaults to \code{NULL},
 i.e. use all draws.}
+
+\item{ci}{confidence interval to use when \code{summary=TRUE}. Defaults to
+\verb{c(0.05, 0.95}}
+
+\item{summary}{should data be summarized to median and confidence interval?
+Defaults to \code{FALSE}, i.e. to return all simulated observations from
+parameter draws.}
 }
 \description{
 Simulate from posterior or prior draws using PKPDsim::sim()

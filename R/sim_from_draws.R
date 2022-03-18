@@ -6,6 +6,11 @@
 #' posterior
 #' @param n number of parameter draws / simulations to do. Defaults to `NULL`,
 #' i.e. use all draws.
+#' @param summary should data be summarized to median and confidence interval?
+#' Defaults to `FALSE`, i.e. to return all simulated observations from 
+#' parameter draws.
+#' @param ci confidence interval to use when `summary=TRUE`. Defaults to 
+#' `c(0.05, 0.95`
 #' 
 #' @export
 sim_from_draws <- function(
@@ -13,6 +18,8 @@ sim_from_draws <- function(
   model,
   prior = FALSE,
   n = NULL,
+  summarize = FALSE,
+  ci = c(0.05, 0.95),
   ...
 ) {
   
@@ -42,6 +49,14 @@ sim_from_draws <- function(
     )
   }
   
-  res
-  
+  if(!summarize) {
+    res
+  } else {
+    res %>% filter(comp == "obs") %>%
+      group_by(t) %>%
+      summarise(ymedian = median(y), 
+                ymin = quantile(y, ci[1]),
+                ymax = quantile(y, ci[2]))
+  }
+
 }
