@@ -52,11 +52,14 @@ sim_from_draws <- function(
   if(!summarize) {
     res
   } else {
-    res %>% filter(comp == "obs") %>%
-      group_by(t) %>%
-      summarise(ymedian = median(y), 
-                ymin = quantile(y, ci[1]),
-                ymax = quantile(y, ci[2]))
+    res %>% 
+      dplyr::filter(comp == "obs") %>%
+      dplyr::group_by(t) %>%
+      dplyr::summarise(
+        ymedian = median(y), 
+        ymin = quantile(y, ci[1]),
+        ymax = quantile(y, ci[2])
+      )
   }
 
 }

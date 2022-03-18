@@ -21,8 +21,8 @@ plot_predictions <- function(
     irxreports::theme_irx_minimal()
   if(!is.null(obs)) {
     p <- p +
-      ggplot2::geom_point(data = obs, mapping = aes(x = t, y = dv, group = NULL), colour = "black", size = 2.5) +
-      ggplot2::geom_point(data = obs, mapping = aes(x = t, y = dv, group = NULL), colour = "white", size = 1.5)
+      ggplot2::geom_point(data = obs, mapping = ggplot2::aes(x = t, y = dv, group = NULL), colour = "black", size = 2.5) +
+      ggplot2::geom_point(data = obs, mapping = ggplot2::aes(x = t, y = dv, group = NULL), colour = "white", size = 1.5)
   }
   p
 }
