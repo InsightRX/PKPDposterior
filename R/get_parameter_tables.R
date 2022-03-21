@@ -8,6 +8,9 @@ get_parameter_tables <- function(
   post,
   long = TRUE
 ) {
+  if(is.null(post$settings) || is.null(post$draws_df)) {
+    stop("Provided posterior object does not contain expected info.")
+  }
   params <- names(post$settings$init)
   prior_params <- paste0("prior_", params)
   suppressWarnings({
@@ -29,10 +32,12 @@ get_parameter_tables <- function(
   } else {
     tables <- list(
       posterior = par_table %>% 
-        tidyr::pivot_longer(cols = c(!!params)),
-      prior = par_table_prior %>% 
         tidyr::pivot_longer(cols = c(!!params))
     )
+    if(!is.null(par_table_prior)) {
+      tables$prior = par_table_prior %>% 
+        tidyr::pivot_longer(cols = c(!!params))
+    }
   }
   
   tables

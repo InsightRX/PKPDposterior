@@ -11,12 +11,12 @@ plot_predictions <- function(
   sim_data,
   obs = NULL
 ) {
-  if(!(all(c("ymedian", "ymin", "ymax") %in% names(sim_data)))) {
-    stop("Requires a simulation dataset created using `sim_from_draws(..., summarize=TRUE)`")
+  if(!(all(c("t", "ymedian", "ymin", "ymax") %in% names(sim_data)))) {
+    stop("Requires a simulation dataset created using sim_from_draws()")
   }
   p <- sim_data %>%
-    ggplot2::ggplot(aes(x = t, y = ymedian)) +
-    ggplot2::geom_ribbon(aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
+    ggplot2::ggplot(ggplot2::aes(x = t, y = ymedian)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
     ggplot2::geom_line(size = 1) +
     irxreports::theme_irx_minimal()
   if(!is.null(obs)) {
