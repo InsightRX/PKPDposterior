@@ -1,6 +1,6 @@
 #' Extract info for observed data from posterior draws.
 #' Includes e.g. the quantile of the observed data in the posterior draws
-#' and the meanm, 95% CI, and standard deviations of the posterior.
+#' and the mean, 95% CI, and standard deviations of the posterior.
 #' 
 #' @param post posterior object from CmdStanR
 #' @param data data.frame with observed data
