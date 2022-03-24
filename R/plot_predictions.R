@@ -17,8 +17,7 @@ plot_predictions <- function(
   p <- sim_data %>%
     ggplot2::ggplot(ggplot2::aes(x = t, y = ymedian)) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
-    ggplot2::geom_line(size = 1) +
-    irxreports::theme_irx_minimal()
+    ggplot2::geom_line(size = 1)
   if(!is.null(obs)) {
     p <- p +
       ggplot2::geom_point(data = obs, mapping = ggplot2::aes(x = t, y = dv, group = NULL), colour = "black", size = 2.5) +

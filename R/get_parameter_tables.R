@@ -6,7 +6,7 @@
 #' @export
 get_parameter_tables <- function(
   post,
-  long = TRUE
+  long = FALSE
 ) {
   if(is.null(post$settings) || is.null(post$draws_df)) {
     stop("Provided posterior object does not contain expected info.")

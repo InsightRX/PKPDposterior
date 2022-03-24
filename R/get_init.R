@@ -12,10 +12,7 @@ get_init <- function(
 ) {
   model <- gsub("_", "", model)
   par <- get("parameters", asNamespace(model))()
-  for(key in names(map)) {
-    par[[key]] <- par[[map[[key]]]]
-    par[[map[[key]]]] <- NULL
-  }
+  par <- remap(par, map)
   par <- par[!names(par) %in% drop]
   attr(par, "units") <- NULL
   par

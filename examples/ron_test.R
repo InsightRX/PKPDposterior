@@ -63,8 +63,7 @@ prior_df <- data.frame(prior[c("ka", "CL", "V1", "Q", "V2")]) %>%
 ggplot(par_table_long) +
   geom_histogram(aes(x = value)) + 
   facet_wrap(~name, scale = "free") +
-  geom_vline(data=prior_df, aes(xintercept = value), colour = 'red') +
-  irxreports::theme_irx_minimal()
+  geom_vline(data=prior_df, aes(xintercept = value), colour = 'red')
 
 ## Simulate using PKPDsim to get posterior for DV
 # recreate the model in PKPDsim
@@ -91,4 +90,3 @@ res <- sim(
 ggplot(res, aes(x = t, y = y, group = id)) +
   geom_line(alpha = 0.1) +
   geom_point()
-  irxreports::theme_irx_minimal()

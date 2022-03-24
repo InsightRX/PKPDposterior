@@ -7,6 +7,8 @@
 sim_from_draws(
   post,
   model,
+  map = NULL,
+  parameters = NULL,
   prior = FALSE,
   n = NULL,
   summarize = FALSE,
@@ -19,18 +21,25 @@ sim_from_draws(
 
 \item{model}{PKPDsim model function}
 
+\item{map}{list with parameter name remapping between Stan model and PKPDsim model.}
+
+\item{parameters}{list of parameter estimates that are used in simulation if
+not already present in either the posterior or the prior draws. I.e.
+specifiied parameters in this named list will not override parameters with
+the same name in the samples.}
+
 \item{prior}{simulate from prior? Default \code{FALSE}, i.e. simulate from
 posterior}
 
 \item{n}{number of parameter draws / simulations to do. Defaults to \code{NULL},
 i.e. use all draws.}
 
-\item{ci}{confidence interval to use when \code{summary=TRUE}. Defaults to
-\verb{c(0.05, 0.95}}
-
-\item{summary}{should data be summarized to median and confidence interval?
+\item{summarize}{should data be summarized to median and confidence interval? Default is \code{FALSE}.
 Defaults to \code{FALSE}, i.e. to return all simulated observations from
 parameter draws.}
+
+\item{ci}{confidence interval to use when \code{summary=TRUE}. Defaults to
+\code{c(0.05, 0.95)}}
 }
 \description{
 Simulate from posterior or prior draws using PKPDsim::sim()

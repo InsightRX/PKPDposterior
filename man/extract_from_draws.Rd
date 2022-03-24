@@ -4,7 +4,7 @@
 \alias{extract_from_draws}
 \title{Extract info for observed data from posterior draws.
 Includes e.g. the quantile of the observed data in the posterior draws
-and the meanm, 95\% CI, and standard deviations of the posterior.}
+and the mean, 95\% CI, and standard deviations of the posterior.}
 \usage{
 extract_from_draws(post, data, filter = "cHatObs", verbose = TRUE)
 }
@@ -20,5 +20,5 @@ extract_from_draws(post, data, filter = "cHatObs", verbose = TRUE)
 \description{
 Extract info for observed data from posterior draws.
 Includes e.g. the quantile of the observed data in the posterior draws
-and the meanm, 95\% CI, and standard deviations of the posterior.
+and the mean, 95\% CI, and standard deviations of the posterior.
 }

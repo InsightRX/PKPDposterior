@@ -9,6 +9,7 @@ test_that("sim_from_draws correctly simulates from draws in posterior object", {
   res <- sim_from_draws(
     post,
     model,
+    map = list("V" = "V1"),
     regimen = PKPDsim::new_regimen(
       amt = 1000,
       n = 4, 
@@ -31,6 +32,7 @@ test_that("sim_from_draws draws less patients when asked", {
   res <- sim_from_draws(
     post,
     model,
+    map = list("V" = "V1"),
     regimen = PKPDsim::new_regimen(
       amt = 1000,
       n = 4, 
@@ -52,6 +54,7 @@ test_that("sim_from_draws draws from prior instead of posterior when asked", {
   res <- sim_from_draws(
     post,
     model,
+    map = list("V" = "V1"),
     regimen = PKPDsim::new_regimen(
       amt = 1000,
       n = 4, 
@@ -65,7 +68,7 @@ test_that("sim_from_draws draws from prior instead of posterior when asked", {
     summarize = FALSE
   )
   expect_equal(class(res), c("PKPDsim_data", "data.frame"))
-  expect_equal(round(res$y[1:5],1), c(0, 126.3, 4.3, 0.4, 0))
+  expect_equal(round(res$y[1:5],1), c(0.0, 126.3, 4.3, 0.4, 0.0))
 })
 
 test_that("sim_from_draws errors when posterior object is malformed", {
@@ -74,6 +77,7 @@ test_that("sim_from_draws errors when posterior object is malformed", {
     res <- sim_from_draws(
       post,
       model,
+      map = list("V" = "V1"),
       regimen = PKPDsim::new_regimen(
         amt = 1000,
         n = 4, 

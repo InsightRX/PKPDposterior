@@ -4,7 +4,7 @@
 \alias{get_parameter_tables}
 \title{Get parameter tables from posterior and prior}
 \usage{
-get_parameter_tables(post, long = TRUE)
+get_parameter_tables(post, long = FALSE)
 }
 \arguments{
 \item{post}{posterior object from \code{get_mcmc_posterior}}
