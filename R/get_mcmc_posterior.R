@@ -26,6 +26,7 @@ get_mcmc_posterior <- function(
   init,
   data,
   seed = 12345,
+  chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
   refresh = 0,
@@ -44,7 +45,7 @@ get_mcmc_posterior <- function(
       seed = seed,
       refresh = refresh,
       output_dir = output_dir,
-      chains = 1,
+      chains = chains,
       ...
     )
   )

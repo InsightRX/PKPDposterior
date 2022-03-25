@@ -71,8 +71,6 @@ generated quantities{
   real cObsPred[nObs];
   
   for(i in 1:nObs){
-    cObsPred[i] = cHatObs[i];
-    cObsPred[i] += normal_rng(0, 0.15);
-    cObsPred[i] += normal_rng(0, 0.1);
+    cObsPred[i] = normal_rng(cHatObs[i], (0.15 * cHatObs[i] + 1.6));
   }
 }

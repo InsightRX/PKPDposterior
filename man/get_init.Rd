@@ -4,10 +4,14 @@
 \alias{get_init}
 \title{Get prior for Torsten from a PKPDsim model package}
 \usage{
-get_init(model)
+get_init(model, map = list(), drop = c())
 }
 \arguments{
 \item{model}{package name}
+
+\item{map}{remap model parameters from Stan to PKPDsim syntax, specified as a list. E.g. \code{map = list(V1 = V)}}
+
+\item{drop}{vector of parameter names that we are not interested in or don't need to provide.}
 }
 \description{
 Get prior for Torsten from a PKPDsim model package
