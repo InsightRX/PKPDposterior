@@ -30,6 +30,7 @@ extract_map_estimates <- function(
   suppressWarnings(
     par_samples <- post$draws_df[, par_fetch]
   )
+
   lapply(par_samples, get_mode)
   
 }

@@ -53,7 +53,7 @@ transformed parameters{
 
   x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
   
-  cHat = x[2, :] ./ (V1 * mean(WT)); // we're interested in the amount in the second compartment
+  cHat = x[2, :] ./ (V1 * mean(WT));
 
   cHatObs = cHat'[iObs]; // predictions for observed data recors
 }
@@ -70,9 +70,13 @@ model{
 generated quantities{
   real cObsPred[nObs];
   
+  // sample prior
+  real prior_CL = lognormal_rng(log(2.99), 0.27);
+  real prior_Q = lognormal_rng(log(2.28), 0.49);
+  real prior_V1 = lognormal_rng(log(0.675), 0.15);
+  real prior_V2 = lognormal_rng(log(0.732), 1.3);
+  
   for(i in 1:nObs){
-    cObsPred[i] = cHatObs[i];
-    cObsPred[i] += normal_rng(0, 0.15);
-    cObsPred[i] += normal_rng(0, 0.1);
+    cObsPred[i] = normal_rng(cHatObs[i], (0.15 * cHatObs[i] + 1.6));
   }
 }
