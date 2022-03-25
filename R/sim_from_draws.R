@@ -52,7 +52,6 @@ sim_from_draws <- function(
   }
 
   if(prior) {
-    par_table$prior <- par_table$prior ## TODO
     for(key in names(parameters)) {
       if(is.null(par_table$prior[[key]])) {
         message(paste0("Using fixed estimate for ", key))
@@ -65,7 +64,6 @@ sim_from_draws <- function(
       ...
     )
   } else {
-    par_table$posterior <- par_table$posterior ## TODO
     if(!is.null(parameters)) {
       for(key in names(parameters)) {
         if(is.null(par_table$posterior[[key]])) {
