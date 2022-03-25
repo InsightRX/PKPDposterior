@@ -71,6 +71,7 @@ pred_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(),
   map = list("V" = "V1"),
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   regimen = regimen,
   covariates = covariates,
   n = 200,
@@ -80,6 +81,7 @@ pred_prior <- sim_from_draws(
   post, 
   model = pkvancothomson::model(), 
   map = list("V" = "V1"),
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   regimen = regimen,
   covariates = covariates,
   prior = TRUE,
@@ -95,6 +97,7 @@ plot_predictions(pred_post, obs = tdm_data)
 pred_post_full <- sim_from_draws( # don't summarize
   post, 
   map = list("V" = "V1"),
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   model = pkvancothomson::model(), 
   regimen = regimen,
   covariates = covariates,
