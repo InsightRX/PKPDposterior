@@ -34,7 +34,7 @@
 prepare_data <- function(
   regimen, 
   covariates, 
-  tdm_data,
+  data,
   dose_cmt = 1
 ) {
   ## Convert regimen, covariates, tdm data
@@ -43,10 +43,22 @@ prepare_data <- function(
     dose_cmt = dose_cmt
   )
   cov <- covariates_to_nm(covariates)
-  tdm <- tdm_to_nm(tdm_data)
+  
+  ## Parse observed data
+  # sets <- list()
+  # if(!is.null(data$type)) {
+  #   types <- unique(data$type) 
+  #   for(key in types) {
+  #     sets[[key]] <- tdm_to_nm(data[data$type == "key",])
+  #     obs <- bind_rows()
+  #   }
+  # } else {
+  #   
+  # }
+  obs <-  tdm_to_nm(data)
 
   ## Combine into one dataset
-  nm_data <- dplyr::bind_rows(reg, tdm, cov) %>%
+  nm_data <- dplyr::bind_rows(reg, obs, cov) %>%
     dplyr::arrange(.data$ID, .data$TIME, .data$EVID) %>%
     ## Fill in timevarying covariates
     tidyr::fill(names(covariates), .direction = "downup")
@@ -62,13 +74,28 @@ prepare_data <- function(
   names(out)[lowercase] <- tolower(names(out)[lowercase])
 
   ## Additional info
-  out$cObs <- nm_data %>%
-    dplyr::filter(.data$EVID == 0) %>%
-    dplyr::pull(.data$DV)
+  types <- unique(nm_data$TYPE)
+  types <- types[!is.na(types)]
+  if(!is.null(types)) {
+    message(paste0("Parsing multiple observation types: ", paste0(types, collapse = ", ")))
+    for(key in types) {
+      out[[paste0("cObs", key)]] <- nm_data %>%
+        dplyr::filter(.data$TYPE == key) %>%
+        dplyr::filter(.data$EVID == 0) %>%
+        dplyr::pull(.data$DV)
+      out[[paste0("iObs", key)]] <- which(out$evid == 0 & out$TYPE == key)
+      out[[paste0("nObs", key)]] <- length(out[[paste0("iObs", key)]])
+    }
+    out$TYPE <- NULL
+  } else {
+    out$cObs <- nm_data %>%
+      dplyr::filter(.data$EVID == 0) %>%
+      dplyr::pull(.data$DV)
+    out$iObs <- which(out$evid == 0)
+    out$nObs <- length(out$iObs)
+  }
   out$nt <- nrow(nm_data)
-  out$iObs <- which(out$evid == 0)
-  out$nObs <- length(out$iObs)
-
+  
   out
 }
 
@@ -76,6 +103,9 @@ prepare_data <- function(
 #'
 #' @inheritParams prepare_data
 covariates_to_nm <- function(covariates) {
+  if(is.null(covariates)) {
+    return(NULL)
+  }
   dat <- dplyr::bind_rows(covariates, .id = "cov") %>%
     dplyr::select(.data$cov, .data$value, .data$times) %>%
     tidyr::pivot_wider(names_from = .data$cov, values_from = .data$value) %>%
@@ -93,16 +123,16 @@ covariates_to_nm <- function(covariates) {
 #' Convert TDM data to NONMEM format
 #'
 #' @inheritParams prepare_data
-tdm_to_nm <- function(tdm_data) {
-  if(is.null(tdm_data$cmt)) {
-    tdm_data$CMT <- 1 # irrelevant, handled in Stan model
+tdm_to_nm <- function(data) {
+  if(is.null(data$cmt)) {
+    data$CMT <- 1 # irrelevant, handled in Stan model
   }
-  tdm_data$EVID <- 0
-  tdm_data$ID <- 1
-  tdm_data$MDV <- 0
-  tdm_data$AMT <- 0
-  tdm_data$RATE <- 0
-  names(tdm_data)[names(tdm_data) == "t"] <- "TIME"
-  names(tdm_data) <- toupper(names(tdm_data))
-  tdm_data
+  data$EVID <- 0
+  data$ID <- 1
+  data$MDV <- 0
+  data$AMT <- 0
+  data$RATE <- 0
+  names(data)[names(data) == "t"] <- "TIME"
+  names(data) <- toupper(names(data))
+  data
 }

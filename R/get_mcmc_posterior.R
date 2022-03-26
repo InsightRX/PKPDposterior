@@ -9,6 +9,9 @@
 #'   from sampler is shown.
 #' @param output_dir output directory
 #' @param verbose verbosity
+#' @param skip_processing will return the raw output from the sampler, without
+#'   further processing. This can sometimes be useful when errors occur in the
+#'   processing stage.
 #' @param ... arguments passed to `mod$sample()`
 #' 
 #' Common arguments to cmdstanr include:
@@ -30,6 +33,7 @@ get_mcmc_posterior <- function(
   output_dir = tempdir(),
   verbose = TRUE,
   refresh = 0,
+  skip_processing = FALSE,
   ...
 ) {
   
@@ -37,8 +41,7 @@ get_mcmc_posterior <- function(
   if(! "CmdStanModel" %in% class(mod)) {
     stop("Supplied model is not a valid cmdstanr model. Please use `load_model()` to load/compile models.")
   }
-
-  suppressMessages( # don't output divergencies etc, we can diagnose that at the end.
+  if(verbose) (
     res <- mod$sample(
       data = data,
       init = function() { init },
@@ -48,7 +51,19 @@ get_mcmc_posterior <- function(
       chains = chains,
       ...
     )
-  )
+  ) else {
+    suppressMessages(
+      res <- mod$sample(
+        data = data,
+        init = function() { init },
+        seed = seed,
+        refresh = refresh,
+        output_dir = output_dir,
+        chains = chains,
+        ...
+      )
+    )
+  }
 
   ## Post-processing
   out <- list(
@@ -59,8 +74,13 @@ get_mcmc_posterior <- function(
       seed = seed
     )
   )
-  out$map <- extract_map_estimates(out)
   
+  if(skip_processing) {
+    return(out)
+  }
+  
+  out$map <- extract_map_estimates(out)
+    
   ## Model diagnostics
   out$observed_post <- extract_from_draws(
     out, 
@@ -74,7 +94,7 @@ get_mcmc_posterior <- function(
     filter = "cObsPred",
     verbose = FALSE
   )
-  
+    
   ## Sampler diagnostics
   out$sampler_diagnostics <- posterior::summarise_draws(
     res$sampler_diagnostics()
