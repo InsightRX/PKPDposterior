@@ -17,12 +17,8 @@ extract_map_estimates <- function(
     idx <- c(
       grepl("^lp__", parameters) |
       grepl("^x\\[", parameters) |
-      grepl("^xPred\\[", parameters) |
-      grepl("^cHat", parameters) |
-      grepl("^cObs", parameters) |
-      grepl("^cObs", parameters) |
-      grepl("^cObsPK", parameters) |
-      grepl("^cObsPD", parameters) |
+      grepl("^ipred", parameters) |
+      grepl("^dv", parameters) |
       grepl("^theta\\[", parameters) |
       grepl("^prior_", parameters) |
       grepl("\\.", parameters) 

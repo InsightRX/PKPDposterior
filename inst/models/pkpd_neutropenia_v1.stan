@@ -1,5 +1,8 @@
 // PK-PD model for neutropenia based on Friberg et al.
-// Drug is fictitious, just a simple 2-cmt oral model.
+// 
+// Drug is fictitious, just a generic linear 2-cmt oral model, which can 
+// also be used as 1-cmt and/or iv model.
+
 functions{
   
   vector two_cmt_oral_neutropenia_ode(real t, vector x, real[] parms, real[] x_r, int[] x_i) {
@@ -102,10 +105,10 @@ parameters{
 transformed parameters{
   
   real theta[n_theta];
-  row_vector<lower = 0>[n_t] ipred_all_pk;
-  row_vector<lower = 0>[n_obs_pk] ipred_pk;
-  row_vector<lower = 0>[n_t] ipred_all_pd;
-  row_vector<lower = 0>[n_obs_pd] ipred_pd;
+  row_vector<lower = 0>[n_t]      ipred_pk;
+  row_vector<lower = 0>[n_t]      ipred_pd;
+  row_vector<lower = 0>[n_obs_pk] ipred_obs_pk;
+  row_vector<lower = 0>[n_obs_pd] ipred_obs_pd;
   matrix[n_cmt, n_t] x;
 
   theta[1] = CL;
@@ -133,19 +136,19 @@ transformed parameters{
     1e-5, 1e-8, 1e5
   );
 
-  ipred_all_pk = x[2, ] ./ V1; // vector will all observation times, for PK
-  ipred_all_pd = x[8, ] + theta[7]; // vector will all observation times, for PK
+  ipred_pk = x[2, ] ./ V1; // vector will all observation times, for PK
+  ipred_pd = x[8, ] + theta[7]; // vector will all observation times, for PK
 
-  ipred_pk = ipred_all_pk[i_obs_pk]; // vector with only PK observations
-  ipred_pd = ipred_all_pd[i_obs_pd]; // vector with only PD observations
+  ipred_obs_pk = ipred_pk[i_obs_pk]; // vector with only PK observations
+  ipred_obs_pd = ipred_pd[i_obs_pd]; // vector with only PD observations
 }
 
 model{
 
   // Priors
   CL    ~ lognormal(log(5),   0.2);
-  // Q     ~ lognormal(log(5),   0.2);
   V1    ~ lognormal(log(50),  0.2);
+  // Q     ~ lognormal(log(5),   0.2);
   // V2    ~ lognormal(log(100), 0.2);
   // ka    ~ lognormal(log(1),   0.2);
 
@@ -155,32 +158,35 @@ model{
   gamma   ~ lognormal(log(0.2), 0.2);
 
   // observed data likelihood
-  log_dv_pk ~ normal(log(ipred_pk), sigma_pk);
-  log_dv_pd ~ normal(log(ipred_pd), sigma_pd);
+  log_dv_pk ~ normal(log(ipred_obs_pk), sigma_pk);
+  log_dv_pd ~ normal(log(ipred_obs_pd), sigma_pd);
 
 }
 
 generated quantities{
   
-  vector<lower = 0>[n_obs_pk] ipred_pk_ruv;
-  vector<lower = 0>[n_obs_pd] ipred_pd_ruv;
+  vector<lower = 0>[n_obs_pk] ipred_ruv_pk;
+  vector<lower = 0>[n_obs_pd] ipred_ruv_pd;
 
-  // sample prior
+  // Sample from prior:
+  // PK
   real prior_CL = lognormal_rng(log(5), 0.2);
   real prior_V1 = lognormal_rng(log(50), 0.2);
   // real prior_ka = lognormal_rng(log(1), 0.2);
   // real prior_Q = lognormal_rng(log(5), 0.2);
   // real prior_V2 = lognormal_rng(log(100), 0.2);
+  
+  // PD
   real prior_mtt = lognormal_rng(log(100), 0.2);
   real prior_circ0 = lognormal_rng(log(5), 0.2);
   real prior_alpha = lognormal_rng(log(0.1), 0.2);
   real prior_gamma = lognormal_rng(log(0.2), 0.2);
   
   for(i in 1:n_obs_pk) {
-    ipred_pk_ruv[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_pk[i])), sigma_pk)); // ipred with added residual variability for PK
+    ipred_ruv_pk[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pk[i])), sigma_pk)); // ipred with added residual variability for PK
   }
   
   for(i in 1:n_obs_pd) {
-    ipred_pd_ruv[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_pd[i])), sigma_pd)); // ipred with added residual variability for PD
+    ipred_ruv_pd[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pd[i])), sigma_pd)); // ipred with added residual variability for PD
   }
 }

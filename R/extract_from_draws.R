@@ -10,7 +10,7 @@
 extract_from_draws <- function(
   post, 
   data,
-  filter = "cHatObs",
+  filter = "ipred_obs",
   verbose = TRUE
 ) {
   

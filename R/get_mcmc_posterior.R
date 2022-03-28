@@ -85,13 +85,13 @@ get_mcmc_posterior <- function(
   out$observed_post <- extract_from_draws(
     out, 
     data,
-    filter = "cHatObs",
+    filter = "ipred_obs",
     verbose
   )
   out$observed_prior <- extract_from_draws(
     out, 
     data,
-    filter = "cObsPred",
+    filter = "ipred_obs",
     verbose = FALSE
   )
     

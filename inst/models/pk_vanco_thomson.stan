@@ -1,31 +1,29 @@
-// TwoCptModel.stan
-// Run two compartment model using built-in analytical solution 
-// Heavily anotated to help new users
+// Two compartment model using built-in analytical solution 
 
 data{
-  int<lower = 1> nt;  // number of events
-  int<lower = 1> nObs;  // number of observation
-  int<lower = 1> iObs[nObs];  // index of observation
+  int<lower = 1> n_t;  // number of events
+  int<lower = 1> n_obs;  // number of observation
+  int<lower = 1> i_obs[n_obs];  // index of observation
 
   // NONMEM data
-  int<lower = 1> cmt[nt];
-  int evid[nt];
-  int addl[nt];
-  int ss[nt];
-  real amt[nt];
-  real time[nt];
-  real rate[nt];
-  real ii[nt];
-  real WT[nt];
-  real CRCL[nt];
+  int<lower = 1> cmt[n_t];
+  int  evid[n_t];
+  int  addl[n_t];
+  int  ss[n_t];
+  real amt[n_t];
+  real time[n_t];
+  real rate[n_t];
+  real ii[n_t];
+  real WT[n_t];
+  real CRCL[n_t];
   
-  vector<lower = 0>[nObs] cObs;  // observed concentration (Dependent Variable)
+  vector<lower = 0>[n_obs] dv;  // observed concentration (Dependent Variable)
 }
 
 transformed data{
-  vector[nObs] logCObs = log(cObs);
-  int nTheta = 5;  // number of ODE parameters in Two Compartment Model
-  int nCmt = 3;  // number of compartments in model
+  vector[n_obs] log_dv = log(dv);
+  int n_theta = 5;  // number of ODE parameters in Two Compartment Model
+  int n_cmt = 3;  // number of compartments in model
 }
 
 parameters{
@@ -36,12 +34,12 @@ parameters{
 }
 
 transformed parameters{
-  array[nt, nTheta] real theta;  // ODE parameters
-  row_vector<lower = 0>[nt] cHat;
-  vector<lower = 0>[nObs] cHatObs;
-  matrix<lower = 0>[nCmt, nt] x;
+  array[n_t, n_theta] real theta;  // ODE parameters
+  row_vector<lower = 0>[n_t] ipred;
+  vector<lower = 0>[n_obs] ipred_obs;
+  matrix<lower = 0>[n_cmt, n_t] x;
   
-  for(j in 1:nt) {
+  for(j in 1:n_t) {
     theta[j, 1] = CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0));
     theta[j, 2] = Q;
     theta[j, 3] = V1 * WT[j];
@@ -49,33 +47,37 @@ transformed parameters{
     theta[j, 5] = 0; //ka = 0, IV model
   }
 
+  // call to analytic solver:
   x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
-  
-  cHat = x[2, :] ./ (V1 * mean(WT)); // we're interested in the amount in the second compartment
 
-  cHatObs = cHat'[iObs]; // predictions for observed data recors
+  // save observations to variables:
+  ipred = x[2, :] ./ (V1 * mean(WT)); // predictions for all event records
+  ipred_obs = ipred'[i_obs];          // predictions only for observed data records
+
 }
 
 model{
-  // informative prior
-  CL ~ lognormal(log(2.99), 0.27);
-  Q ~ lognormal(log(2.28), 0.49);
-  V1 ~ lognormal(log(0.675), 0.15);
-  V2 ~ lognormal(log(0.732), 1.3);
-  logCObs ~ normal(log(cHatObs), 0.3);
+  // likelihood for parameters:
+  CL     ~ lognormal(log(2.99),  0.27);
+  Q      ~ lognormal(log(2.28),  0.49);
+  V1     ~ lognormal(log(0.675), 0.15);
+  V2     ~ lognormal(log(0.732), 1.3);
+  
+  // likelihood for observed data:
+  log_dv ~ normal(log(ipred_obs), 0.3);
 }
 
 generated quantities{
-  real cObsPred[nObs];
+  real ipred_ruv[n_obs];
   
-  // sample prior
-  real prior_CL = lognormal_rng(log(2.99), 0.27);
-  real prior_Q = lognormal_rng(log(2.28), 0.49);
+  // sample prior:
+  real prior_CL = lognormal_rng(log(2.99),  0.27);
+  real prior_Q  = lognormal_rng(log(2.28),  0.49);
   real prior_V1 = lognormal_rng(log(0.675), 0.15);
   real prior_V2 = lognormal_rng(log(0.732), 1.3);
   
-  // posterior
-  for(i in 1:nObs){
-    cObsPred[i] = exp(normal_rng(log(cHatObs[i]), 0.3));
+  // posterior:
+  for(i in 1:n_obs){
+    ipred_ruv[i] = exp(normal_rng(log(ipred_obs[i]), 0.3));
   }
 }
