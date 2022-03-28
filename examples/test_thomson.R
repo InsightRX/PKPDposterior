@@ -7,7 +7,7 @@ library(pkvancothomson)
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
-  "pk_vanco_thomson", 
+  "pk_vanco_thomson_v2", 
   force = T,
   verbose = T
 )

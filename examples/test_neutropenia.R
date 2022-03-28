@@ -95,6 +95,8 @@ plot_predictions(pred, obs = pd_data) +
   xlim(c(0.1, 300)) +
   scale_y_log10(limits = c(0.15, 8)) +
   vpc::theme_empty()
+
+## simulate from prior
 pred_prior <- sim_from_draws(
   post, 
   model = pkpdneutropeniatemplate1::model(),

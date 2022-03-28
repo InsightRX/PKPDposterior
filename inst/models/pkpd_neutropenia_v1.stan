@@ -5,16 +5,16 @@
 
 functions{
   
-  vector two_cmt_oral_neutropenia_ode(real t, vector x, real[] parms, real[] x_r, int[] x_i) {
-    real CL = parms[1];
-    // real Q = parms[2];
-    real V1 = parms[3];
-    // real V2 = parms[4];
-    // real ka = parms[5];
-    real mtt = parms[6];
-    real circ0 = parms[7];
-    real gamma = parms[8];
-    real alpha = parms[9];
+  vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i) {
+    real CL    = theta[1];
+    real V1    = theta[3];
+    real mtt   = theta[6];
+    real circ0 = theta[7];
+    real gamma = theta[8];
+    real alpha = theta[9];
+    // real Q    = theta[2];
+    // real V2   = theta[4];
+    // real ka   = theta[5];
     
     real ka  = 0;
     real k10 = CL / V1;
@@ -22,7 +22,7 @@ functions{
     real k21 = 0; // Q / V2;
     real ktr = 4 / mtt;
     
-    vector[8] dxdt;
+    vector[8] dAdt;
     
     real conc;
     real EDrug;
@@ -32,27 +32,26 @@ functions{
     real circ;
     real prol;
     
-    dxdt[1] = -ka * x[1];
-    dxdt[2] =  ka * x[1] - (k10 + k12) * x[2] + k21 * x[3];
-    dxdt[3] = k12 * x[2] - k21 * x[3];
-    conc = x[2] / V1;
-    EDrug = alpha * conc; // slope model, not Emax
-    // EDrug = 0 * conc; // slope model, not Emax
+    dAdt[1] = -ka * A[1];
+    dAdt[2] =  ka * A[1] - (k10 + k12) * A[2] + k21 * A[3];
+    dAdt[3] = k12 * A[2] - k21 * A[3];
+    conc = A[2] / V1;
     
-    prol = x[4] + circ0;
-    transit1 = x[5] + circ0;
-    transit2 = x[6] + circ0;
-    transit3 = x[7] + circ0;
-    circ = fmax(machine_precision(), x[8] + circ0); // Device for implementing a modeled 
+    EDrug = alpha * conc; // slope model, not Emax
+    prol = A[4] + circ0;
+    transit1 = A[5] + circ0;
+    transit2 = A[6] + circ0;
+    transit3 = A[7] + circ0;
+    circ = fmax(machine_precision(), A[8] + circ0); // Device for implementing a modeled 
     
     // initial condition
-    dxdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^gamma) - 1);
-    dxdt[5] = ktr * (prol - transit1);
-    dxdt[6] = ktr * (transit1 - transit2);
-    dxdt[7] = ktr * (transit2 - transit3);
-    dxdt[8] = ktr * (transit3 - circ);
+    dAdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^gamma) - 1);
+    dAdt[5] = ktr * (prol - transit1);
+    dAdt[6] = ktr * (transit1 - transit2);
+    dAdt[7] = ktr * (transit2 - transit3);
+    dAdt[8] = ktr * (transit3 - circ);
     
-    return dxdt;
+    return dAdt;
   }
 }
 
@@ -109,7 +108,7 @@ transformed parameters{
   row_vector<lower = 0>[n_t]      ipred_pd;
   row_vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   row_vector<lower = 0>[n_obs_pd] ipred_obs_pd;
-  matrix[n_cmt, n_t] x;
+  matrix[n_cmt, n_t] A;
 
   theta[1] = CL;
   theta[2] = 0; // Q;
@@ -121,23 +120,10 @@ transformed parameters{
   theta[8] = gamma; // feedback
   theta[9] = alpha; // slope
 
-  x = pmx_solve_rk45(
-    two_cmt_oral_neutropenia_ode, 
-    8,
-    time,
-    amt, 
-    rate, 
-    ii, 
-    evid, 
-    cmt, 
-    addl, 
-    ss, 
-    theta, 
-    1e-5, 1e-8, 1e5
-  );
+  A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
 
-  ipred_pk = x[2, ] ./ V1; // vector will all observation times, for PK
-  ipred_pd = x[8, ] + theta[7]; // vector will all observation times, for PK
+  ipred_pk = A[2, ] ./ V1; // vector will all observation times, for PK
+  ipred_pd = A[8, ] + theta[7]; // vector will all observation times, for PK
 
   ipred_obs_pk = ipred_pk[i_obs_pk]; // vector with only PK observations
   ipred_obs_pd = ipred_pd[i_obs_pd]; // vector with only PD observations
