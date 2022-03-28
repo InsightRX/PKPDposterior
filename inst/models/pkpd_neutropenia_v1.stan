@@ -54,36 +54,36 @@ functions{
 }
 
 data {
-  int<lower = 1> nt;                // number of event rows
-  int<lower = 1> nObsPK;            // number of observations
-  int<lower = 1> nObsPD;            // number of observations
-  int<lower = 1> iObsPK[nObsPK];    // index of observation
-  int<lower = 1> iObsPD[nObsPD];    // index of observation
+  int<lower = 1> n_t;                  // number of event rows
+  int<lower = 1> n_obs_pk;            // number of observations for PK
+  int<lower = 1> n_obs_pd;            // number of observations for PD
+  int<lower = 1> i_obs_pk[n_obs_pk];  // index of observations PK
+  int<lower = 1> i_obs_pd[n_obs_pd];  // index of observations PD
 
   // NONMEM data
-  int<lower = 1> cmt[nt];
-  int  evid[nt];
-  int  addl[nt];
-  int  ss[nt];
-  real amt[nt];
-  real time[nt];
-  real rate[nt];
-  real ii[nt];
+  int<lower = 1> cmt[n_t];
+  int  evid[n_t];
+  int  addl[n_t];
+  int    ss[n_t];
+  real  amt[n_t];
+  real time[n_t];
+  real rate[n_t];
+  real   ii[n_t];
   
-  vector<lower = 0>[nObsPK] cObsPK;
-  vector<lower = 0>[nObsPD] cObsPD;
+  vector<lower = 0>[n_obs_pk] dv_pk;
+  vector<lower = 0>[n_obs_pd] dv_pd;
   
 }
 
 transformed data{
-  vector[nObsPK] logCObsPK = log(cObsPK);
-  vector[nObsPD] logCObsPD = log(cObsPD);
+  vector[n_obs_pk] log_dv_pk = log(dv_pk);
+  vector[n_obs_pd] log_dv_pd = log(dv_pd);
   
-  int nTheta = 9;  // number of ODE parameters
-  int nCmt = 8;  // number of compartments
+  int n_theta = 9;  // number of ODE parameters
+  int n_cmt = 8;  // number of compartments
 
-  real sigmaPK = 0.1;
-  real sigmaPD = 0.3;
+  real sigma_pk = 0.1;
+  real sigma_pd = 0.3;
   
 }
 
@@ -101,12 +101,12 @@ parameters{
 
 transformed parameters{
   
-  real theta[nTheta];
-  row_vector<lower = 0>[nt] cHatPK;
-  row_vector<lower = 0>[nObsPK] cHatPKObs;
-  row_vector<lower = 0>[nt] cHatPD;
-  row_vector<lower = 0>[nObsPD] cHatPDObs;
-  matrix[nCmt, nt] x;
+  real theta[n_theta];
+  row_vector<lower = 0>[n_t] ipred_all_pk;
+  row_vector<lower = 0>[n_obs_pk] ipred_pk;
+  row_vector<lower = 0>[n_t] ipred_all_pd;
+  row_vector<lower = 0>[n_obs_pd] ipred_pd;
+  matrix[n_cmt, n_t] x;
 
   theta[1] = CL;
   theta[2] = 0; // Q;
@@ -133,11 +133,11 @@ transformed parameters{
     1e-5, 1e-8, 1e5
   );
 
-  cHatPK = x[2, ] ./ V1;
-  cHatPD = x[8, ] + theta[7];
+  ipred_all_pk = x[2, ] ./ V1; // vector will all observation times, for PK
+  ipred_all_pd = x[8, ] + theta[7]; // vector will all observation times, for PK
 
-  cHatPKObs = cHatPK[iObsPK];
-  cHatPDObs = cHatPD[iObsPD];
+  ipred_pk = ipred_all_pk[i_obs_pk]; // vector with only PK observations
+  ipred_pd = ipred_all_pd[i_obs_pd]; // vector with only PD observations
 }
 
 model{
@@ -155,57 +155,32 @@ model{
   gamma   ~ lognormal(log(0.2), 0.2);
 
   // observed data likelihood
-  logCObsPK ~ normal(log(cHatPKObs), sigmaPK);
-  logCObsPD ~ normal(log(cHatPDObs), sigmaPD);
-  // cObsPD ~ normal(cHatPDObs, sigmaPD);
+  log_dv_pk ~ normal(log(ipred_pk), sigma_pk);
+  log_dv_pd ~ normal(log(ipred_pd), sigma_pd);
 
 }
 
 generated quantities{
   
-  matrix[nCmt, nt] xPred;
-  row_vector[nt] cHatPKPred;
-  row_vector[nt] cHatPDPred;
-  vector<lower = 0>[nObsPK] cHatPKObsCond;
-  row_vector<lower = 0>[nObsPK] cHatPKObsPred;
-  vector<lower = 0>[nObsPD] cHatPDObsCond;
-  row_vector<lower = 0>[nObsPD] cHatPDObsPred;
-  
+  vector<lower = 0>[n_obs_pk] ipred_pk_ruv;
+  vector<lower = 0>[n_obs_pd] ipred_pd_ruv;
+
   // sample prior
   real prior_CL = lognormal_rng(log(5), 0.2);
-  // real prior_Q = lognormal_rng(log(5), 0.2);
   real prior_V1 = lognormal_rng(log(50), 0.2);
+  // real prior_ka = lognormal_rng(log(1), 0.2);
+  // real prior_Q = lognormal_rng(log(5), 0.2);
   // real prior_V2 = lognormal_rng(log(100), 0.2);
   real prior_mtt = lognormal_rng(log(100), 0.2);
   real prior_circ0 = lognormal_rng(log(5), 0.2);
   real prior_alpha = lognormal_rng(log(0.1), 0.2);
   real prior_gamma = lognormal_rng(log(0.2), 0.2);
   
-  xPred = pmx_solve_rk45(
-    two_cmt_oral_neutropenia_ode, 
-    8,
-    time,
-    amt, 
-    rate, 
-    ii, 
-    evid, 
-    cmt, 
-    addl, 
-    ss, 
-    theta, 
-    1e-5, 1e-8, 1e5
-  );
-
-  cHatPKPred = x[2, ] ./ V1;
-  cHatPDPred = x[8, ] + theta[7];
-  
-  for(i in 1:nObsPK) {
-    cHatPKObsCond[i] = exp(normal_rng(log(fmax(machine_precision(), cHatPKObs[i])), sigmaPK));
-    cHatPKObsPred[i] = exp(normal_rng(log(fmax(machine_precision(), cHatPKObsPred[i])), sigmaPK));
+  for(i in 1:n_obs_pk) {
+    ipred_pk_ruv[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_pk[i])), sigma_pk)); // ipred with added residual variability for PK
   }
   
-  for(i in 1:nObsPD) {
-    cHatPDObsCond[i] = exp(normal_rng(log(fmax(machine_precision(), cHatPDObs[i])), sigmaPD));
-    cHatPDObsPred[i] = exp(normal_rng(log(fmax(machine_precision(), cHatPDObsPred[i])), sigmaPD));
+  for(i in 1:n_obs_pd) {
+    ipred_pd_ruv[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_pd[i])), sigma_pd)); // ipred with added residual variability for PD
   }
 }

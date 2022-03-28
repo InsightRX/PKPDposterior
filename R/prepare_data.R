@@ -79,22 +79,22 @@ prepare_data <- function(
   if(!is.null(types)) {
     message(paste0("Parsing multiple observation types: ", paste0(types, collapse = ", ")))
     for(key in types) {
-      out[[paste0("cObs", key)]] <- nm_data %>%
+      out[[paste0("dv_", key)]] <- nm_data %>%
         dplyr::filter(.data$TYPE == key) %>%
         dplyr::filter(.data$EVID == 0) %>%
         dplyr::pull(.data$DV)
-      out[[paste0("iObs", key)]] <- which(out$evid == 0 & out$TYPE == key)
-      out[[paste0("nObs", key)]] <- length(out[[paste0("iObs", key)]])
+      out[[paste0("i_obs_", key)]] <- which(out$evid == 0 & out$TYPE == key)
+      out[[paste0("n_obs_", key)]] <- length(out[[paste0("i_obs_", key)]])
     }
     out$TYPE <- NULL
   } else {
-    out$cObs <- nm_data %>%
+    out$dv <- nm_data %>%
       dplyr::filter(.data$EVID == 0) %>%
       dplyr::pull(.data$DV)
-    out$iObs <- which(out$evid == 0)
-    out$nObs <- length(out$iObs)
+    out$i_obs <- which(out$evid == 0)
+    out$n_obs <- length(out$i_obs)
   }
-  out$nt <- nrow(nm_data)
+  out$n_t <- nrow(nm_data)
   
   out
 }
