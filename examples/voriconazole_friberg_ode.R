@@ -6,9 +6,6 @@ library(tidyr)
 library(pkvoriconazolefriberg)
 library(posterior)
 
-# set Stan path
-Sys.setenv(STAN_PATH = "/home/dominic@insight-rx.com/Torsten")
-
 # Compile or reload model
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
@@ -26,9 +23,9 @@ prior <- get_init(
 
 ## Define regimen, covariates, and TDM data
 regimen <- PKPDsim::new_regimen(
-  amt = 1000, 
-  n = 4, 
-  times = c(0, 12, 24, 36), 
+  amt = 500, 
+  n = 7, 
+  times = c(0, 12, 24, 36, 48, 60, 72), 
   type = 'infusion',
   t_inf = 2
 )
@@ -36,8 +33,8 @@ covariates <- list(
   WT = PKPDsim::new_covariate(value = 70, unit = "kg")
 )
 tdm_data <- data.frame(
-  t = c(3, 23), 
-  dv = c(10, 4.2)
+  t = c(59, 70.5), 
+  dv = c(1.6, 1.5)
 )
 
 ## Create combined dataset for Torsten/Stan to read:
@@ -95,8 +92,10 @@ pred_prior <- sim_from_draws(
 )
 
 ## Plot confidence interval posterior and prior predictions
-plot_predictions(pred_prior, obs = tdm_data)
-plot_predictions(pred_post, obs = tdm_data)
+plot_predictions(pred_prior, obs = tdm_data) +
+  geom_hline(yintercept = 1.15)
+plot_predictions(pred_post, obs = tdm_data) +
+  geom_hline(yintercept = 1.15)
 
 ## Plot posterior AUC distribution
 pred_post_full <- sim_from_draws( # don't summarize
