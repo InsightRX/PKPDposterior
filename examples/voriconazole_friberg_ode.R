@@ -20,7 +20,7 @@ mod <- load_model(
 ## define init values (use population values): 
 prior <- get_init(
   "pkvoriconazolefriberg", 
-  map = list("V1" = "V", "ka" = "KA", "km" = "KM"), 
+  map = list("V1" = "V"), 
   drop = c("T50", "TDM_INIT", "F1", "TLAG", "BCF")
 )
 
@@ -75,7 +75,7 @@ covariates$CYP2C19a3a3 <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
   model = pkvoriconazolefriberg::model(),
-  map = list("V" = "V1", "KA" = "ka", "KM" = "km"), 
+  map = list("V" = "V1"), 
   parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
   regimen = regimen,
   covariates = covariates,
@@ -85,7 +85,7 @@ pred_post <- sim_from_draws(
 pred_prior <- sim_from_draws(
   post, 
   model = pkvoriconazolefriberg::model(), 
-  map = list("V" = "V1", "KA" = "ka", "KM" = "km"), 
+  map = list("V" = "V1"), 
   parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
   regimen = regimen,
   covariates = covariates,
@@ -101,7 +101,7 @@ plot_predictions(pred_post, obs = tdm_data)
 ## Plot posterior AUC distribution
 pred_post_full <- sim_from_draws( # don't summarize
   post, 
-  map = list("V" = "V1", "KA" = "ka", "KM" = "km"), 
+  map = list("V" = "V1"), 
   parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
   model = pkvoriconazolefriberg::model(), 
   regimen = regimen,

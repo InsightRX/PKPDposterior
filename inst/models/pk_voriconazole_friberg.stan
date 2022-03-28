@@ -4,8 +4,8 @@ functions{
     real Q = parms[2];
     real V1 = parms[3];
     real V2 = parms[4];
-    real ka = parms[5];
-    real km = parms[6];
+    real KA = parms[5];
+    real KM = parms[6];
     real VMAX1 = parms[7];
     
     real k10 = CL / V1;
@@ -18,8 +18,8 @@ functions{
     
     vector[3] y;
 
-    y[1] = -ka*x[1];
-    y[2] = ka*x[1] - (k10 + k12)*x[2] + k21*x[3] - (Vmax * x[2]/V1)/(km + x[2]/V1);
+    y[1] = -KA*x[1];
+    y[2] = KA*x[1] - (k10 + k12)*x[2] + k21*x[3] - (Vmax * x[2]/V1)/(KM + x[2]/V1);
     y[3] = k12*x[2] - k21*x[3];
 
     return y;
@@ -58,8 +58,8 @@ parameters {
   real<lower = 0> Q;
   real<lower = 0> V1;
   real<lower = 0> V2;
-  real<lower = 0> ka;
-  real<lower = 0> km;
+  real<lower = 0> KA;
+  real<lower = 0> KM;
   real<lower = 0> VMAX1;
 }
 
@@ -73,8 +73,8 @@ transformed parameters {
   theta[2] = Q * 1.637 * pow(mean(WT)/70, 0.75);
   theta[3] = V1 * mean(WT)/70;
   theta[4] = V2 * mean(WT)/70;
-  theta[5] = ka;
-  theta[6] = km;
+  theta[5] = KA;
+  theta[6] = KM;
   theta[7] = VMAX1 * pow(mean(WT)/70, 0.75);
   // theta[8] = F1;
   
@@ -93,8 +93,8 @@ model{
   Q ~ lognormal(log(15.5), 0.42);
   V1 ~ lognormal(log(79), 0.136);
   V2 ~ lognormal(log(103), 0.77);
-  ka ~ lognormal(log(1.19), 0.9);
-  km ~ lognormal(log(1.15), 1.0);
+  KA ~ lognormal(log(1.19), 0.9);
+  KM ~ lognormal(log(1.15), 1.0);
   VMAX1 ~ lognormal(log(114), 0.50);
   // F1 ~ lognormal(log(0.585), 1.0);
   
@@ -109,8 +109,8 @@ generated quantities{
   real prior_Q = lognormal_rng(log(15.5), 0.42);
   real prior_V1 = lognormal_rng(log(79), 0.136);
   real prior_V2 = lognormal_rng(log(103), 0.77);
-  real prior_ka = lognormal_rng(log(1.19), 0.90);
-  real prior_km = lognormal_rng(log(1.15), 1.0);
+  real prior_KA = lognormal_rng(log(1.19), 0.90);
+  real prior_KM = lognormal_rng(log(1.15), 1.0);
   real prior_VMAX1 = lognormal_rng(log(114), 0.50);
   // real prior_F1 = lognormal_rng(log(0.585), 1.0);
 
