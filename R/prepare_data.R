@@ -85,7 +85,10 @@ prepare_data <- function(
   out <- as.list(nm_data)
 
   ## Lowercase some names
-  lowercase <- names(out) %in% c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
+  lowercase <- intersect(
+    names(out), c
+    ("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
+  )
   names(out)[lowercase] <- tolower(names(out)[lowercase])
 
   ## Population parameters and IIV
@@ -96,8 +99,7 @@ prepare_data <- function(
   }
   
   ## Additional info
-  types <- unique(nm_data$TYPE)
-  types <- types[!is.na(types)]
+  types <- setdiff(nm_data$TYPE, NA)
   if(!is.null(types)) {
     message(paste0("Parsing multiple observation types: ", paste0(types, collapse = ", ")))
     if(class("ltbs") == "logical") {
