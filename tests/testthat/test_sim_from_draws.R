@@ -2,7 +2,8 @@ post <- readRDS(test_path("data", "posterior_vanco_thomson_1.rds"))
 model <- PKPDsim::new_ode_model(
   code = "dAdt[0] = -(CL/V)*A[0] - (Q/V)*A[0] + (Q/V2)*A[1]; dAdt[1] = (Q/V)*A[0] - (Q/V2)*A[1];",
   parameters = list(CL = 1, Q =1 , V=1, V2=1),
-  obs = list(scale="V", cmt = 1)
+  obs = list(scale="V", cmt = 1), 
+  install = FALSE
 )
 
 test_that("sim_from_draws correctly simulates from draws in posterior object", {
