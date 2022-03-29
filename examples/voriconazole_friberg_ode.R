@@ -6,18 +6,21 @@ library(tidyr)
 library(pkvoriconazolefriberg)
 library(posterior)
 
+mapping <- list("V1" = "V")
+
 # Compile or reload model
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
   "pk_voriconazole_friberg", 
-  force = T
+  force = T,
+  verbose = T
 )
 
 ## define init values (use population values): 
 prior <- get_init(
   "pkvoriconazolefriberg", 
-  map = list("V1" = "V"), 
+  map = mapping, 
   drop = c("T50", "TDM_INIT", "F1", "TLAG", "BCF")
 )
 
@@ -72,7 +75,7 @@ covariates$CYP2C19a3a3 <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
   model = pkvoriconazolefriberg::model(),
-  map = list("V" = "V1"), 
+  map = mapping, 
   parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
   regimen = regimen,
   covariates = covariates,
@@ -80,9 +83,9 @@ pred_post <- sim_from_draws(
   summarize = TRUE
 )
 pred_prior <- sim_from_draws(
-  post, 
+  post,
   model = pkvoriconazolefriberg::model(), 
-  map = list("V" = "V1"), 
+  map = mapping, 
   parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
   regimen = regimen,
   covariates = covariates,
@@ -96,23 +99,3 @@ plot_predictions(pred_prior, obs = tdm_data) +
   geom_hline(yintercept = 1.15)
 plot_predictions(pred_post, obs = tdm_data) +
   geom_hline(yintercept = 1.15)
-
-## Plot posterior AUC distribution
-pred_post_full <- sim_from_draws( # don't summarize
-  post, 
-  map = list("V" = "V1"), 
-  parameters = list(T50 = 2.41, TDM_INIT = 0, F1 = 0, TLAG = 0, BCF = 0),
-  model = pkvoriconazolefriberg::model(), 
-  regimen = regimen,
-  covariates = covariates,
-  n = 200
-)
-pred_post_full %>%
-  filter(t %in% c(36, 48)) %>%
-  filter(comp == 3) %>%
-  group_by(id) %>%
-  tidyr::pivot_wider(names_from = t, values_from = y) %>%
-  mutate(auc24 = 2 * (`48` - `36`)) %>%
-  ggplot() + 
-  aes(x = auc24) +
-  geom_histogram()

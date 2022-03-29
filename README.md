@@ -32,7 +32,7 @@ For structured analysis in PKPDposterior it is required to write your Stan/Torst
 | `dAdt` | Vector of gradients for ODE system | `DADT` in model file |
 | `prior_<parameter>` | Samples of prior parameter distribution | |
 
-For models with more than one observation type, such as PK-PD models, the variables related to observations (i.e. in the first 8 rows) should be appended with a tag for the respective observation type, e.g. `dv_pk`, `dv_pd`, `ipred_pk`, `ipred_pd`, `ipred_obs_pk`, `ipred_obs_pd`, etc. See the neutropenia model for an example.
+For models with more than one observation type, such as PK-PD models, or a parent-metabolite model, the variables related to observations (i.e. in the first 8 rows) should be appended with a tag for the respective observation type, e.g. `dv_pk` and `dv_pd`, or `dv_parent` and `dv_metab`, etc. See the neutropenia model for an example.
 
 ## Disclaimer
 
