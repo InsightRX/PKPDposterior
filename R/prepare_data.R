@@ -5,6 +5,9 @@
 #' @param tdm_data Data frame with columns `t`, `dv`, and `cmt`
 #' @param dose_cmt Specify what dose compartment. Observation compartment in 
 #' dataset is irrelevant, handled in model.
+#' @param parameters list of population parameters, e.g. `list(CL = 5, V = 50)`
+#' @param iiv list of inter-individual variability for parameters. Should have 
+#' exact same list elements as `parameters`, and magnitude supplied on SD scale. 
 #' @param ruv magnitude of residual unexplained variability (RUV). Should be a 
 #' list specifying proportional and/or additive error magnitude on standard 
 #' deviation scale, e.g. `list("prop" = 0.1, "add" = 1)`. If `ltbs` is TRUE, 
@@ -43,8 +46,10 @@ prepare_data <- function(
   regimen, 
   covariates, 
   data,
-  dose_cmt = 1,
+  parameters,
+  iiv,
   ruv,
+  dose_cmt = 1,
   ltbs = FALSE
 ) {
   ## Convert regimen, covariates, tdm data
@@ -83,6 +88,13 @@ prepare_data <- function(
   lowercase <- names(out) %in% c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
   names(out)[lowercase] <- tolower(names(out)[lowercase])
 
+  ## Population parameters and IIV
+  for(key in names(parameters)) {
+    out[[paste0("theta_", key)]] <- parameters[[key]]
+    if(is.null(iiv[[key]])) stop("`iiv` object requires same list elements as `parameters` object.")
+    out[[paste0("omega_", key)]] <- iiv[[key]]
+  }
+  
   ## Additional info
   types <- unique(nm_data$TYPE)
   types <- types[!is.na(types)]

@@ -46,6 +46,16 @@ data <- prepare_data(
   covariates, 
   tdm_data,
   dose_cmt = 2,
+  parameters = prior,
+  iiv = list(
+    CL = 0.5,
+    Q = 0.42,
+    V1 = 0.136,
+    V2 = 0.77,
+    KA = 0.9,
+    KM = 1.0,
+    VMAX1 = 0.5
+  ),
   ruv = list(
     prop = 0.15,
     add = 1.6

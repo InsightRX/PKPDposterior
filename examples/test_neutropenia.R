@@ -58,7 +58,16 @@ comb_data <- bind_rows(
 data <- prepare_data(
   regimen,
   covariates = covariates, 
-  comb_data,
+  data = comb_data,
+  parameters = prior,
+  iiv = list(
+    CL = 0.2,
+    V1 = 0.5,
+    mtt = 0.2,
+    circ0 = 0.2,
+    alpha = 1.0,
+    gamma = 0.5
+  ),
   ltbs = list(pk = TRUE, pd = TRUE),
   ruv = list(
     pk = list(add = 0.2),
@@ -90,7 +99,7 @@ pred <- sim_from_draws(
   map = mapping,
   parameters = list(KA = 0, Q = 0, V2 = 1),
   regimen = regimen,
-  n = 500,
+  n = 200,
   t_obs = seq(0, 15*24, 6),
   summarize = T
 )
@@ -113,6 +122,6 @@ pred_prior <- sim_from_draws(
 )
 plot_predictions(pred_prior, obs = pd_data) +
   xlim(c(0.1, 300)) +
-  scale_y_log10(limits = c(0.15, 8)) +
+  scale_y_log10(limits = c(0.01, 8)) +
   vpc::theme_empty()
 

@@ -27,6 +27,23 @@ data {
   int<lower = 1> n_obs;          // number of observations
   int<lower = 1> i_obs[n_obs];    // index of observation
   
+  // population parameters
+  real<lower = 0> theta_CL;
+  real<lower = 0> theta_Q;
+  real<lower = 0> theta_V1;
+  real<lower = 0> theta_V2;
+  
+  // inter-individual variability (SD scale)
+  real<lower = 0> omega_CL;
+  real<lower = 0> omega_Q;
+  real<lower = 0> omega_V1;
+  real<lower = 0> omega_V2;
+  
+  // error model
+  int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop;
+  real<lower = 0> ruv_add;
+
   // NONMEM data
   int<lower = 1> cmt[n_t];
   int  evid[n_t];
@@ -77,26 +94,31 @@ transformed parameters {
 }
 
 model{
-  // informative prior
-  CL ~ lognormal(log(2.99), 0.27);
-  Q ~ lognormal(log(2.28), 0.49);
-  V1 ~ lognormal(log(0.675), 0.15);
-  V2 ~ lognormal(log(0.732), 1.3);
+  // likelihood for parameters:
+  CL     ~ lognormal(log(theta_CL), omega_CL);
+  Q      ~ lognormal(log(theta_Q), omega_Q);
+  V1     ~ lognormal(log(theta_V1), omega_V1);
+  V2     ~ lognormal(log(theta_V2), omega_V2);
   
-  dv ~ normal(ipred_obs, (0.15 * ipred_obs + 1.6));
+  // likelihood for observed data:
+  if(ltbs) {
+    log_dv ~ normal(log(ipred_obs), ruv_add);
+  } else {
+    dv ~ normal(ipred_obs, (ruv_prop * ipred_obs + ruv_add));
+  }
 }
 
 generated quantities{
   real ipred_ruv[n_obs];
   
   // sample prior:
-  real prior_CL = lognormal_rng(log(2.99),  0.27);
-  real prior_Q  = lognormal_rng(log(2.28),  0.49);
-  real prior_V1 = lognormal_rng(log(0.675), 0.15);
-  real prior_V2 = lognormal_rng(log(0.732), 1.3);
+  real prior_CL = lognormal_rng(log(theta_CL), omega_CL);
+  real prior_Q  = lognormal_rng(log(theta_Q), omega_Q);
+  real prior_V1 = lognormal_rng(log(theta_V1), omega_V1);
+  real prior_V2 = lognormal_rng(log(theta_V2), omega_V2);
   
   // posterior:
   for(i in 1:n_obs){
-    ipred_ruv[i] = normal_rng(ipred_obs[i], (0.15 * ipred_obs[i] + 1.6));
+    ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
   }
 }

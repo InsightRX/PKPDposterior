@@ -61,6 +61,22 @@ data {
   int<lower = 1> n_obs_pd;            // number of observations for PD
   int<lower = 1> i_obs_pk[n_obs_pk];  // index of observations PK
   int<lower = 1> i_obs_pd[n_obs_pd];  // index of observations PD
+  
+  // population parameters
+  real<lower = 0> theta_CL;
+  real<lower = 0> theta_V1;
+  real<lower = 0> theta_mtt;
+  real<lower = 0> theta_circ0;
+  real<lower = 0> theta_alpha;
+  real<lower = 0> theta_gamma;  
+  
+  // inter-individual variability (SD scale)
+  real<lower = 0> omega_CL;
+  real<lower = 0> omega_V1;
+  real<lower = 0> omega_mtt;
+  real<lower = 0> omega_circ0;
+  real<lower = 0> omega_alpha;
+  real<lower = 0> omega_gamma;  
 
   // error model
   int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
@@ -96,10 +112,7 @@ transformed data{
 
 parameters{
   real<lower = 0> CL;
-  // real<lower = 0> Q;
   real<lower = 0> V1;
-  // real<lower = 0> V2;
-  // real<lower = 0> ka;
   real<lower = 0> mtt;
   real<lower = 0> circ0;
   real<lower = 0> alpha;
@@ -137,16 +150,13 @@ transformed parameters{
 model{
 
   // Priors
-  CL    ~ lognormal(log(5),   0.2);
-  V1    ~ lognormal(log(50),  0.2);
-  // Q     ~ lognormal(log(5),   0.2);
-  // V2    ~ lognormal(log(100), 0.2);
-  // ka    ~ lognormal(log(1),   0.2);
+  CL    ~ lognormal(log(theta_CL), omega_CL);
+  V1    ~ lognormal(log(theta_V1), omega_V1);
 
-  mtt     ~ lognormal(log(100), 0.2);
-  circ0   ~ lognormal(log(5),   0.1);
-  alpha   ~ lognormal(log(0.2), 1.0);
-  gamma   ~ lognormal(log(0.2), 0.2);
+  mtt     ~ lognormal(log(theta_mtt), omega_mtt);
+  circ0   ~ lognormal(log(theta_circ0), omega_circ0);
+  alpha   ~ lognormal(log(theta_alpha), omega_alpha);
+  gamma   ~ lognormal(log(theta_gamma), omega_gamma);
 
   // observed data likelihood
   if(ltbs_pk) {
@@ -169,17 +179,14 @@ generated quantities{
 
   // Sample from prior:
   // PK
-  real prior_CL = lognormal_rng(log(5), 0.2);
-  real prior_V1 = lognormal_rng(log(50), 0.2);
-  // real prior_ka = lognormal_rng(log(1), 0.2);
-  // real prior_Q = lognormal_rng(log(5), 0.2);
-  // real prior_V2 = lognormal_rng(log(100), 0.2);
-  
+  real prior_CL = lognormal_rng(log(theta_CL), omega_CL);
+  real prior_V1 = lognormal_rng(log(theta_V1), omega_V1);
+
   // PD
-  real prior_mtt = lognormal_rng(log(100), 0.2);
-  real prior_circ0 = lognormal_rng(log(5), 0.2);
-  real prior_alpha = lognormal_rng(log(0.1), 0.2);
-  real prior_gamma = lognormal_rng(log(0.2), 0.2);
+  real prior_mtt = lognormal_rng(log(theta_mtt), omega_mtt);
+  real prior_circ0 = lognormal_rng(log(theta_circ0), omega_circ0);
+  real prior_alpha = lognormal_rng(log(theta_alpha), omega_alpha);
+  real prior_gamma = lognormal_rng(log(theta_gamma), omega_gamma);
   
   if(ltbs_pk) {
     for(i in 1:n_obs_pk) {

@@ -4,6 +4,18 @@ data{
   int<lower = 1> n_t;  // number of events
   int<lower = 1> n_obs;  // number of observation
   int<lower = 1> i_obs[n_obs];  // index of observation
+  
+  // population parameters
+  real<lower = 0> theta_CL;
+  real<lower = 0> theta_Q;
+  real<lower = 0> theta_V1;
+  real<lower = 0> theta_V2;
+  
+  // inter-individual variability (SD scale)
+  real<lower = 0> omega_CL;
+  real<lower = 0> omega_Q;
+  real<lower = 0> omega_V1;
+  real<lower = 0> omega_V2;
 
   // error model
   int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
@@ -39,7 +51,7 @@ parameters{
 }
 
 transformed parameters{
-  array[n_t, n_theta] real theta;  // ODE parameters
+  array[n_t, n_theta] real theta;
   row_vector<lower = 0>[n_t] ipred;
   vector<lower = 0>[n_obs] ipred_obs;
   matrix<lower = 0>[n_cmt, n_t] A;
@@ -49,7 +61,7 @@ transformed parameters{
     theta[j, 2] = Q;
     theta[j, 3] = V1 * WT[j];
     theta[j, 4] = V2 * WT[j];
-    theta[j, 5] = 0; //ka = 0, IV model
+    theta[j, 5] = 0;
   }
 
   // call to analytic solver:
@@ -63,10 +75,10 @@ transformed parameters{
 
 model{
   // likelihood for parameters:
-  CL     ~ lognormal(log(2.99),  0.27);
-  Q      ~ lognormal(log(2.28),  0.49);
-  V1     ~ lognormal(log(0.675), 0.15);
-  V2     ~ lognormal(log(0.732), 1.3);
+  CL     ~ lognormal(log(theta_CL), omega_CL);
+  Q      ~ lognormal(log(theta_Q), omega_Q);
+  V1     ~ lognormal(log(theta_V1), omega_V1);
+  V2     ~ lognormal(log(theta_V2), omega_V2);
   
   // likelihood for observed data:
   if(ltbs) {
@@ -80,10 +92,10 @@ generated quantities{
   real ipred_ruv[n_obs];
   
   // sample prior:
-  real prior_CL = lognormal_rng(log(2.99),  0.27);
-  real prior_Q  = lognormal_rng(log(2.28),  0.49);
-  real prior_V1 = lognormal_rng(log(0.675), 0.15);
-  real prior_V2 = lognormal_rng(log(0.732), 1.3);
+  real prior_CL = lognormal_rng(log(theta_CL), omega_CL);
+  real prior_Q  = lognormal_rng(log(theta_Q), omega_Q);
+  real prior_V1 = lognormal_rng(log(theta_V1), omega_V1);
+  real prior_V2 = lognormal_rng(log(theta_V2), omega_V2);
   
   // posterior:
   for(i in 1:n_obs){

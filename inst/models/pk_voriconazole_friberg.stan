@@ -14,7 +14,6 @@ functions{
     real k21 = Q / V2;
     
     real VMAXINH = exp(1.5) / (1 + exp(1.5));
-    
     real Vmax = VMAX1 * (1 - VMAXINH * (t-1) / ((t-1) + (2.41 - 1))); // T50 = 2.41
     
     vector[3] dAdt;
@@ -32,6 +31,24 @@ data {
   int<lower = 1> n_obs;          // number of observations
   int<lower = 1> i_obs[n_obs];    // index of observation
   
+  // population parameters
+  real<lower = 0> theta_CL;
+  real<lower = 0> theta_Q;
+  real<lower = 0> theta_V1;
+  real<lower = 0> theta_V2;
+  real<lower = 0> theta_KA;
+  real<lower = 0> theta_KM;
+  real<lower = 0> theta_VMAX1;
+  
+  // inter-individual variability (SD scale)
+  real<lower = 0> omega_CL;
+  real<lower = 0> omega_Q;
+  real<lower = 0> omega_V1;
+  real<lower = 0> omega_V2;
+  real<lower = 0> omega_KA;
+  real<lower = 0> omega_KM;
+  real<lower = 0> omega_VMAX1;
+
   // error model
   int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
   real<lower = 0> ruv_prop;
@@ -95,14 +112,14 @@ transformed parameters {
 
 model{
   // informative prior
-  CL ~ lognormal(log(6.16), 0.5);
-  Q  ~ lognormal(log(15.5), 0.42);
-  V1 ~ lognormal(log(79), 0.136);
-  V2 ~ lognormal(log(103), 0.77);
-  KA ~ lognormal(log(1.19), 0.9);
-  KM ~ lognormal(log(1.15), 1.0);
-  VMAX1 ~ lognormal(log(114), 0.50);
-  // F1 ~ lognormal(log(0.585), 1.0);
+  CL ~ lognormal(log(theta_CL), omega_CL);
+  Q  ~ lognormal(log(theta_Q), omega_Q);
+  V1 ~ lognormal(log(theta_V1), omega_V1);
+  V2 ~ lognormal(log(theta_V2), omega_V2);
+  KA ~ lognormal(log(theta_KA), omega_KA);
+  KM ~ lognormal(log(theta_KM), omega_KM);
+  VMAX1 ~ lognormal(log(theta_VMAX1), omega_VMAX1);
+  // F1 ~ lognormal(log(theta_F1), omega_F1);
   
   // likelihood for observed data:
   if(ltbs) {
@@ -116,14 +133,14 @@ generated quantities{
   real ipred_ruv[n_obs];
 
   // sample prior
-  real prior_CL = lognormal_rng(log(6.16), 0.50); //"parameters", "iiv" values
-  real prior_Q  = lognormal_rng(log(15.5), 0.42);
-  real prior_V1 = lognormal_rng(log(79), 0.136);
-  real prior_V2 = lognormal_rng(log(103), 0.77);
-  real prior_KA = lognormal_rng(log(1.19), 0.90);
-  real prior_KM = lognormal_rng(log(1.15), 1.0);
-  real prior_VMAX1 = lognormal_rng(log(114), 0.50);
-  // real prior_F1 = lognormal_rng(log(0.585), 1.0);
+  real prior_CL = lognormal_rng(log(theta_CL), omega_CL); //"parameters", "iiv" values
+  real prior_Q  = lognormal_rng(log(theta_Q), omega_Q);
+  real prior_V1 = lognormal_rng(log(theta_V1), omega_V1);
+  real prior_V2 = lognormal_rng(log(theta_V2), omega_V2);
+  real prior_KA = lognormal_rng(log(theta_KA), omega_KA);
+  real prior_KM = lognormal_rng(log(theta_KM), omega_KM);
+  real prior_VMAX1 = lognormal_rng(log(theta_VMAX1), omega_VMAX1);
+  // real prior_F1 = lognormal_rng(log(theta_F1), omega_F1);
 
   for(i in 1:n_obs){
     ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
