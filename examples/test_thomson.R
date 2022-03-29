@@ -73,7 +73,7 @@ covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(),
-  map = list("V" = "V1"),
+  map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   regimen = regimen,
   covariates = covariates,
@@ -83,7 +83,7 @@ pred_post <- sim_from_draws(
 pred_prior <- sim_from_draws(
   post, 
   model = pkvancothomson::model(), 
-  map = list("V" = "V1"),
+  map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   regimen = regimen,
   covariates = covariates,
@@ -99,7 +99,7 @@ plot_predictions(pred_post, obs = tdm_data)
 ## Plot posterior AUC distribution
 pred_post_full <- sim_from_draws( # don't summarize
   post, 
-  map = list("V" = "V1"),
+  map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
   model = pkvancothomson::model(), 
   regimen = regimen,
