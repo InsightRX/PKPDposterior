@@ -32,6 +32,11 @@ data {
   int<lower = 1> n_obs;          // number of observations
   int<lower = 1> i_obs[n_obs];    // index of observation
   
+  // error model
+  int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop;
+  real<lower = 0> ruv_add;
+
   // NONMEM data
   int<lower = 1> cmt[n_t];
   int evid[n_t];
@@ -99,7 +104,12 @@ model{
   VMAX1 ~ lognormal(log(114), 0.50);
   // F1 ~ lognormal(log(0.585), 1.0);
   
-  dv ~ normal(ipred_obs, (0.3 * ipred_obs + 0.01));
+  // likelihood for observed data:
+  if(ltbs) {
+    log_dv ~ normal(log(ipred_obs), ruv_add);
+  } else {
+    dv ~ normal(ipred_obs, (ruv_prop * ipred_obs + ruv_add));
+  }
 }
 
 generated quantities{
@@ -116,6 +126,6 @@ generated quantities{
   // real prior_F1 = lognormal_rng(log(0.585), 1.0);
 
   for(i in 1:n_obs){
-    ipred_ruv[i] = normal_rng(ipred_obs[i], (0.3 * ipred_obs[i] + 0.01));
+    ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
   }
 }

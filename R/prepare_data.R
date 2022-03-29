@@ -1,10 +1,18 @@
-#' Prepare data
+#' Prepare data object for use in get_mcmc_posterior()
 #'
 #' @param regimen Regimen object (created by [PKPDsim::new_regimen()])
 #' @param covariates List of covariate objects created by [PKPDsim::new_covariate()]
-#' @param tdm_data Data frame with columns t, dv, and cmt
-#' @param dose_cmt Specify what dose compartment. Observation compartment in dataset is irrelevant, handled in model.
-#' @return Named list suitable for passing on to Torsten
+#' @param tdm_data Data frame with columns `t`, `dv`, and `cmt`
+#' @param dose_cmt Specify what dose compartment. Observation compartment in 
+#' dataset is irrelevant, handled in model.
+#' @param ruv magnitude of residual unexplained variability (RUV). Should be a 
+#' list specifying proportional and/or additive error magnitude on standard 
+#' deviation scale, e.g. `list("prop" = 0.1, "add" = 1)`. If `ltbs` is TRUE, 
+#' should specify only an `add` part, which applies an additive error on the 
+#' log-scale (which then becomes an approximate proportional error).
+#' @param ltbs use log-transform-both-sides approach for observations? Default 
+#' is `FALSE`.
+#' @return Named list suitable for passing on to Torsten.
 #' @export
 #' @examples
 #' regimen <- PKPDsim::new_regimen(
@@ -35,7 +43,9 @@ prepare_data <- function(
   regimen, 
   covariates, 
   data,
-  dose_cmt = 1
+  dose_cmt = 1,
+  ruv,
+  ltbs = FALSE
 ) {
   ## Convert regimen, covariates, tdm data
   reg <- regimen_to_nm(
@@ -78,6 +88,15 @@ prepare_data <- function(
   types <- types[!is.na(types)]
   if(!is.null(types)) {
     message(paste0("Parsing multiple observation types: ", paste0(types, collapse = ", ")))
+    if(class("ltbs") == "logical") {
+      message(paste0("Assuming `ltbs=", dput(ltbs), "` for all observation types."))
+      ltbs_list <- list()
+      for(key in types) ltbs_list[[key]] <- ltbs
+      ltbs <- ltbs_list
+    }
+    if(!all(types %in% names(ruv))) {
+      stop("With multiple observation types, `ruv` needs to be specified as a list of lists for each observation type.")
+    }
     for(key in types) {
       out[[paste0("dv_", key)]] <- nm_data %>%
         dplyr::filter(.data$TYPE == key) %>%
@@ -85,7 +104,16 @@ prepare_data <- function(
         dplyr::pull(.data$DV)
       out[[paste0("i_obs_", key)]] <- which(out$evid == 0 & out$TYPE == key)
       out[[paste0("n_obs_", key)]] <- length(out[[paste0("i_obs_", key)]])
+      
+      ## error model:
+      if(ltbs[[key]] && (is.null(ruv[[key]]$add) || !is.null(ruv[[key]]$prop))) {
+        stop("With LTBS, additive error magnitude needs to be specified and proportional error cannot be specified. ")
+      }
+      out[[paste0("ruv_prop_", key)]] <- ifelse(!is.null(ruv[[key]]$prop), ruv[[key]]$prop, 0)
+      out[[paste0("ruv_add_", key)]] <- ifelse(!is.null(ruv[[key]]$add), ruv[[key]]$add, 0)
+      out[[paste0("ltbs_", key)]] <- ltbs[[key]]
     }
+
     out$TYPE <- NULL
   } else {
     out$dv <- nm_data %>%
@@ -93,6 +121,14 @@ prepare_data <- function(
       dplyr::pull(.data$DV)
     out$i_obs <- which(out$evid == 0)
     out$n_obs <- length(out$i_obs)
+
+    ## error model:
+    if(ltbs && (is.null(ruv$add) || !is.null(ruv$prop))) {
+      stop("With LTBS, additive error magnitude needs to be specified and proportional error cannot be specified. ")
+    }
+    out$ruv_prop <- ifelse(!is.null(ruv$prop), ruv$prop, 0)
+    out$ruv_add <- ifelse(!is.null(ruv$add), ruv$add, 0)
+    out$ltbs <- ltbs
   }
   out$n_t <- nrow(nm_data)
   

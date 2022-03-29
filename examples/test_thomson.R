@@ -7,7 +7,7 @@ library(pkvancothomson)
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
-  "pk_vanco_thomson_v2", 
+  "pk_vanco_thomson", 
   force = T,
   verbose = T
 )
@@ -41,7 +41,11 @@ data <- prepare_data(
   regimen, 
   covariates, 
   tdm_data,
-  dose_cmt = 2
+  dose_cmt = 2,
+  ruv = list(
+    prop = 0.15,
+    add = 1.6
+  )
 )
 
 ## Sample from posterior

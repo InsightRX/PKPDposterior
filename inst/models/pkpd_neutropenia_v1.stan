@@ -62,6 +62,14 @@ data {
   int<lower = 1> i_obs_pk[n_obs_pk];  // index of observations PK
   int<lower = 1> i_obs_pd[n_obs_pd];  // index of observations PD
 
+  // error model
+  int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
+  int<lower = 0, upper = 1> ltbs_pd; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop_pk;
+  real<lower = 0> ruv_prop_pd;
+  real<lower = 0> ruv_add_pk;
+  real<lower = 0> ruv_add_pd;
+
   // NONMEM data
   int<lower = 1> cmt[n_t];
   int  evid[n_t];
@@ -84,9 +92,6 @@ transformed data{
   int n_theta = 9;  // number of ODE parameters
   int n_cmt = 8;  // number of compartments
 
-  real sigma_pk = 0.1;
-  real sigma_pd = 0.3;
-  
 }
 
 parameters{
@@ -144,8 +149,16 @@ model{
   gamma   ~ lognormal(log(0.2), 0.2);
 
   // observed data likelihood
-  log_dv_pk ~ normal(log(ipred_obs_pk), sigma_pk);
-  log_dv_pd ~ normal(log(ipred_obs_pd), sigma_pd);
+  if(ltbs_pk) {
+    log_dv_pk ~ normal(log(ipred_obs_pk), ruv_add_pk);
+  } else {
+    dv_pk ~ normal(ipred_obs_pk, (ruv_prop_pk * ipred_obs_pk + ruv_add_pk));
+  }
+  if(ltbs_pd) {
+    log_dv_pd ~ normal(log(ipred_obs_pd), ruv_add_pd);
+  } else {
+    dv_pd ~ normal(ipred_obs_pd, (ruv_prop_pd * ipred_obs_pd + ruv_add_pd));
+  }
 
 }
 
@@ -168,11 +181,22 @@ generated quantities{
   real prior_alpha = lognormal_rng(log(0.1), 0.2);
   real prior_gamma = lognormal_rng(log(0.2), 0.2);
   
-  for(i in 1:n_obs_pk) {
-    ipred_ruv_pk[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pk[i])), sigma_pk)); // ipred with added residual variability for PK
+  if(ltbs_pk) {
+    for(i in 1:n_obs_pk) {
+      ipred_ruv_pk[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pk[i])), ruv_add_pk)); // ipred with added residual variability for PK
+    }
+  } else {
+    for(i in 1:n_obs_pk) {
+      ipred_ruv_pk[i] = normal_rng(ipred_obs_pk[i], (ruv_prop_pk * ipred_obs_pk[i] + ruv_add_pk));
+    }
   }
-  
-  for(i in 1:n_obs_pd) {
-    ipred_ruv_pd[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pd[i])), sigma_pd)); // ipred with added residual variability for PD
+  if(ltbs_pd) {
+    for(i in 1:n_obs_pd) {
+      ipred_ruv_pd[i] = exp(normal_rng(log(fmax(machine_precision(), ipred_obs_pd[i])), ruv_add_pd)); // ipred with added residual variability for PD
+    }
+  } else {
+    for(i in 1:n_obs_pd) {
+      ipred_ruv_pd[i] = normal_rng(ipred_obs_pd[i], (ruv_prop_pd * ipred_obs_pd[i] + ruv_add_pd));
+    }
   }
 }

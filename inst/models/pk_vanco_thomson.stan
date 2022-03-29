@@ -1,9 +1,14 @@
-// Two compartment model using built-in analytical solution 
+// Two compartment model using built-in analytical solution
 
 data{
   int<lower = 1> n_t;  // number of events
   int<lower = 1> n_obs;  // number of observation
   int<lower = 1> i_obs[n_obs];  // index of observation
+
+  // error model
+  int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop;
+  real<lower = 0> ruv_add;
 
   // NONMEM data
   int<lower = 1> cmt[n_t];
@@ -37,7 +42,7 @@ transformed parameters{
   array[n_t, n_theta] real theta;  // ODE parameters
   row_vector<lower = 0>[n_t] ipred;
   vector<lower = 0>[n_obs] ipred_obs;
-  matrix<lower = 0>[n_cmt, n_t] x;
+  matrix<lower = 0>[n_cmt, n_t] A;
   
   for(j in 1:n_t) {
     theta[j, 1] = CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0));
@@ -48,10 +53,10 @@ transformed parameters{
   }
 
   // call to analytic solver:
-  x = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
+  A = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
 
   // save observations to variables:
-  ipred = x[2, :] ./ (V1 * mean(WT)); // predictions for all event records
+  ipred = A[2, :] ./ (V1 * mean(WT)); // predictions for all event records
   ipred_obs = ipred'[i_obs];          // predictions only for observed data records
 
 }
@@ -64,7 +69,11 @@ model{
   V2     ~ lognormal(log(0.732), 1.3);
   
   // likelihood for observed data:
-  log_dv ~ normal(log(ipred_obs), 0.3);
+  if(ltbs) {
+    log_dv ~ normal(log(ipred_obs), ruv_add);
+  } else {
+    dv ~ normal(ipred_obs, (ruv_prop * ipred_obs + ruv_add));
+  }
 }
 
 generated quantities{
@@ -78,6 +87,6 @@ generated quantities{
   
   // posterior:
   for(i in 1:n_obs){
-    ipred_ruv[i] = exp(normal_rng(log(ipred_obs[i]), 0.3));
+    ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
   }
 }

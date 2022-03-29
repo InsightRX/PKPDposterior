@@ -2,6 +2,7 @@ library(PKPDsim)
 library(PKPDposterior)
 library(pkpdneutropeniatemplate1)
 library(dplyr)
+library(ggplot2)
 
 mapping <- list( # mapping between parameter names Stan vs PKPDsim
   "V1" = "V", 
@@ -48,7 +49,7 @@ pd_data <- data.frame(
   dv = c(5, 1.5, .8, 2),
   type = "pd"
 )
-data <- bind_rows(
+comb_data <- bind_rows(
   tdm_data, 
   pd_data
 )
@@ -57,7 +58,12 @@ data <- bind_rows(
 data <- prepare_data(
   regimen,
   covariates = covariates, 
-  data,
+  comb_data,
+  ltbs = list(pk = TRUE, pd = TRUE),
+  ruv = list(
+    pk = list(add = 0.2),
+    pd = list(add = 0.3)
+  ),
   dose_cmt = 2
 )
 
@@ -78,9 +84,6 @@ extract_map_estimates(post)
 plot_params(post)
 
 ## Simulate from posterior
-library(pkpdneutropeniatemplate1)
-library(PKPDposterior)
-library(ggplot2)
 pred <- sim_from_draws(
   post, 
   model = pkpdneutropeniatemplate1::model(),

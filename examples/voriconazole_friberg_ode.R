@@ -45,7 +45,11 @@ data <- prepare_data(
   regimen, 
   covariates, 
   tdm_data,
-  dose_cmt = 2
+  dose_cmt = 2,
+  ruv = list(
+    prop = 0.15,
+    add = 1.6
+  )
 )
 
 ## Sample from posterior
