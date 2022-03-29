@@ -24,8 +24,8 @@ functions{
 
 data {
   int<lower = 1> n_t;            // number of events
-  int<lower = 1> n_obs;          // number of observations
-  int<lower = 1> i_obs[n_obs];    // index of observation
+  int<lower = 1> n_obs_pk;          // number of observations
+  int<lower = 1> i_obs_pk[n_obs_pk];    // index of observation
   
   // population parameters
   real<lower = 0> theta_CL;
@@ -40,9 +40,9 @@ data {
   real<lower = 0> omega_V2;
   
   // error model
-  int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
-  real<lower = 0> ruv_prop;
-  real<lower = 0> ruv_add;
+  int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop_pk;
+  real<lower = 0> ruv_add_pk;
 
   // NONMEM data
   int<lower = 1> cmt[n_t];
@@ -56,11 +56,11 @@ data {
   real   WT[n_t];
   real CRCL[n_t];
   
-  row_vector<lower = 0>[n_obs] dv;  // observed concentration (dependent variable)
+  row_vector<lower = 0>[n_obs_pk] dv_pk;  // observed concentration (dependent variable)
 }
 
 transformed data {
-  row_vector[n_obs] log_dv = log(dv);
+  row_vector[n_obs_pk] log_dv_pk = log(dv_pk);
   int n_theta = 5;   // number of parameters
   int n_cmt = 3;     // number of compartments
 }
@@ -74,8 +74,8 @@ parameters {
 
 transformed parameters {
   real theta[n_theta];
-  row_vector<lower = 0>[n_t] ipred;
-  row_vector<lower = 0>[n_obs] ipred_obs;
+  row_vector<lower = 0>[n_t] ipred_pk;
+  row_vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   matrix<lower = 0>[3, n_t] A; 
 
   theta[1] = CL * (1.0 + 0.0154 * ((mean(CRCL) * 16.6667) - 66.0));;
@@ -86,10 +86,10 @@ transformed parameters {
 
   A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
 
-  ipred = A[2, ] ./ theta[3];
+  ipred_pk = A[2, ] ./ theta[3];
 
-  for(i in 1:n_obs){
-    ipred_obs[i] = ipred[i_obs[i]];  // predictions for observed data records
+  for(i in 1:n_obs_pk){
+    ipred_obs_pk[i] = ipred_pk[i_obs_pk[i]];  // predictions for observed data records
   }
 }
 
@@ -101,15 +101,15 @@ model{
   V2     ~ lognormal(log(theta_V2), omega_V2);
   
   // likelihood for observed data:
-  if(ltbs) {
-    log_dv ~ normal(log(ipred_obs), ruv_add);
+  if(ltbs_pk) {
+    log_dv_pk ~ normal(log(ipred_obs_pk), ruv_add_pk);
   } else {
-    dv ~ normal(ipred_obs, (ruv_prop * ipred_obs + ruv_add));
+    dv_pk ~ normal(ipred_obs_pk, (ruv_prop_pk * ipred_obs_pk + ruv_add_pk));
   }
 }
 
 generated quantities{
-  real ipred_ruv[n_obs];
+  real ipred_ruv_pk[n_obs_pk];
   
   // sample prior:
   real prior_CL = lognormal_rng(log(theta_CL), omega_CL);
@@ -118,7 +118,7 @@ generated quantities{
   real prior_V2 = lognormal_rng(log(theta_V2), omega_V2);
   
   // posterior:
-  for(i in 1:n_obs){
-    ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
+  for(i in 1:n_obs_pk){
+    ipred_ruv_pk[i] = normal_rng(ipred_obs_pk[i], (ruv_prop_pk * ipred_obs_pk[i] + ruv_add_pk));
   }
 }

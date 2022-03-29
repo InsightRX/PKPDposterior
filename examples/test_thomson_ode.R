@@ -46,7 +46,6 @@ data <- prepare_data(
   )
 )
 
-
 ## Sample from posterior
 post <- get_mcmc_posterior(
   mod = mod,
