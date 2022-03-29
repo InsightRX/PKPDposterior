@@ -62,8 +62,7 @@ parameters{
 
 transformed parameters{
   
-  // transformed_parameters
-  array[n_t, n_theta] real theta;
+  // transformed_parameters_definitions
   row_vector<lower = 0>[n_t] ipred_pk;
   vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   matrix<lower = 0>[n_cmt, n_t] A;

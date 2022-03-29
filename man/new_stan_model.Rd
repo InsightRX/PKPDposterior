@@ -9,7 +9,13 @@ new_stan_model(
   parameter_definitions,
   covariate_definitions = NULL,
   solver = c("pmx_solve_twocpt", "pmx_solve_rk45"),
-  template = "template.stan"
+  template = "template.stan",
+  obs_types = NULL,
+  scale,
+  n_cmt = 5,
+  n_theta = NULL,
+  file = NULL,
+  verbose = FALSE
 )
 }
 \description{

@@ -26,7 +26,7 @@ generate_stan_model <- function(
         collapse = ""
       )
     } else {
-      stop(paste0("Definition for `", key, "` not specified."))
+      stop(paste0("Tag for `", key, "` not found in template file."))
     }
   }
   

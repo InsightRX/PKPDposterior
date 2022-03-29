@@ -34,14 +34,12 @@ parameters{
 
 transformed parameters{
   
-  // transformed_parameters
+  // transformed_parameters_definitions
 
   // pk_block
 
   // solver_call
 
-  real scale = theta[3];
-  
   // ipred_definition
 
 }
