@@ -2,24 +2,48 @@
 % Please edit documentation in R/prepare_data.R
 \name{prepare_data}
 \alias{prepare_data}
-\title{Prepare data}
+\title{Prepare data object for use in get_mcmc_posterior()}
 \usage{
-prepare_data(regimen, covariates, data, dose_cmt = 1)
+prepare_data(
+  regimen,
+  covariates,
+  data,
+  parameters,
+  iiv,
+  ruv,
+  dose_cmt = 1,
+  ltbs = FALSE
+)
 }
 \arguments{
 \item{regimen}{Regimen object (created by \code{\link[PKPDsim:new_regimen]{PKPDsim::new_regimen()}})}
 
 \item{covariates}{List of covariate objects created by \code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
 
-\item{dose_cmt}{Specify what dose compartment. Observation compartment in dataset is irrelevant, handled in model.}
+\item{parameters}{list of population parameters, e.g. \code{list(CL = 5, V = 50)}}
 
-\item{tdm_data}{Data frame with columns t, dv, and cmt}
+\item{iiv}{list of inter-individual variability for parameters. Should have
+exact same list elements as \code{parameters}, and magnitude supplied on SD scale.}
+
+\item{ruv}{magnitude of residual unexplained variability (RUV). Should be a
+list specifying proportional and/or additive error magnitude on standard
+deviation scale, e.g. \code{list("prop" = 0.1, "add" = 1)}. If \code{ltbs} is TRUE,
+should specify only an \code{add} part, which applies an additive error on the
+log-scale (which then becomes an approximate proportional error).}
+
+\item{dose_cmt}{Specify what dose compartment. Observation compartment in
+dataset is irrelevant, handled in model.}
+
+\item{ltbs}{use log-transform-both-sides approach for observations? Default
+is \code{FALSE}.}
+
+\item{tdm_data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
 }
 \value{
-Named list suitable for passing on to Torsten
+Named list suitable for passing on to Torsten.
 }
 \description{
-Prepare data
+Prepare data object for use in get_mcmc_posterior()
 }
 \examples{
 regimen <- PKPDsim::new_regimen(
