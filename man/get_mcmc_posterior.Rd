@@ -10,9 +10,11 @@ get_mcmc_posterior(
   init,
   data,
   seed = 12345,
+  chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
   refresh = 0,
+  skip_processing = FALSE,
   ...
 )
 }
@@ -31,6 +33,10 @@ get_mcmc_posterior(
 
 \item{refresh}{show output from sampler. Default is 0, meaning no output
 from sampler is shown.}
+
+\item{skip_processing}{will return the raw output from the sampler, without
+further processing. This can sometimes be useful when errors occur in the
+processing stage.}
 
 \item{...}{arguments passed to \code{mod$sample()}
 
