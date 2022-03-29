@@ -41,9 +41,9 @@ sim_from_draws <- function(
   }
   
   if(!is.null(map)) {
-    par_table$posterior <- remap(par_table$posterior, map)
+    par_table$posterior <- remap(par_table$posterior, map, reverse = FALSE)
     if(prior) {
-      par_table$prior <- remap(par_table$prior, map)
+      par_table$prior <- remap(par_table$prior, map, reverse = FALSE)
     }
   }
 
@@ -75,6 +75,7 @@ sim_from_draws <- function(
     res <- PKPDsim::sim(
       ode = model,
       parameters_table = as.data.frame(par_table$posterior),
+      output_include = list(variables = TRUE),
       ...
     )
   }
@@ -86,9 +87,9 @@ sim_from_draws <- function(
       dplyr::filter(comp == "obs") %>%
       dplyr::group_by(t) %>%
       dplyr::summarise(
-        ymedian = stats::median(y), 
-        ymin = stats::quantile(y, ci[1]),
-        ymax = stats::quantile(y, ci[2])
+        ymedian = stats::median(y, na.rm = TRUE), 
+        ymin = stats::quantile(y, ci[1], na.rm = TRUE),
+        ymax = stats::quantile(y, ci[2], na.rm = TRUE)
       )
   }
 

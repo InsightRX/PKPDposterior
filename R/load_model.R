@@ -17,9 +17,10 @@ load_model <- function(
   messages <- ifelse(verbose, function(x) { x }, suppressMessages)
   
   ## Initialize
-  stan_path <- file.path(Sys.getenv("STAN_PATH"), "cmdstan")
   messages(
-    cmdstanr::set_cmdstan_path(path = stan_path)
+    cmdstanr::set_cmdstan_path(
+      path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
+    )
   )
 
   ## Compile Stan/Torsten model, or re-use old model

@@ -16,9 +16,9 @@ extract_map_estimates <- function(
     parameters <- names(post$draws_df)
     idx <- c(
       grepl("^lp__", parameters) |
-      grepl("^x\\[", parameters) |
-      grepl("^cHat", parameters) |
-      grepl("^cObs", parameters) |
+      grepl("^A\\[", parameters) |
+      grepl("^ipred", parameters) |
+      grepl("^dv", parameters) |
       grepl("^theta\\[", parameters) |
       grepl("^prior_", parameters) |
       grepl("\\.", parameters) 
@@ -30,6 +30,7 @@ extract_map_estimates <- function(
   suppressWarnings(
     par_samples <- post$draws_df[, par_fetch]
   )
+
   lapply(par_samples, get_mode)
   
 }

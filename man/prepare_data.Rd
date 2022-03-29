@@ -4,16 +4,16 @@
 \alias{prepare_data}
 \title{Prepare data}
 \usage{
-prepare_data(regimen, covariates, tdm_data, dose_cmt = 1)
+prepare_data(regimen, covariates, data, dose_cmt = 1)
 }
 \arguments{
 \item{regimen}{Regimen object (created by \code{\link[PKPDsim:new_regimen]{PKPDsim::new_regimen()}})}
 
 \item{covariates}{List of covariate objects created by \code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
 
-\item{tdm_data}{Data frame with columns t, dv, and cmt}
-
 \item{dose_cmt}{Specify what dose compartment. Observation compartment in dataset is irrelevant, handled in model.}
+
+\item{tdm_data}{Data frame with columns t, dv, and cmt}
 }
 \value{
 Named list suitable for passing on to Torsten

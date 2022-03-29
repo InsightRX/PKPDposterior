@@ -1,26 +1,23 @@
 library(PKPDsim)
 library(PKPDposterior)
 library(ggplot2)
-library(dplyr)
-library(tidyr)
 library(pkvancothomson)
-library(posterior)
 
-# set Stan path
-Sys.setenv(STAN_PATH = "/home/ron@insight-rx.com/git/Torsten")
+mapping <- list("V1" = "V")
 
 # Compile or reload model
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
   "pk_vanco_thomson", 
-  force = T
+  force = T,
+  verbose = T
 )
-
+ 
 ## define init values (use population values): 
 prior <- get_init(
   "pkvancothomson", 
-  map = list("V1" = "V"), 
+  map = mapping, 
   drop = c("TH_CRCL", "TDM_INIT")
 )
 
@@ -43,10 +40,16 @@ tdm_data <- data.frame(
 
 ## Create combined dataset for Torsten/Stan to read:
 data <- prepare_data(
-  regimen, 
+  regimen,
   covariates, 
   tdm_data,
-  dose_cmt = 2
+  dose_cmt = 2,
+  parameters = prior,
+  iiv = list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3),
+  ruv = list(
+    prop = 0.15,
+    add = 1.6
+  )
 )
 
 ## Sample from posterior

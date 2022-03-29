@@ -4,10 +4,7 @@
 \alias{tdm_to_nm}
 \title{Convert TDM data to NONMEM format}
 \usage{
-tdm_to_nm(tdm_data)
-}
-\arguments{
-\item{tdm_data}{Data frame with columns t, dv, and cmt}
+tdm_to_nm(data)
 }
 \description{
 Convert TDM data to NONMEM format

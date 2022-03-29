@@ -10,7 +10,7 @@
 extract_from_draws <- function(
   post, 
   data,
-  filter = "cHatObs",
+  filter = "ipred_obs",
   verbose = TRUE
 ) {
   
@@ -23,11 +23,14 @@ extract_from_draws <- function(
     dv = data$DV,
     evid = data$evid
   )
-  obs_data <- dplyr::bind_cols(
-    obs_data[obs_data$evid == 0,],
-    post_info[,-1]
-  )
-  
+  if(sum(obs_data$evid == 0) == nrow(post_info)) {
+    message("Filtering observations...")
+    obs_data <- dplyr::bind_cols(
+      obs_data[obs_data$evid == 0,],
+      post_info[,-1]
+    )
+  }
+
   ## add percentile of observed in 
   for(i in 1:nrow(obs_data)) {
     obs_data$pct[i] <- get_quantile(

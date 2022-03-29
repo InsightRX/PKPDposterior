@@ -1,9 +1,31 @@
-// Two compartment model using built-in analytical solution
+functions{
+  
+  vector ode (real t, vector A, real[] theta, real[] x_r, int[] x_i){
 
-data{
-  int<lower = 1> n_t;  // number of events
-  int<lower = 1> n_obs;  // number of observation
-  int<lower = 1> i_obs[n_obs];  // index of observation
+    real CL = theta[1];
+    real Q  = theta[2];
+    real V1 = theta[3];
+    real V2 = theta[4];
+    real ka = 0;
+    
+    real k10 = CL / V1;
+    real k12 = Q / V1;
+    real k21 = Q / V2;
+    
+    vector[3] dAdt;
+
+    dAdt[1] = -ka*A[1];
+    dAdt[2] =  ka*A[1] - (k10 + k12)*A[2] + k21*A[3];
+    dAdt[3] =  k12*A[2] - k21*A[3];
+
+    return dAdt;
+  }
+}
+
+data {
+  int<lower = 1> n_t;            // number of events
+  int<lower = 1> n_obs;          // number of observations
+  int<lower = 1> i_obs[n_obs];    // index of observation
   
   // population parameters
   real<lower = 0> theta_CL;
@@ -16,7 +38,7 @@ data{
   real<lower = 0> omega_Q;
   real<lower = 0> omega_V1;
   real<lower = 0> omega_V2;
-
+  
   // error model
   int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
   real<lower = 0> ruv_prop;
@@ -26,51 +48,49 @@ data{
   int<lower = 1> cmt[n_t];
   int  evid[n_t];
   int  addl[n_t];
-  int  ss[n_t];
-  real amt[n_t];
+  int    ss[n_t];
+  real  amt[n_t];
   real time[n_t];
   real rate[n_t];
-  real ii[n_t];
-  real WT[n_t];
+  real   ii[n_t];
+  real   WT[n_t];
   real CRCL[n_t];
   
-  vector<lower = 0>[n_obs] dv;  // observed concentration (Dependent Variable)
+  row_vector<lower = 0>[n_obs] dv;  // observed concentration (dependent variable)
 }
 
-transformed data{
-  vector[n_obs] log_dv = log(dv);
-  int n_theta = 5;  // number of ODE parameters in Two Compartment Model
-  int n_cmt = 3;  // number of compartments in model
+transformed data {
+  row_vector[n_obs] log_dv = log(dv);
+  int n_theta = 5;   // number of parameters
+  int n_cmt = 3;     // number of compartments
 }
 
-parameters{
+parameters {
   real<lower = 0> CL;
   real<lower = 0> Q;
   real<lower = 0> V1;
   real<lower = 0> V2;
 }
 
-transformed parameters{
-  array[n_t, n_theta] real theta;
+transformed parameters {
+  real theta[n_theta];
   row_vector<lower = 0>[n_t] ipred;
-  vector<lower = 0>[n_obs] ipred_obs;
-  matrix<lower = 0>[n_cmt, n_t] A;
-  
-  for(j in 1:n_t) {
-    theta[j, 1] = CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0));
-    theta[j, 2] = Q;
-    theta[j, 3] = V1 * WT[j];
-    theta[j, 4] = V2 * WT[j];
-    theta[j, 5] = 0;
+  row_vector<lower = 0>[n_obs] ipred_obs;
+  matrix<lower = 0>[3, n_t] A; 
+
+  theta[1] = CL * (1.0 + 0.0154 * ((mean(CRCL) * 16.6667) - 66.0));;
+  theta[2] = Q;
+  theta[3] = V1 * mean(WT);
+  theta[4] = V2 * mean(WT);
+  theta[5] = 0;
+
+  A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
+
+  ipred = A[2, ] ./ theta[3];
+
+  for(i in 1:n_obs){
+    ipred_obs[i] = ipred[i_obs[i]];  // predictions for observed data records
   }
-
-  // call to analytic solver:
-  A = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);
-
-  // save observations to variables:
-  ipred = A[2, :] ./ (V1 * mean(WT)); // predictions for all event records
-  ipred_obs = ipred'[i_obs];          // predictions only for observed data records
-
 }
 
 model{
