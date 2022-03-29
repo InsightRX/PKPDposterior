@@ -72,5 +72,12 @@ tdm_data <- data.frame(
   dv = c(900, 800), 
   cmt = c(2, 2)
 )
-prepare_data(regimen, covariates, tdm_data)
+prepare_data(
+  regimen, 
+  covariates, 
+  tdm_data,
+  parameters = list(CL = 5, V = 50),
+  iiv = list(CL = 0.1, V = 0.2),
+  ruv = list(prop = 0.1, add = 1)
+)
 }
