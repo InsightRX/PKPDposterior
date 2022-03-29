@@ -29,9 +29,9 @@ plot_params <- function(post) {
       ggplot2::geom_histogram(
         data = pars,
         ggplot2::aes(
-          x = value, 
-          fill = sample,
-          colour = sample
+          x = .data$value, 
+          fill = .data$sample,
+          colour = .data$sample
         ), 
         alpha = 0.4
       ) + 

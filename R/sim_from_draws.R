@@ -85,12 +85,12 @@ sim_from_draws <- function(
     res
   } else {
     res %>% 
-      dplyr::filter(comp == "obs") %>%
-      dplyr::group_by(t) %>%
+      dplyr::filter(.data$comp == "obs") %>%
+      dplyr::group_by(.data$t) %>%
       dplyr::summarise(
-        ymedian = stats::median(y, na.rm = TRUE), 
-        ymin = stats::quantile(y, ci[1], na.rm = TRUE),
-        ymax = stats::quantile(y, ci[2], na.rm = TRUE)
+        ymedian = stats::median(.data$y, na.rm = TRUE), 
+        ymin = stats::quantile(.data$y, ci[1], na.rm = TRUE),
+        ymax = stats::quantile(.data$y, ci[2], na.rm = TRUE)
       )
   }
 
