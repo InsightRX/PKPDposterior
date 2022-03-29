@@ -4,12 +4,14 @@
 \alias{remap}
 \title{Remap named list or data.frame using a translation map}
 \usage{
-remap(x, map)
+remap(x, map, reverse = FALSE)
 }
 \arguments{
 \item{x}{names list or data.frame}
 
 \item{map}{map used to translate elements of x, e.g. \code{list("CLi" = "CL", "V" = "V1")}}
+
+\item{reverse}{interpret map as reverse}
 }
 \description{
 Remap named list or data.frame using a translation map
