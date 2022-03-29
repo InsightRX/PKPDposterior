@@ -15,6 +15,7 @@
 #' log-scale (which then becomes an approximate proportional error).
 #' @param ltbs use log-transform-both-sides approach for observations? Default 
 #' is `FALSE`.
+#' @param verbose verbosity
 #' @return Named list suitable for passing on to Torsten.
 #' @export
 #' @examples
@@ -41,7 +42,15 @@
 #'   dv = c(900, 800), 
 #'   cmt = c(2, 2)
 #' )
-#' prepare_data(regimen, covariates, tdm_data)
+#' prepare_data(
+#'   regimen, 
+#'   covariates, 
+#'   tdm_data,
+#'   parameters = list(CL = 5, V = 50),
+#'   iiv = list(CL = 0.1, V = 0.2),
+#'   ruv = list(prop = 0.1, add = 1)
+#' )
+
 prepare_data <- function(
   regimen, 
   covariates, 
@@ -50,7 +59,8 @@ prepare_data <- function(
   iiv,
   ruv,
   dose_cmt = 1,
-  ltbs = FALSE
+  ltbs = FALSE,
+  verbose = FALSE
 ) {
   ## Convert regimen, covariates, tdm data
   reg <- regimen_to_nm(
@@ -82,6 +92,7 @@ prepare_data <- function(
   nm_data$addl <- 0
   nm_data$ss <- 0
   nm_data$ii <- 0
+  if(is.null(nm_data$TYPE)) nm_data$TYPE <- "pk" # force an observation type
   out <- as.list(nm_data)
 
   ## Lowercase some names
@@ -96,52 +107,45 @@ prepare_data <- function(
   }
   
   ## Additional info
-  types <- unique(nm_data$TYPE)
+  types <- unique(out$TYPE)
   types <- types[!is.na(types)]
-  if(!is.null(types)) {
-    message(paste0("Parsing multiple observation types: ", paste0(types, collapse = ", ")))
-    if(class("ltbs") == "logical") {
+  if(verbose) message(paste0("Parsing observation types: ", paste0(types, collapse = ", ")))
+  if(class(ltbs) == "logical") { # make it a list of lists
+    if(length(types) > 1) {
       message(paste0("Assuming `ltbs=", dput(ltbs), "` for all observation types."))
-      ltbs_list <- list()
-      for(key in types) ltbs_list[[key]] <- ltbs
-      ltbs <- ltbs_list
     }
-    if(!all(types %in% names(ruv))) {
-      stop("With multiple observation types, `ruv` needs to be specified as a list of lists for each observation type.")
-    }
-    for(key in types) {
-      out[[paste0("dv_", key)]] <- nm_data %>%
-        dplyr::filter(.data$TYPE == key) %>%
-        dplyr::filter(.data$EVID == 0) %>%
-        dplyr::pull(.data$DV)
-      out[[paste0("i_obs_", key)]] <- which(out$evid == 0 & out$TYPE == key)
-      out[[paste0("n_obs_", key)]] <- length(out[[paste0("i_obs_", key)]])
-      
-      ## error model:
-      if(ltbs[[key]] && (is.null(ruv[[key]]$add) || !is.null(ruv[[key]]$prop))) {
-        stop("With LTBS, additive error magnitude needs to be specified and proportional error cannot be specified. ")
-      }
-      out[[paste0("ruv_prop_", key)]] <- ifelse(!is.null(ruv[[key]]$prop), ruv[[key]]$prop, 0)
-      out[[paste0("ruv_add_", key)]] <- ifelse(!is.null(ruv[[key]]$add), ruv[[key]]$add, 0)
-      out[[paste0("ltbs_", key)]] <- ltbs[[key]]
-    }
-
-    out$TYPE <- NULL
-  } else {
-    out$dv <- nm_data %>%
+    ltbs_list <- list()
+    for(key in types) ltbs_list[[key]] <- ltbs
+    ltbs <- ltbs_list
+  }
+  if(class(ruv[[1]]) != "list") { # make it a list of lists
+    ruv_list <- list()
+    for(key in types) ruv_list[[key]] <- ruv
+    ruv <- ruv_list
+  }
+  if(!all(types %in% names(ruv))) {
+    stop("With multiple observation types, `ruv` needs to be specified as a list of lists for each observation type.")
+  }
+  for (key in types) {
+    out[[paste0("dv_", key)]] <- nm_data %>%
+      dplyr::filter(.data$TYPE == key) %>%
       dplyr::filter(.data$EVID == 0) %>%
       dplyr::pull(.data$DV)
-    out$i_obs <- which(out$evid == 0)
-    out$n_obs <- length(out$i_obs)
-
+    out[[paste0("i_obs_", key)]] <- which(out$evid == 0 & out$TYPE == key)
+    out[[paste0("n_obs_", key)]] <- length(out[[paste0("i_obs_", key)]])
+    
     ## error model:
-    if(ltbs && (is.null(ruv$add) || !is.null(ruv$prop))) {
+    if (ltbs[[key]] &&
+        (is.null(ruv[[key]]$add) || !is.null(ruv[[key]]$prop))) {
       stop("With LTBS, additive error magnitude needs to be specified and proportional error cannot be specified. ")
     }
-    out$ruv_prop <- ifelse(!is.null(ruv$prop), ruv$prop, 0)
-    out$ruv_add <- ifelse(!is.null(ruv$add), ruv$add, 0)
-    out$ltbs <- ltbs
+    out[[paste0("ruv_prop_", key)]] <-
+      ifelse(!is.null(ruv[[key]]$prop), ruv[[key]]$prop, 0)
+    out[[paste0("ruv_add_", key)]] <-
+      ifelse(!is.null(ruv[[key]]$add), ruv[[key]]$add, 0)
+    out[[paste0("ltbs_", key)]] <- ltbs[[key]]
   }
+  out$TYPE <- NULL
   out$n_t <- nrow(nm_data)
   
   out

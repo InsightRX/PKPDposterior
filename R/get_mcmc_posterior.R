@@ -88,13 +88,7 @@ get_mcmc_posterior <- function(
     filter = "ipred_obs",
     verbose
   )
-  out$observed_prior <- extract_from_draws(
-    out, 
-    data,
-    filter = "ipred_obs",
-    verbose = FALSE
-  )
-    
+
   ## Sampler diagnostics
   out$sampler_diagnostics <- posterior::summarise_draws(
     res$sampler_diagnostics()
