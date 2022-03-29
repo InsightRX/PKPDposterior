@@ -86,7 +86,7 @@ transformed parameters {
 
   A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
 
-  ipred = A[2, ] ./ (V1 * mean(WT));
+  ipred = A[2, ] ./ theta[3];
 
   for(i in 1:n_obs){
     ipred_obs[i] = ipred[i_obs[i]];  // predictions for observed data records

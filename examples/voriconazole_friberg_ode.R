@@ -5,6 +5,9 @@ library(dplyr)
 library(tidyr)
 library(pkvoriconazolefriberg)
 library(posterior)
+cmdstanr::set_cmdstan_path(
+  path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
+)
 
 mapping <- list("V1" = "V")
 
@@ -12,7 +15,7 @@ mapping <- list("V1" = "V")
 # this creates a binary in the installed package folder
 # at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
-  "pk_voriconazole_friberg", 
+  "pk_voriconazole_friberg",
   force = T,
   verbose = T
 )

@@ -22,7 +22,7 @@ functions{
     dAdt[2] =  KA*A[1] - (k10 + k12)*A[2] + k21*A[3] - (Vmax * A[2]/V1)/(KM + A[2]/V1);
     dAdt[3] = k12*A[2] - k21*A[3];
 
-    return A;
+    return dAdt;
   }
 }
 
@@ -140,7 +140,6 @@ generated quantities{
   real prior_KA = lognormal_rng(log(theta_KA), omega_KA);
   real prior_KM = lognormal_rng(log(theta_KM), omega_KM);
   real prior_VMAX1 = lognormal_rng(log(theta_VMAX1), omega_VMAX1);
-  // real prior_F1 = lognormal_rng(log(theta_F1), omega_F1);
 
   for(i in 1:n_obs){
     ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
