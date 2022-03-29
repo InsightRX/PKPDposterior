@@ -40,6 +40,8 @@ parameter draws.}
 
 \item{ci}{confidence interval to use when \code{summary=TRUE}. Defaults to
 \code{c(0.05, 0.95)}}
+
+\item{...}{arguments passed on to \code{PKPDsim::sim}}
 }
 \description{
 Simulate from posterior or prior draws using PKPDsim::sim()

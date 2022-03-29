@@ -5,6 +5,7 @@
 #' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
+#' @param chains number of MCMC chains to simulate, passed on to Stan model
 #' @param refresh show output from sampler. Default is 0, meaning no output 
 #'   from sampler is shown.
 #' @param output_dir output directory
@@ -88,13 +89,7 @@ get_mcmc_posterior <- function(
     filter = "ipred_obs",
     verbose
   )
-  out$observed_prior <- extract_from_draws(
-    out, 
-    data,
-    filter = "ipred_obs",
-    verbose = FALSE
-  )
-    
+
   ## Sampler diagnostics
   out$sampler_diagnostics <- posterior::summarise_draws(
     res$sampler_diagnostics()

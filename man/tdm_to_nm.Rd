@@ -6,6 +6,9 @@
 \usage{
 tdm_to_nm(data)
 }
+\arguments{
+\item{data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
+}
 \description{
 Convert TDM data to NONMEM format
 }

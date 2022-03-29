@@ -16,6 +16,7 @@
 #' parameter draws.
 #' @param ci confidence interval to use when `summary=TRUE`. Defaults to 
 #' `c(0.05, 0.95)`
+#' @param ... arguments passed on to `PKPDsim::sim`
 #' 
 #' @export
 sim_from_draws <- function(

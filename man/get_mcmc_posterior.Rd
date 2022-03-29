@@ -27,6 +27,8 @@ get_mcmc_posterior(
 
 \item{seed}{seed for sampling}
 
+\item{chains}{number of MCMC chains to simulate, passed on to Stan model}
+
 \item{output_dir}{output directory}
 
 \item{verbose}{verbosity}

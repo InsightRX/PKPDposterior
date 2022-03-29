@@ -24,7 +24,7 @@ extract_from_draws <- function(
     evid = data$evid
   )
   if(sum(obs_data$evid == 0) == nrow(post_info)) {
-    message("Filtering observations...")
+    if (verbose) message("Filtering observations...")
     obs_data <- dplyr::bind_cols(
       obs_data[obs_data$evid == 0,],
       post_info[,-1]

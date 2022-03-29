@@ -12,13 +12,16 @@ prepare_data(
   iiv,
   ruv,
   dose_cmt = 1,
-  ltbs = FALSE
+  ltbs = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
 \item{regimen}{Regimen object (created by \code{\link[PKPDsim:new_regimen]{PKPDsim::new_regimen()}})}
 
 \item{covariates}{List of covariate objects created by \code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
+
+\item{data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
 
 \item{parameters}{list of population parameters, e.g. \code{list(CL = 5, V = 50)}}
 
@@ -37,7 +40,7 @@ dataset is irrelevant, handled in model.}
 \item{ltbs}{use log-transform-both-sides approach for observations? Default
 is \code{FALSE}.}
 
-\item{tdm_data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
+\item{verbose}{verbosity}
 }
 \value{
 Named list suitable for passing on to Torsten.
@@ -69,5 +72,12 @@ tdm_data <- data.frame(
   dv = c(900, 800), 
   cmt = c(2, 2)
 )
-prepare_data(regimen, covariates, tdm_data)
+prepare_data(
+  regimen, 
+  covariates, 
+  tdm_data,
+  parameters = list(CL = 5, V = 50),
+  iiv = list(CL = 0.1, V = 0.2),
+  ruv = list(prop = 0.1, add = 1)
+)
 }
