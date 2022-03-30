@@ -5,6 +5,7 @@
 #' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
+#' @param chains number of MCMC chains to simulate, passed on to Stan model
 #' @param refresh show output from sampler. Default is 0, meaning no output 
 #'   from sampler is shown.
 #' @param output_dir output directory
@@ -39,7 +40,10 @@ get_mcmc_posterior <- function(
   
   ## Check model OK?
   if(! "CmdStanModel" %in% class(mod)) {
-    stop("Supplied model is not a valid cmdstanr model. Please use `load_model()` to load/compile models.")
+    stop(
+      "Supplied model is not a valid cmdstanr model. ", 
+      "Please use `load_model()` to load/compile models."
+    )
   }
   if(verbose) (
     res <- mod$sample(

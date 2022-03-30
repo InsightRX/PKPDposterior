@@ -4,12 +4,15 @@
 \alias{get_mode}
 \title{Simple mode estimation function from density}
 \usage{
-get_mode(x)
+get_mode(x, ...)
 }
 \arguments{
-\item{x}{vector of continuous values to estimate mode from}
+\item{x}{vector of continuous values for which to estimate mode}
+
+\item{...}{function arguments passed on to \code{\link[stats:density]{stats::density()}}}
 }
 \description{
-More advanced methods are available in \code{modeest} package,
-but likely not necessary for our purpose.
+This function implements a simple estimation of model using the peak of the
+univariate kernel density calculated by \code{\link[stats:density]{stats::density()}}. More advanced
+methods are available in \code{modeest} package.
 }

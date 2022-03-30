@@ -15,13 +15,23 @@ plot_predictions <- function(
     stop("Requires a simulation dataset created using sim_from_draws()")
   }
   p <- sim_data %>%
-    ggplot2::ggplot(ggplot2::aes(x = t, y = ymedian)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin = ymin, ymax = ymax), fill = "#cfcfcf") +
-    ggplot2::geom_line(size = 1)
+    ggplot(aes(x = .data$t, y = .data$ymedian)) +
+    geom_ribbon(aes(ymin = .data$ymin, ymax = .data$ymax), fill = "#cfcfcf") +
+    geom_line(size = 1)
   if(!is.null(obs)) {
     p <- p +
-      ggplot2::geom_point(data = obs, mapping = ggplot2::aes(x = t, y = dv, group = NULL), colour = "black", size = 2.5) +
-      ggplot2::geom_point(data = obs, mapping = ggplot2::aes(x = t, y = dv, group = NULL), colour = "white", size = 1.5)
+      geom_point(
+        data = obs, 
+        mapping = aes(x = .data$t, y = .data$dv, group = NULL), 
+        colour = "black", 
+        size = 2.5
+      ) +
+      geom_point(
+        data = obs, 
+        mapping = aes(x = .data$t, y = .data$dv, group = NULL), 
+        colour = "white", 
+        size = 1.5
+      )
   }
   p
 }

@@ -1,6 +1,7 @@
 #' Remap named list or data.frame using a translation map
 #' @param x names list or data.frame
-#' @param map map used to translate elements of x, e.g. `list("CLi" = "CL", "V" = "V1")`
+#' @param map map used to translate elements of x, e.g. `list("CLi" = "CL", "V"
+#'   = "V1")`
 #' @param reverse interpret map as reverse
 #' 
 #' @export

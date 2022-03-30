@@ -7,7 +7,8 @@
 covariates_to_nm(covariates)
 }
 \arguments{
-\item{covariates}{List of covariate objects created by \code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
+\item{covariates}{List of covariate objects created by
+\code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
 }
 \description{
 Convert list of covariate objects to NONMEM formatted data

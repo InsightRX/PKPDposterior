@@ -24,7 +24,7 @@ extract_from_draws <- function(
     evid = data$evid
   )
   if(sum(obs_data$evid == 0) == nrow(post_info)) {
-    message("Filtering observations...")
+    if (verbose) message("Filtering observations...")
     obs_data <- dplyr::bind_cols(
       obs_data[obs_data$evid == 0,],
       post_info[,-1]
@@ -54,7 +54,10 @@ extract_from_draws <- function(
   
   ## warnings of poor fit
   if(any(obs_data$pct > 0.99) || any(obs_data$pct < 0.01)) {
-    if(verbose) message("One or more observed data points were at the edges of the posterior (1st percentile)")
+    if(verbose) message(
+      "One or more observed data points were at the edges of the posterior ",
+      "(1st percentile)"
+    )
   }
   
   obs_data
