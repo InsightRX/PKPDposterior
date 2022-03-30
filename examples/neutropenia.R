@@ -1,3 +1,6 @@
+## Neutropenia PK-PD example
+## Implemented using ODE system for both PK and PD
+
 library(PKPDsim)
 library(PKPDposterior)
 library(pkpdneutropeniatemplate1)

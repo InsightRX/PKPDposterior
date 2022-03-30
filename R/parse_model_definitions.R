@@ -6,6 +6,7 @@
 parse_model_definitions <- function(
   parameters,
   parameter_definitions,
+  ode,
   covariate_definitions,
   solver,
   obs_types,
@@ -62,13 +63,11 @@ parse_model_definitions <- function(
   def[["log_transform_observations"]] <- paste0("vector[n_obs_", obs_types, "] log_dv_", obs_types, " = log(dv_", obs_types, ");")
   cmt_size <- list(
     "pmx_solve_onecpt" = 2,
-    "pmx_solve_twocpt" = 3,
-    "pmx_solve_threecpt" = 4
+    "pmx_solve_twocpt" = 3
   )
   theta_size <- list(
     "pmx_solve_onecpt" = 3,
-    "pmx_solve_twocpt" = 5,
-    "pmx_solve_threecpt" = 5
+    "pmx_solve_twocpt" = 5
   )
   if(!is.null(theta_size[[solver]])) {
     n_theta <- theta_size[[solver]]
@@ -95,7 +94,9 @@ parse_model_definitions <- function(
     "pmx_solve_onecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
     "pmx_solve_twocmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
     "pmx_solve_threecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
-    "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
+    "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
+    "pmx_solve_adams" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
+    "pmx_solve_bdf" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
   )
   def[["solver_call"]] <- paste0("A = ", solver, "(", solver_def[solver], ");")
   if(!is.null(custom_ipred)) { # custom definition of individual predictions

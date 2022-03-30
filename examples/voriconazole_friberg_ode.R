@@ -1,3 +1,6 @@
+## Voriconazole PK model (Friberg et al)
+## Implemented using ODE system
+
 library(PKPDsim)
 library(PKPDposterior)
 library(ggplot2)

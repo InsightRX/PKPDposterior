@@ -1,3 +1,7 @@
+## Voriconazole PK model (Friberg et al)
+## Implemented using ODE system
+## Stan model generated using new_stan_model()
+
 library(PKPDposterior)
 
 parameters <- list(KA = 1.19, VMAX1 = 114, 

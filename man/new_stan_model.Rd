@@ -9,7 +9,8 @@ new_stan_model(
   parameter_definitions,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
+  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45",
+    "pmx_solve_adams", "pmx_solve_bdf"),
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -18,7 +19,8 @@ new_stan_model(
   n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  return_code = FALSE
 )
 }
 \arguments{
@@ -59,6 +61,9 @@ thetas for solver.}
 \item{file}{file to save model to. If NULL, will save to temporary file.}
 
 \item{verbose}{verbosity}
+
+\item{return_code}{return code? Default FALSE, i.e. return the model
+filename.}
 }
 \value{
 filename

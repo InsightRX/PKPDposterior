@@ -1,3 +1,7 @@
+## Vancomycin PK model (Thomson et al)
+## Implemented using analytic equation
+## Stan model generated using new_stan_model()
+
 library(PKPDposterior)
 
 ## Vancomycin model (Thomson et al)

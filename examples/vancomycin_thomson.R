@@ -1,13 +1,20 @@
+## Vancomycin PK model (Thomson et al)
+## Implemented using analytic equation
+
+library(PKPDsim)
 library(PKPDposterior)
+library(ggplot2)
+library(pkvancothomson)
 
 mapping <- list("V1" = "V")
 
+# Compile or reload model
 mod <- load_model(
-  "pk_vanco_thomson_ode", 
+  "pk_vanco_thomson", 
   force = T,
   verbose = T
 )
-
+ 
 ## define init values (use population values): 
 prior <- get_init(
   "pkvancothomson", 
@@ -17,19 +24,19 @@ prior <- get_init(
 
 ## Define regimen, covariates, and TDM data
 regimen <- PKPDsim::new_regimen(
-  amt = 1500, 
-  n = 4, 
-  times = c(0, 12, 24, 36), 
-  type = 'infusion',
-  t_inf = 2
+   amt = 1500, 
+   n = 4, 
+   times = c(0, 12, 24, 36), 
+   type = 'infusion',
+   t_inf = 2
 )
 covariates <- list(
-  WT = PKPDsim::new_covariate(value = 70, unit = "kg"),
-  CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr")
+   WT = PKPDsim::new_covariate(value = 70, unit = "kg"),
+   CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr")
 )
 tdm_data <- data.frame(
-  t = c(2.5, 11.5), 
-  dv = c(40, 14)
+   t = c(2.5, 11.5), 
+   dv = c(40, 14)
 )
 
 ## Create combined dataset for Torsten/Stan to read:
@@ -62,7 +69,7 @@ post
 ## Plot parameter distributions
 plot_params(post)
 
-## Predictions
+## Simulate from posterior and prior:
 covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
@@ -89,3 +96,34 @@ pred_prior <- sim_from_draws(
 ## Plot confidence interval posterior and prior predictions
 plot_predictions(pred_prior, obs = tdm_data)
 plot_predictions(pred_post, obs = tdm_data)
+
+## Plot posterior AUC distribution
+pred_post_full <- sim_from_draws( # don't summarize
+  post, 
+  map = mapping,
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
+  model = pkvancothomson::model(), 
+  regimen = regimen,
+  covariates = covariates,
+  n = 200
+)
+pred_post_full %>%
+  filter(t %in% c(36, 48)) %>%
+  filter(comp == 3) %>%
+  group_by(id) %>%
+  tidyr::pivot_wider(names_from = t, values_from = y) %>%
+  mutate(auc24 = 2 * (`48` - `36`)) %>%
+  ggplot() + 
+    aes(x = auc24) +
+    geom_histogram()
+
+## Probability that 400 < AUC < 700
+pred_post_full %>%
+  filter(t %in% c(36, 48)) %>%
+  filter(comp == 3) %>%
+  group_by(id) %>%
+  tidyr::pivot_wider(names_from = t, values_from = y) %>%
+  mutate(auc24 = 2 * (`48` - `36`)) %>%
+  ungroup() %>%
+  summarise(pta = sum(auc24 > 400 & auc24 < 700)/nrow(.))
+  

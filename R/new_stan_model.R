@@ -24,6 +24,8 @@
 #' thetas for solver.
 #' @param file file to save model to. If NULL, will save to temporary file.
 #' @param verbose verbosity
+#' @param return_code return code? Default FALSE, i.e. return the model 
+#' filename.
 #' 
 #' @returns filename
 #' 
@@ -55,7 +57,8 @@ new_stan_model <- function(
   parameter_definitions,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
+  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", 
+             "pmx_solve_adams", "pmx_solve_bdf"),
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -64,11 +67,12 @@ new_stan_model <- function(
   n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  return_code = FALSE
 ) {
   
   solver <- match.arg(solver)
-  if(!is.null(ode) && ! solver %in% "pmx_solve_rk45") {
+  if(!is.null(ode) && ! solver %in% c("pmx_solve_rk45", "pmx_solve_adams", "pmx_solve_bdf")) {
     message("When an ODE block is supplied, a Torsten ODE-solver is required. Switching to `pmx_solve_rk45`.")
     solver <- "pmx_solve_rk45"
   }
@@ -116,6 +120,7 @@ new_stan_model <- function(
   def <- parse_model_definitions(
     parameters = parameters,
     parameter_definitions = parameter_definitions,
+    ode = ode,
     covariate_definitions = covariate_definitions,
     solver = solver,
     obs_types = obs_types,
@@ -142,11 +147,14 @@ new_stan_model <- function(
   }
 
   ## Save to file and return filename
+  if(return_code) {
+    return(model_code)
+  } 
   if(is.null(file)) {
     file <- tempfile(fileext = ".stan")
   }
+  
   writeLines(model_code, con=file)
-
   file
   
 }

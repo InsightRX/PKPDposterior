@@ -1,3 +1,7 @@
+## Neutropenia PK-PD example
+## Implemented using ODE system for both PK and PD
+## Stan model generated using new_stan_model()
+
 library(PKPDsim)
 library(PKPDposterior)
 library(pkpdneutropeniatemplate1)
@@ -6,15 +10,11 @@ library(ggplot2)
 cmdstanr::set_cmdstan_path(
   path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
 )
-mapping <- list( # mapping between parameter names Stan vs PKPDsim
-  "V1" = "V"
-)
-
-parameters <- list(CL = 5, V1 = 50,
+parameters <- list(CL = 5, V = 50,
                    SLOPE = 0.1, MTT = 100, 
                    CIRC0 = 5, GAMMA = 0.2)
 iiv <- list(
-  CL = 0.2, V1 = 0.5, 
+  CL = 0.2, V = 0.5, 
   SLOPE = 1.0, MTT = 0.2, 
   CIRC0 = 0.5, GAMMA = 0.2
 )
@@ -22,30 +22,23 @@ ruv <- list(
   pk = list(add = 0.2),
   pd = list(add = 0.3)
 )
-mapping <- list( # mapping between parameter names Stan vs PKPDsim
-  "V1" = "V", 
-  "gamma" = "GAMMA",
-  "mtt" = "MTT",
-  "alpha" = "SLOPE",
-  "circ0" = "CIRC0"
-)
 parameter_definitions <- list(
   "CL" = "CL",
   "Q" = 0,
-  "V1" = "V1",
+  "V" = "V",
   "V2" = 1,
   "KA" = 0,
-  "mtt" = "MTT",
-  "circ0" = "CIRC0",
-  "gamma" = "GAMMA",
-  "alpha" = "SLOPE"
+  "MTT" = "MTT",
+  "CIRC0" = "CIRC0",
+  "GAMMA" = "GAMMA",
+  "ALPHA" = "SLOPE"
 )
 ode <- "
   real ka  = 0;
-  real k10 = CL / V1;
-  real k12 = 0; // Q / V1;
-  real k21 = 0; // Q / V2;
-  real ktr = 4 / mtt;
+  real k10 = CL / V;
+  real k12 = 0;
+  real k21 = 0;
+  real ktr = 4 / MTT;
   
   real conc;
   real EDrug;
@@ -55,20 +48,20 @@ ode <- "
   real circ;
   real prol;
   
-  dAdt[1] = -ka * A[1];
-  dAdt[2] =  ka * A[1] - (k10 + k12) * A[2] + k21 * A[3];
+  dAdt[1] = -KA * A[1];
+  dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
   dAdt[3] = k12 * A[2] - k21 * A[3];
   conc = A[2] / V1;
   
-  EDrug = alpha * conc; // slope model, not Emax
-  prol = A[4] + circ0;
-  transit1 = A[5] + circ0;
-  transit2 = A[6] + circ0;
-  transit3 = A[7] + circ0;
-  circ = fmax(machine_precision(), A[8] + circ0); // Device for implementing a modeled 
+  EDrug = ALPHA * conc; // slope model, not Emax
+  prol = A[4] + CIRC0;
+  transit1 = A[5] + CIRC0;
+  transit2 = A[6] + CIRC0;
+  transit3 = A[7] + CIRC0;
+  circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
   
   // initial condition
-  dAdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^gamma) - 1);
+  dAdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^GAMMA) - 1);
   dAdt[5] = ktr * (prol - transit1);
   dAdt[6] = ktr * (transit1 - transit2);
   dAdt[7] = ktr * (transit2 - transit3);
@@ -83,7 +76,7 @@ model_file <- new_stan_model(
   n_cmt = 8,
   obs_types = c("pk", "pd"),
   custom_ipred = list(
-    "pk" = "A[2, ] ./ V1;",
+    "pk" = "A[2, ] ./ V;",
     "pd" = "A[8, ] + theta[7];"
   ),
   verbose = T
