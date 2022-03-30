@@ -9,25 +9,22 @@ parse_model_definitions <- function(
   covariate_definitions,
   solver,
   obs_types,
+  obs_cmt,
   n_theta,
   n_cmt,
-  scale
+  scale,
+  custom_ipred
 ) {
   
   def <- list()
   cr <- "\n"
   
   ## Define observation variables and data
-  obs_types_txt <- c()
-  for(type in obs_types) {
-    obs_types_txt <- c(
-      obs_types_txt,
-      "int<lower = 1> n_t;  // number of events",
-      paste0("int<lower = 1> n_obs_", type, ";  // number of observation"),
-      paste0("int<lower = 1> i_obs_", type, "[n_obs_", type, "];  // index of observation")
-    )
-  }
-  def[["observation_variables"]] <- obs_types_txt
+  def[["observation_variables"]] <- c(
+    "int<lower = 1> n_t;  // number of events",
+    paste0("int<lower = 1> n_obs_", obs_types, ";  // number of observation"),
+    paste0("int<lower = 1> i_obs_", obs_types, "[n_obs_", obs_types, "];  // index of observation")
+  )
   def[["observation_data"]] <- paste0("vector<lower = 0>[n_obs_", obs_types, "] dv_", obs_types, ";  // observed concentration (Dependent Variable)")
 
   ## define model parameters in data section
@@ -101,11 +98,16 @@ parse_model_definitions <- function(
     "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
   )
   def[["solver_call"]] <- paste0("A = ", solver, "(", solver_def[solver], ");")
+  if(!is.null(custom_ipred)) { # custom definition of individual predictions
+    ipred <- paste0("ipred_", obs_types, " = ", custom_ipred[obs_types], ";")
+  } else {
+    ipred <- paste0("ipred_", obs_types, " = A[", obs_cmt[obs_types], ", :] ./ ", scale[obs_types], ";")
+  }
   def[["ipred_definition"]] = c(
-    paste0("ipred_", obs_types, " = A[2, :] ./ ", scale[obs_types], ";"),
+    ipred,
     paste0("ipred_obs_", obs_types, " = ipred_", obs_types, "'[i_obs_", obs_types, "]; // predictions only for observed data records")
   )
-  
+
   ## Parse parameters for analytic equations
   param_req <- list(
     "pmx_solve_twocpt" = c("CL", "Q", "V1", "V2", "KA")
@@ -122,24 +124,35 @@ parse_model_definitions <- function(
   def[["transformed_parameters_definitions"]] <- c(
     paste0("row_vector<lower = 0>[n_t] ipred_", obs_types, ";"),
     paste0("vector<lower = 0>[n_obs_", obs_types, "] ipred_obs_", obs_types, ";"),
-    "matrix<lower = 0>[n_cmt, n_t] A;"
+    "matrix[n_cmt, n_t] A;"
   )
   
   if(is.null(ode)) {
     pk_equations <- parameter_definitions[unlist(param_req[solver])] # make sure to have the order correct for the analytic solver to understand
+    def[["pk_block"]] <- c(
+      "array[n_t, n_theta] real theta;",
+      "for(j in 1:n_t) {",
+      paste0(
+        "  theta[j, ", seq(pk_equations), "] = ",
+        pk_equations,
+        ";"
+      ),
+      "}"
+    )
   } else {
     pk_equations <- parameter_definitions # for ODEs the user defines the order
+    def[["pk_block"]] <- c(
+      "real theta[n_theta];",
+      "for(j in 1:n_t) {",
+      paste0(
+        "  theta[", seq(pk_equations), "] = ",
+        pk_equations,
+        ";"
+      ),
+      "}"
+    )
   }
-  def[["pk_block"]] <- c(
-    "array[n_t, n_theta] real theta;",
-    "for(j in 1:n_t) {",
-    paste0(
-      "  theta[j, ", seq(pk_equations), "] = ",
-      pk_equations,
-      ";"
-    ),
-    "}"
-  )
+  
   
   def[["likelihood_parameters"]] <- paste0(
     names(parameters), " ~ lognormal(log(theta_", 
@@ -162,7 +175,7 @@ parse_model_definitions <- function(
   )
 
   def[["simulate_posterior_ruv"]] <- c(
-    "real ipred_ruv_pk[n_obs_pk];",
+    paste0("real ipred_ruv_", obs_types, "[n_obs_", obs_types, "];"),
     paste0(
        "for(i in 1:n_obs_", obs_types, "){", cr, "  ",
        "  ipred_ruv_", obs_types, "[i] = normal_rng(ipred_obs_", obs_types, "[i], (ruv_prop_", obs_types, " * ipred_obs_", obs_types, "[i] + ruv_add_", obs_types, "));", cr, "  ",

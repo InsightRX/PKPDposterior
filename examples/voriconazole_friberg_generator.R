@@ -3,7 +3,7 @@ library(PKPDposterior)
 parameters <- list(KA = 1.19, VMAX1 = 114, 
                    KM = 1.15, CL = 6.16, Q = 15.5, 
                    V2 = 103, V1 = 79)
-iiv <- list(CL = 0.5, Q = 0.42, V1 = 0.136, V2 = 0.77, KA = 0.9, KM = 1.0, VMAX1 = 0.5)
+iiv <- list(KA = 0.1, CL = 0.5, Q = 0.42, V1 = 0.136, V2 = 0.77, KA = 0.9, KM = 1.0, VMAX1 = 0.5)
 ruv <- list(prop = 0.15, add = 1.6)
 
 ode <- c(

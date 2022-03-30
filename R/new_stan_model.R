@@ -11,7 +11,13 @@
 #' @param template internal Stan template file to use. Defaults to 
 #' `template.stan`
 #' @param obs_types vector of observed data types. If `NULL`, will use `"pk"`.
+#' @param obs_cmt observation compartment, or list of observation compartments 
+#' for each observation type when multiple observation types. E.g. `2` or 
+#' `list(pk = 2, pd = 8)`.
 #' @param scale scale definition. Can be either parameter expression or number.
+#' @param custom_ipred list of custom definitions for individual predictions for 
+#' each observation type. Sometimes this is needed when more flexibility is 
+#' needed than the `scale` parameter provides.
 #' @param n_cmt number of compartments. If analytic equation, will use number 
 #' of compartments for solver.
 #' @param n_theta number of thetas. If analytic equation, will use number of 
@@ -52,7 +58,9 @@ new_stan_model <- function(
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
   template = "template.stan",
   obs_types = NULL,
-  scale,
+  obs_cmt = NULL,
+  scale = NULL,
+  custom_ipred = NULL,
   n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
@@ -65,15 +73,33 @@ new_stan_model <- function(
     solver <- "pmx_solve_rk45"
   }
   if(is.null(obs_types)) obs_types <- "pk"
-  if(class(scale) == "character") {
-    scale_char <- scale
-    scale <- list()
-    for(key in obs_types) {
-      message(paste0("Assuming `scale` definition (`", scale_char, "`) for observation type `", key, "`"))
-      scale[[key]] <- scale_char
+  if(is.null(scale) && is.null(custom_ipred)) {
+    stop("Argument `scale` or `custom_ipred` is required.")
+  }
+  if(is.null(obs_cmt) && is.null(custom_ipred)) {
+    stop("Argument `obs_cmt` or `custom_ipred` is required.")
+  }
+  if(!is.null(scale)) {
+    if(class(scale) == "character") {
+      scale_char <- scale
+      scale <- list()
+      for(key in obs_types) {
+        message(paste0("Assuming `scale` definition (`", scale_char, "`) for observation type `", key, "`"))
+        scale[[key]] <- scale_char
+      }
     }
   }
-  
+  if(!is.null(obs_cmt)) {
+    if(class(obs_cmt) %in% c("numeric", "integer")) {
+      obs_cmt_num <- obs_cmt
+      obs_cmt <- list()
+      for(key in obs_types) {
+        message(paste0("Assuming `obs_cmt` definition (`", obs_cmt_num, "`) for observation type `", key, "`"))
+        obs_cmt[[key]] <- obs_cmt_num
+      }
+    }
+  }
+
   ## read template file
   template_file <- system.file(paste0("models/", template), package = "PKPDposterior")
   if(!file.exists(template_file)) {
@@ -93,9 +119,11 @@ new_stan_model <- function(
     covariate_definitions = covariate_definitions,
     solver = solver,
     obs_types = obs_types,
+    obs_cmt = obs_cmt,
     n_theta = n_theta,
     n_cmt = n_cmt,
-    scale = scale
+    scale = scale,
+    custom_ipred
   )
 
   def[["ode_function"]] <- new_ode_function(

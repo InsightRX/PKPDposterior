@@ -12,7 +12,9 @@ new_stan_model(
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
   template = "template.stan",
   obs_types = NULL,
-  scale,
+  obs_cmt = NULL,
+  scale = NULL,
+  custom_ipred = NULL,
   n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
@@ -38,7 +40,15 @@ below.}
 
 \item{obs_types}{vector of observed data types. If \code{NULL}, will use \code{"pk"}.}
 
+\item{obs_cmt}{observation compartment, or list of observation compartments
+for each observation type when multiple observation types. E.g. \code{2} or
+\code{list(pk = 2, pd = 8)}.}
+
 \item{scale}{scale definition. Can be either parameter expression or number.}
+
+\item{custom_ipred}{list of custom definitions for individual predictions for
+each observation type. Sometimes this is needed when more flexibility is
+needed than the \code{scale} parameter provides.}
 
 \item{n_cmt}{number of compartments. If analytic equation, will use number
 of compartments for solver.}

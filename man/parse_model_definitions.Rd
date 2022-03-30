@@ -11,9 +11,11 @@ parse_model_definitions(
   covariate_definitions,
   solver,
   obs_types,
+  obs_cmt,
   n_theta,
   n_cmt,
-  scale
+  scale,
+  custom_ipred
 )
 }
 \arguments{
@@ -29,6 +31,10 @@ below.}
 
 \item{obs_types}{vector of observed data types. If \code{NULL}, will use \code{"pk"}.}
 
+\item{obs_cmt}{observation compartment, or list of observation compartments
+for each observation type when multiple observation types. E.g. \code{2} or
+\code{list(pk = 2, pd = 8)}.}
+
 \item{n_theta}{number of thetas. If analytic equation, will use number of
 thetas for solver.}
 
@@ -36,6 +42,10 @@ thetas for solver.}
 of compartments for solver.}
 
 \item{scale}{scale definition. Can be either parameter expression or number.}
+
+\item{custom_ipred}{list of custom definitions for individual predictions for
+each observation type. Sometimes this is needed when more flexibility is
+needed than the \code{scale} parameter provides.}
 }
 \description{
 Parse model definitions into a list that can be used to generate a Stan
