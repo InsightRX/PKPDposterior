@@ -62,6 +62,13 @@ post <- get_mcmc_posterior(
   iter_sampling = 500,
   adapt_delta = 0.95
 )
+post_vi <- get_mcmc_posterior(
+  mod = mod,
+  data = data,
+  init = prior,
+  method = "vi",
+  skip_processing = TRUE
+)
 
 ## Show info about the posterior draws
 post
@@ -72,7 +79,17 @@ plot_params(post)
 ## Simulate from posterior and prior:
 covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
-  post, 
+  post_vi, 
+  model = pkvancothomson::model(),
+  map = mapping,
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
+  regimen = regimen,
+  covariates = covariates,
+  n = 200,
+  summarize = TRUE
+)
+pred_post_vi <- sim_from_draws(
+  post_vi, 
   model = pkvancothomson::model(),
   map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
@@ -94,8 +111,9 @@ pred_prior <- sim_from_draws(
 )
 
 ## Plot confidence interval posterior and prior predictions
-plot_predictions(pred_prior, obs = tdm_data)
 plot_predictions(pred_post, obs = tdm_data)
+plot_predictions(pred_post_vi, obs = tdm_data)
+plot_predictions(pred_prior, obs = tdm_data)
 
 ## Plot posterior AUC distribution
 pred_post_full <- sim_from_draws( # don't summarize

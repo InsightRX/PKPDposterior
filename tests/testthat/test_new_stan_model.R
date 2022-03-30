@@ -67,6 +67,7 @@ test_that("Neutropenia model correctly generates", {
       "pk" = "A[2, ] ./ V;",
       "pd" = "A[8, ] + theta[7];"
     ),
+    solver = "pmx_solve_rk45",
     verbose = F,
     return_code = TRUE
   )

@@ -9,6 +9,8 @@
 #' @param refresh show output from sampler. Default is 0, meaning no output 
 #'   from sampler is shown.
 #' @param output_dir output directory
+#' @param method either `hmc` (Hamilton Monte Carlo, using NUTS by default) or 
+#' `vi` (variational inference).
 #' @param verbose verbosity
 #' @param skip_processing will return the raw output from the sampler, without
 #'   further processing. This can sometimes be useful when errors occur in the
@@ -34,10 +36,19 @@ get_mcmc_posterior <- function(
   output_dir = tempdir(),
   verbose = TRUE,
   refresh = 0,
+  method = "hmc",
   skip_processing = FALSE,
   ...
 ) {
   
+  sample_func <- list(
+    "hmc" = "sample",
+    "vi" = "variational" 
+  )
+  if(! method %in% names(sample_func)) {
+    stop("Unrecognized MCMC method specified.")
+  }
+    
   ## Check model OK?
   if(! "CmdStanModel" %in% class(mod)) {
     stop(
@@ -45,19 +56,21 @@ get_mcmc_posterior <- function(
       "Please use `load_model()` to load/compile models."
     )
   }
-  if(verbose) (
-    res <- mod$sample(
-      data = data,
-      init = function() { init },
-      seed = seed,
-      refresh = refresh,
-      output_dir = output_dir,
-      chains = chains,
-      ...
-    )
-  ) else {
-    suppressMessages(
-      res <- mod$sample(
+
+  if(method == "vi") {
+    run_cmdstanr <- function() {
+      res <- mod$variational(
+        data = data,
+        init = function() { init },
+        seed = seed,
+        refresh = refresh,
+        output_dir = output_dir,
+        ...
+      )  
+    }
+  } else {
+    run_cmdstanr <- function() {
+      mod$sample(
         data = data,
         init = function() { init },
         seed = seed,
@@ -66,8 +79,17 @@ get_mcmc_posterior <- function(
         chains = chains,
         ...
       )
-    )
+    }
   }
+  
+  ## Run
+  if(verbose) (
+    res <- run_cmdstanr()
+  ) else {
+    suppressMessages(
+      res <- run_cmdstanr()
+    )
+  } 
 
   ## Post-processing
   out <- list(

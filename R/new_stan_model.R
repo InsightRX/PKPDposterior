@@ -48,6 +48,7 @@
 #'     "CRCL" = "real", # CrCl in L/hr
 #'     "WT" = "real"    # WT in kg
 #'   ),
+#'   solver = "pmx_solve_twocpt",
 #'   obs_cmt = 2,
 #'   scale = "(V1 * mean(WT))",
 #'   verbose = TRUE

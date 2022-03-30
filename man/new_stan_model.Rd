@@ -9,8 +9,7 @@ new_stan_model(
   parameter_definitions,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45",
-    "pmx_solve_adams", "pmx_solve_bdf"),
+  solver = NULL,
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -90,6 +89,7 @@ model_file <- new_stan_model(
     "CRCL" = "real", # CrCl in L/hr
     "WT" = "real"    # WT in kg
   ),
+  solver = "pmx_solve_twocpt",
   obs_cmt = 2,
   scale = "(V1 * mean(WT))",
   verbose = TRUE
