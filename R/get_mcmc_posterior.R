@@ -40,7 +40,10 @@ get_mcmc_posterior <- function(
   
   ## Check model OK?
   if(! "CmdStanModel" %in% class(mod)) {
-    stop("Supplied model is not a valid cmdstanr model. Please use `load_model()` to load/compile models.")
+    stop(
+      "Supplied model is not a valid cmdstanr model. ", 
+      "Please use `load_model()` to load/compile models."
+    )
   }
   if(verbose) (
     res <- mod$sample(

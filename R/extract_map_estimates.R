@@ -3,13 +3,16 @@
 #' Reports the mode for the posterior of each parameter
 #' @param post posterior estimate object from `get_mcmc_posterior()`.
 #' @param parameters parameters to fetch.
+#' @param ... arguments passed on to `get_mode` for calculating the parameter
+#'   mode from the sampled values.
 #' 
 #' @returns list of modes of posterior (MAP estimate) for the parameters
 #' 
 #' @export
 extract_map_estimates <- function(
   post,
-  parameters = NULL
+  parameters = NULL,
+  ...
 ) {
 
   if(is.null(parameters)) { # attempt to identify parameters
@@ -31,6 +34,6 @@ extract_map_estimates <- function(
     par_samples <- post$draws_df[, par_fetch]
   )
 
-  lapply(par_samples, get_mode)
+  lapply(par_samples, get_mode, ...)
   
 }

@@ -1,7 +1,8 @@
 #' Prepare data object for use in get_mcmc_posterior()
 #'
 #' @param regimen Regimen object (created by [PKPDsim::new_regimen()])
-#' @param covariates List of covariate objects created by [PKPDsim::new_covariate()]
+#' @param covariates List of covariate objects created by 
+#'   [PKPDsim::new_covariate()]
 #' @param data Data frame with columns `t`, `dv`, and `cmt`
 #' @param dose_cmt Specify what dose compartment. Observation compartment in 
 #' dataset is irrelevant, handled in model.
@@ -105,16 +106,20 @@ prepare_data <- function(
   ## Population parameters and IIV
   for(key in names(parameters)) {
     out[[paste0("theta_", key)]] <- parameters[[key]]
-    if(is.null(iiv[[key]])) stop("`iiv` object requires same list elements as `parameters` object.")
+    if(is.null(iiv[[key]])) {
+      stop("`iiv` object requires same list elements as `parameters` object.")
+    }
     out[[paste0("omega_", key)]] <- iiv[[key]]
   }
   
   ## Additional info
   types <- setdiff(out$TYPE, NA)
-  if(verbose) message(paste0("Parsing observation types: ", paste0(types, collapse = ", ")))
+  if(verbose) {
+    message("Parsing observation types: ", paste0(types, collapse = ", "))
+  }
   if(class(ltbs) == "logical") { # make it a list of lists
     if(length(types) > 1) {
-      message(paste0("Assuming `ltbs=", dput(ltbs), "` for all observation types."))
+      message("Assuming `ltbs=", dput(ltbs), "` for all observation types.")
     }
     ltbs_list <- list()
     for(key in types) ltbs_list[[key]] <- ltbs
@@ -126,7 +131,10 @@ prepare_data <- function(
     ruv <- ruv_list
   }
   if(!all(types %in% names(ruv))) {
-    stop("With multiple observation types, `ruv` needs to be specified as a list of lists for each observation type.")
+    stop(
+      "With multiple observation types, ",
+      "`ruv` must be specified as a list of lists for each observation type."
+    )
   }
   for (key in types) {
     out[[paste0("dv_", key)]] <- nm_data %>%
@@ -139,7 +147,10 @@ prepare_data <- function(
     ## error model:
     if (ltbs[[key]] &&
         (is.null(ruv[[key]]$add) || !is.null(ruv[[key]]$prop))) {
-      stop("With LTBS, additive error magnitude needs to be specified and proportional error cannot be specified. ")
+      stop(
+        "With LTBS, additive error magnitude needs to be specified ", 
+        "and proportional error cannot be specified. "
+      )
     }
     out[[paste0("ruv_prop_", key)]] <-
       ifelse(!is.null(ruv[[key]]$prop), ruv[[key]]$prop, 0)

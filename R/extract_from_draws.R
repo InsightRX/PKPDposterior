@@ -54,7 +54,10 @@ extract_from_draws <- function(
   
   ## warnings of poor fit
   if(any(obs_data$pct > 0.99) || any(obs_data$pct < 0.01)) {
-    if(verbose) message("One or more observed data points were at the edges of the posterior (1st percentile)")
+    if(verbose) message(
+      "One or more observed data points were at the edges of the posterior ",
+      "(1st percentile)"
+    )
   }
   
   obs_data

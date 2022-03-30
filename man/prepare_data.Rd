@@ -19,7 +19,8 @@ prepare_data(
 \arguments{
 \item{regimen}{Regimen object (created by \code{\link[PKPDsim:new_regimen]{PKPDsim::new_regimen()}})}
 
-\item{covariates}{List of covariate objects created by \code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
+\item{covariates}{List of covariate objects created by
+\code{\link[PKPDsim:new_covariate]{PKPDsim::new_covariate()}}}
 
 \item{data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
 

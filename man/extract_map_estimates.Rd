@@ -4,12 +4,15 @@
 \alias{extract_map_estimates}
 \title{Extra MAP estimates from the posterior}
 \usage{
-extract_map_estimates(post, parameters = NULL)
+extract_map_estimates(post, parameters = NULL, ...)
 }
 \arguments{
 \item{post}{posterior estimate object from \code{get_mcmc_posterior()}.}
 
 \item{parameters}{parameters to fetch.}
+
+\item{...}{arguments passed on to \code{get_mode} for calculating the parameter
+mode from the sampled values.}
 }
 \value{
 list of modes of posterior (MAP estimate) for the parameters
