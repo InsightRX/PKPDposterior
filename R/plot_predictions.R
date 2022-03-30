@@ -20,8 +20,18 @@ plot_predictions <- function(
     geom_line(size = 1)
   if(!is.null(obs)) {
     p <- p +
-      geom_point(data = obs, mapping = aes(x = .data$t, y = .data$dv, group = NULL), colour = "black", size = 2.5) +
-      geom_point(data = obs, mapping = aes(x = .data$t, y = .data$dv, group = NULL), colour = "white", size = 1.5)
+      geom_point(
+        data = obs, 
+        mapping = aes(x = .data$t, y = .data$dv, group = NULL), 
+        colour = "black", 
+        size = 2.5
+      ) +
+      geom_point(
+        data = obs, 
+        mapping = aes(x = .data$t, y = .data$dv, group = NULL), 
+        colour = "white", 
+        size = 1.5
+      )
   }
   p
 }
