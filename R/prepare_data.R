@@ -2,7 +2,7 @@
 #'
 #' @param regimen Regimen object (created by [PKPDsim::new_regimen()])
 #' @param covariates List of covariate objects created by [PKPDsim::new_covariate()]
-#' @param tdm_data Data frame with columns `t`, `dv`, and `cmt`
+#' @param data Data frame with columns `t`, `dv`, and `cmt`
 #' @param dose_cmt Specify what dose compartment. Observation compartment in 
 #' dataset is irrelevant, handled in model.
 #' @param parameters list of population parameters, e.g. `list(CL = 5, V = 50)`
@@ -96,8 +96,11 @@ prepare_data <- function(
   out <- as.list(nm_data)
 
   ## Lowercase some names
-  lowercase <- names(out) %in% c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
-  names(out)[lowercase] <- tolower(names(out)[lowercase])
+  lowercase <- intersect(
+    names(out),
+    c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
+  )
+  names(out)[which(names(out) %in% lowercase)] <- tolower(lowercase)
 
   ## Population parameters and IIV
   for(key in names(parameters)) {
@@ -107,8 +110,7 @@ prepare_data <- function(
   }
   
   ## Additional info
-  types <- unique(out$TYPE)
-  types <- types[!is.na(types)]
+  types <- setdiff(out$TYPE, NA)
   if(verbose) message(paste0("Parsing observation types: ", paste0(types, collapse = ", ")))
   if(class(ltbs) == "logical") { # make it a list of lists
     if(length(types) > 1) {

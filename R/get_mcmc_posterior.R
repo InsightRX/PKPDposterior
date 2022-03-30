@@ -5,6 +5,7 @@
 #' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
+#' @param chains number of MCMC chains to simulate, passed on to Stan model
 #' @param refresh show output from sampler. Default is 0, meaning no output 
 #'   from sampler is shown.
 #' @param output_dir output directory
