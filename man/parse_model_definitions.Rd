@@ -8,6 +8,7 @@ model}
 parse_model_definitions(
   parameters,
   parameter_definitions,
+  ode,
   covariate_definitions,
   solver,
   obs_types,
@@ -23,6 +24,9 @@ parse_model_definitions(
 
 \item{parameter_definitions}{list of parameter definitions. See example
 below.}
+
+\item{ode}{code for differential equation system, if not the analytic solver
+is used.}
 
 \item{covariate_definitions}{list of covariate definitions. See example
 below.}

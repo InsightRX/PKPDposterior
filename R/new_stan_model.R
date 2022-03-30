@@ -36,19 +36,21 @@
 #' ruv <- list(add = 1.6, prop = 0.15)
 #' 
 #' model_file <- new_stan_model(
-#' parameters = parameters,
-#' parameter_definitions = list(
-#'  "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
-#'  "Q"  = "Q",
-#'  "V1" = "V1 * WT[j]",
-#'  "V2" = "V2 * WT[j]",
-#'  "KA" = "0" 
-#' ),
-#' covariate_definitions = list(
-#'   "CRCL" = "real", # CrCl in L/hr
-#'   "WT" = "real"    # WT in kg
-#' ),
-#' scale = "(V1 * mean(WT))"
+#'   parameters = parameters,
+#'   parameter_definitions = list(
+#'    "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
+#'    "Q"  = "Q",
+#'    "V1" = "V1 * WT[j]",
+#'    "V2" = "V2 * WT[j]",
+#'    "KA" = "0" 
+#'   ),
+#'   covariate_definitions = list(
+#'     "CRCL" = "real", # CrCl in L/hr
+#'     "WT" = "real"    # WT in kg
+#'   ),
+#'   obs_cmt = 2,
+#'   scale = "(V1 * mean(WT))",
+#'   verbose = TRUE
 #' )
 #' 
 #' @export
@@ -88,7 +90,7 @@ new_stan_model <- function(
       scale_char <- scale
       scale <- list()
       for(key in obs_types) {
-        message(paste0("Assuming `scale` definition (`", scale_char, "`) for observation type `", key, "`"))
+        if(verbose) message(paste0("Assuming `scale` definition (`", scale_char, "`) for observation type `", key, "`"))
         scale[[key]] <- scale_char
       }
     }
@@ -98,7 +100,7 @@ new_stan_model <- function(
       obs_cmt_num <- obs_cmt
       obs_cmt <- list()
       for(key in obs_types) {
-        message(paste0("Assuming `obs_cmt` definition (`", obs_cmt_num, "`) for observation type `", key, "`"))
+        if(verbose) message(paste0("Assuming `obs_cmt` definition (`", obs_cmt_num, "`) for observation type `", key, "`"))
         obs_cmt[[key]] <- obs_cmt_num
       }
     }

@@ -78,19 +78,21 @@ iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
 ruv <- list(add = 1.6, prop = 0.15)
 
 model_file <- new_stan_model(
-parameters = parameters,
-parameter_definitions = list(
- "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
- "Q"  = "Q",
- "V1" = "V1 * WT[j]",
- "V2" = "V2 * WT[j]",
- "KA" = "0" 
-),
-covariate_definitions = list(
-  "CRCL" = "real", # CrCl in L/hr
-  "WT" = "real"    # WT in kg
-),
-scale = "(V1 * mean(WT))"
+  parameters = parameters,
+  parameter_definitions = list(
+   "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
+   "Q"  = "Q",
+   "V1" = "V1 * WT[j]",
+   "V2" = "V2 * WT[j]",
+   "KA" = "0" 
+  ),
+  covariate_definitions = list(
+    "CRCL" = "real", # CrCl in L/hr
+    "WT" = "real"    # WT in kg
+  ),
+  obs_cmt = 2,
+  scale = "(V1 * mean(WT))",
+  verbose = TRUE
 )
 
 }
