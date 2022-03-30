@@ -5,7 +5,7 @@
 library(PKPDposterior)
 
 ## Vancomycin model (Thomson et al)
-parameters <- list(CL = 5, V1 = 50, Q = 5, V2 = 100)
+parameters <- list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675)
 iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
 ruv <- list(add = 1.6, prop = 0.15)
 
@@ -22,7 +22,11 @@ model_file <- new_stan_model(
     "CRCL" = "real", # CrCl in L/hr
     "WT" = "real"    # WT in kg
   ),
-  scale = "(V1 * mean(WT))"
+  solver = "pmx_solve_twocpt",
+  obs_cmt = 2,
+  n_cmt = 3,
+  scale = "(V1 * mean(WT))",
+  verbose = T
 )
 
 # Compile or reload model
@@ -63,7 +67,8 @@ data <- prepare_data(
   ruv = list(
     prop = 0.15,
     add = 1.6
-  )
+  ),
+  ltbs = FALSE
 )
 
 ## Sample from posterior

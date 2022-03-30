@@ -91,9 +91,8 @@ parse_model_definitions <- function(
 
   ## Transformed parameters block:
   solver_def <- list(
-    "pmx_solve_onecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
-    "pmx_solve_twocmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
-    "pmx_solve_threecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
+    "pmx_solve_onecpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
+    "pmx_solve_twocpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
     "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
     "pmx_solve_adams" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
     "pmx_solve_bdf" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
@@ -111,6 +110,7 @@ parse_model_definitions <- function(
 
   ## Parse parameters for analytic equations
   param_req <- list(
+    "pmx_solve_onecpt" = c("CL", "V", "KA"),
     "pmx_solve_twocpt" = c("CL", "Q", "V1", "V2", "KA")
   )
   if(solver %in% names(param_req)) { # check all parameters specified, if analytic model

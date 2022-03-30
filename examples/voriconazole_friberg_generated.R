@@ -37,6 +37,8 @@ model_file <- new_stan_model(
   covariate_definitions = list(
     "WT" = "real"    # WT in kg
   ),
+  solver = "pmx_solve_rk45",
+  obs_cmt = 2,
   n_cmt = 3,
   scale = "V1",
   verbose = T
@@ -71,7 +73,7 @@ data <- prepare_data(
   covariates, 
   tdm_data,
   dose_cmt = 2,
-  parameters = prior,
+  parameters = parameters,
   iiv = iiv,
   ruv = ruv
 )
@@ -80,7 +82,7 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = prior,
+  init = parameters,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95

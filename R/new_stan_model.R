@@ -59,8 +59,7 @@ new_stan_model <- function(
   parameter_definitions,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", 
-             "pmx_solve_adams", "pmx_solve_bdf"),
+  solver = NULL,
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -73,7 +72,11 @@ new_stan_model <- function(
   return_code = FALSE
 ) {
   
-  solver <- match.arg(solver)
+  allowed_solvers <- c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", 
+                          "pmx_solve_adams", "pmx_solve_bdf")
+  if(is.null(solver) || ! solver %in% allowed_solvers) {
+    stop(paste0("Please specify `solver`: ", paste0(allowed_solvers, collapse=", ")))
+  }
   if(!is.null(ode) && ! solver %in% c("pmx_solve_rk45", "pmx_solve_adams", "pmx_solve_bdf")) {
     message("When an ODE block is supplied, a Torsten ODE-solver is required. Switching to `pmx_solve_rk45`.")
     solver <- "pmx_solve_rk45"
@@ -133,11 +136,14 @@ new_stan_model <- function(
     custom_ipred
   )
 
-  def[["ode_function"]] <- new_ode_function(
-    ode = ode,
-    parameters = names(parameter_definitions),
-    n_cmt = n_cmt
-  )
+  if(!is.null(ode)) {
+    def[["ode_function"]] <- new_ode_function(
+      ode = ode,
+      parameters = names(parameter_definitions),
+      n_cmt = n_cmt
+    )  
+  }
+  
   
   model_code <- generate_stan_code(
     template_code = template_code,
