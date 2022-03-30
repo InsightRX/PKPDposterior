@@ -41,7 +41,6 @@ parse_model_definitions <- function(
   
   ## Input data, hardcoded
   def[["input_data"]] <- c(
-    "input_data",
     "int<lower = 1> cmt[n_t];",
     "int  evid[n_t];",
     "int  addl[n_t];",
@@ -92,11 +91,14 @@ parse_model_definitions <- function(
   )
   
   ## parameters block
-  def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters))
+  def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters), ";")
 
   ## Transformed parameters block:
   def[["solver_call"]] <- "A = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);"
-  def[["ipred_definition"]] = paste0("ipred_", obs_types, " = A[2, :] ./ ", scale[obs_types], ";")
+  def[["ipred_definition"]] = c(
+    paste0("ipred_", obs_types, " = A[2, :] ./ ", scale[obs_types], ";"),
+    paste0("ipred_obs_", obs_types, " = ipred_", obs_types, "'[i_obs_", obs_types, "]; // predictions only for observed data records")
+  )
   
   ## Parse parameters for analytic equations
   param_req <- list(
@@ -119,13 +121,20 @@ parse_model_definitions <- function(
   
   def[["pk_block"]] <- c(
     "array[n_t, n_theta] real theta;",
+    "for(j in 1:n_t) {",
     paste0(
-      "theta[j, ", 1:5, "] = ",
-      parameter_definitions[unlist(param_req[solver])]
-    )
+      "  theta[j, ", 1:5, "] = ",
+      parameter_definitions[unlist(param_req[solver])],
+      ";"
+    ),
+    "}"
   )
   
-  def[["likelihood_parameters"]] <- paste(names(parameters), " ~ lognormal(log(theta_", names(parameters), ", omega_", names(parameters), ");")
+  def[["likelihood_parameters"]] <- paste0(
+    names(parameters), " ~ lognormal(log(theta_", 
+    names(parameters), "), omega_", 
+    names(parameters), ");"
+  )
 
   def[["likelihood_observed_data"]] <- paste0(
     "if(ltbs_", obs_types, ") {", cr, "  ",
@@ -135,7 +144,11 @@ parse_model_definitions <- function(
     "}"
   )
   
-  def[["sample_prior"]] <- paste("real prior_", names(parameters), " = lognormal_rng(log(theta_", names(parameters), ", omega_", names(parameters), ");")
+  def[["sample_prior"]] <- paste0(
+    "real prior_", names(parameters),
+    " = lognormal_rng(log(theta_", names(parameters), 
+    "), omega_", names(parameters), ");"
+  )
 
   def[["simulate_posterior_ruv"]] <- c(
     "real ipred_ruv_pk[n_obs_pk];",

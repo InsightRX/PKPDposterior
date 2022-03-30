@@ -2,9 +2,9 @@
 
 data{
   
-  // observation_data  
-
   // observation_variables
+
+  // observation_data  
 
   // population_parameters
 

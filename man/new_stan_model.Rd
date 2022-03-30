@@ -8,7 +8,7 @@ new_stan_model(
   parameters,
   parameter_definitions,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_twocpt", "pmx_solve_rk45"),
+  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
   template = "template.stan",
   obs_types = NULL,
   scale,
@@ -17,6 +17,37 @@ new_stan_model(
   file = NULL,
   verbose = FALSE
 )
+}
+\arguments{
+\item{parameters}{list of parameter values, e.g. \code{list(CL = 5, V = 50)}.}
+
+\item{parameter_definitions}{list of parameter definitions. See example
+below.}
+
+\item{covariate_definitions}{list of covariate definitions. See example
+below.}
+
+\item{solver}{Torsten solver to use. Starts with \code{pmx_solve_}.}
+
+\item{template}{internal Stan template file to use. Defaults to
+\code{template.stan}}
+
+\item{obs_types}{vector of observed data types. If \code{NULL}, will use \code{"pk"}.}
+
+\item{scale}{scale definition. Can be either parameter expression or number.}
+
+\item{n_cmt}{number of compartments. If analytic equation, will use number
+of compartments for solver.}
+
+\item{n_theta}{number of thetas. If analytic equation, will use number of
+thetas for solver.}
+
+\item{file}{file to save model to. If NULL, will save to temporary file.}
+
+\item{verbose}{verbosity}
+}
+\value{
+filename
 }
 \description{
 Create a new stan model using a template
