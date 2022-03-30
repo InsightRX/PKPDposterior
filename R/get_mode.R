@@ -1,11 +1,11 @@
 #' Simple mode estimation function from density
 #' 
 #' This function implements a simple estimation of model using the peak of the
-#' univariate kernel density. More advanced methods are available in `modeest` 
-#' package.
+#' univariate kernel density calculated by [stats::density()]. More advanced
+#' methods are available in `modeest` package.
 #' 
-#' @param x vector of continuous values to estimate mode from
-#' @param ... function arguments passed on to [stats::density]
+#' @param x vector of continuous values for which to estimate mode
+#' @param ... function arguments passed on to [stats::density()]
 #' 
 #' @export
 get_mode <- function(x, ...) { # simple mode estimation
