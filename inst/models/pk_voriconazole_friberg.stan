@@ -1,6 +1,10 @@
 functions{
   vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i){
     
+    // define_ode_state
+    vector[3] dAdt;
+    
+    // define_ode_parameters  
     real CL = theta[1];
     real Q = theta[2];
     real V1 = theta[3];
@@ -12,12 +16,8 @@ functions{
     real k10 = CL / V1;
     real k12 = Q / V1;
     real k21 = Q / V2;
-    
     real VMAXINH = exp(1.5) / (1 + exp(1.5));
     real Vmax = VMAX1 * (1 - VMAXINH * (t-1) / ((t-1) + (2.41 - 1))); // T50 = 2.41
-    
-    vector[3] dAdt;
-
     dAdt[1] = -KA*A[1];
     dAdt[2] =  KA*A[1] - (k10 + k12)*A[2] + k21*A[3] - (Vmax * A[2]/V1)/(KM + A[2]/V1);
     dAdt[3] = k12*A[2] - k21*A[3];

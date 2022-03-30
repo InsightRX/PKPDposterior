@@ -3,6 +3,8 @@
 #' @param parameters list of parameter values, e.g. `list(CL = 5, V = 50)`.
 #' @param parameter_definitions list of parameter definitions. See example 
 #' below.
+#' @param ode code for differential equation system, if not the analytic solver
+#' is used.
 #' @param covariate_definitions list of covariate definitions. See example
 #' below.
 #' @param solver Torsten solver to use. Starts with `pmx_solve_`.
@@ -19,7 +21,7 @@
 #' 
 #' @returns filename
 #' 
-#' @example
+#' @examples
 #' 
 #' parameters <- list(CL = 5, V1 = 50, Q = 5, V2 = 100)
 #' iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
@@ -45,18 +47,23 @@
 new_stan_model <- function(
   parameters,
   parameter_definitions,
+  ode = NULL,
   covariate_definitions = NULL,
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
   template = "template.stan",
   obs_types = NULL,
   scale,
-  n_cmt = 5,
+  n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
   verbose = FALSE
 ) {
   
   solver <- match.arg(solver)
+  if(!is.null(ode) && ! solver %in% "pmx_solve_rk45") {
+    message("When an ODE block is supplied, a Torsten ODE-solver is required. Switching to `pmx_solve_rk45`.")
+    solver <- "pmx_solve_rk45"
+  }
   if(is.null(obs_types)) obs_types <- "pk"
   if(class(scale) == "character") {
     scale_char <- scale
@@ -76,7 +83,9 @@ new_stan_model <- function(
   }
   template_code <- readLines(template_file)
   
-  ## Determine n_theta
+  if(is.null(n_theta)) {
+    n_theta <- length(parameter_definitions)
+  }
 
   def <- parse_model_definitions(
     parameters = parameters,
@@ -88,12 +97,18 @@ new_stan_model <- function(
     n_cmt = n_cmt,
     scale = scale
   )
+
+  def[["ode_function"]] <- new_ode_function(
+    ode = ode,
+    parameters = names(parameter_definitions),
+    n_cmt = n_cmt
+  )
   
-  model_code <- generate_stan_model(
+  model_code <- generate_stan_code(
     template_code = template_code,
     definitions = def
   )
-  
+
   if(verbose) {
     writeLines(model_code)
   }

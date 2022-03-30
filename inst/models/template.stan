@@ -1,5 +1,7 @@
 // Two compartment model using built-in analytical solution
 
+// ode_function (optional)
+
 data{
   
   // observation_variables

@@ -7,12 +7,13 @@
 new_stan_model(
   parameters,
   parameter_definitions,
+  ode = NULL,
   covariate_definitions = NULL,
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45"),
   template = "template.stan",
   obs_types = NULL,
   scale,
-  n_cmt = 5,
+  n_cmt = NULL,
   n_theta = NULL,
   file = NULL,
   verbose = FALSE
@@ -23,6 +24,9 @@ new_stan_model(
 
 \item{parameter_definitions}{list of parameter definitions. See example
 below.}
+
+\item{ode}{code for differential equation system, if not the analytic solver
+is used.}
 
 \item{covariate_definitions}{list of covariate definitions. See example
 below.}
@@ -51,4 +55,27 @@ filename
 }
 \description{
 Create a new stan model using a template
+}
+\examples{
+
+parameters <- list(CL = 5, V1 = 50, Q = 5, V2 = 100)
+iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
+ruv <- list(add = 1.6, prop = 0.15)
+
+model_file <- new_stan_model(
+parameters = parameters,
+parameter_definitions = list(
+ "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
+ "Q"  = "Q",
+ "V1" = "V1 * WT[j]",
+ "V2" = "V2 * WT[j]",
+ "KA" = "0" 
+),
+covariate_definitions = list(
+  "CRCL" = "real", # CrCl in L/hr
+  "WT" = "real"    # WT in kg
+),
+scale = "(V1 * mean(WT))"
+)
+
 }

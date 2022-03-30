@@ -94,7 +94,13 @@ parse_model_definitions <- function(
   def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters), ";")
 
   ## Transformed parameters block:
-  def[["solver_call"]] <- "A = pmx_solve_twocpt(time, amt, rate, ii, evid, cmt, addl, ss, theta);"
+  solver_def <- list(
+    "pmx_solve_onecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
+    "pmx_solve_twocmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
+    "pmx_solve_threecmt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
+    "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
+  )
+  def[["solver_call"]] <- paste0("A = ", solver, "(", solver_def[solver], ");")
   def[["ipred_definition"]] = c(
     paste0("ipred_", obs_types, " = A[2, :] ./ ", scale[obs_types], ";"),
     paste0("ipred_obs_", obs_types, " = ipred_", obs_types, "'[i_obs_", obs_types, "]; // predictions only for observed data records")
@@ -119,12 +125,17 @@ parse_model_definitions <- function(
     "matrix<lower = 0>[n_cmt, n_t] A;"
   )
   
+  if(is.null(ode)) {
+    pk_equations <- parameter_definitions[unlist(param_req[solver])] # make sure to have the order correct for the analytic solver to understand
+  } else {
+    pk_equations <- parameter_definitions # for ODEs the user defines the order
+  }
   def[["pk_block"]] <- c(
     "array[n_t, n_theta] real theta;",
     "for(j in 1:n_t) {",
     paste0(
-      "  theta[j, ", 1:5, "] = ",
-      parameter_definitions[unlist(param_req[solver])],
+      "  theta[j, ", seq(pk_equations), "] = ",
+      pk_equations,
       ";"
     ),
     "}"
