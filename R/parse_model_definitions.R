@@ -69,16 +69,13 @@ parse_model_definitions <- function(
 
   ## Transformed data block:
   def[["log_transform_observations"]] <- paste0("vector[n_obs_", obs_types, "] log_dv_", obs_types, " = log(dv_", obs_types, ");")
-  cmt_size <- list(
-    "pmx_solve_onecpt" = 2,
-    "pmx_solve_twocpt" = 3
-  )
-  theta_size <- list(
+  theta_size <- switch(
+    solver,
     "pmx_solve_onecpt" = 3,
     "pmx_solve_twocpt" = 5
   )
-  if(!is.null(theta_size[[solver]])) {
-    if(n_theta != theta_size[[solver]]) {
+  if(!is.null(theta_size)) {
+    if(n_theta != theta_size) {
       stop("Length of `parameter_definitions` vector different from expected length based on chosen analytic solver. Please revise `parameter_definitions` or change solver.")
     } 
   }
