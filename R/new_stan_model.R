@@ -94,7 +94,10 @@ new_stan_model <- function(
   if(!file.exists(template_file)) {
     templates <- dir(system.file("models", package = "PKPDposterior"), pattern = "templ")
     templates <- gsub("\\.stan", "", templates)
-    stop("Requested template not found, please specify one of available templates: ", paste0())
+    stop(
+      "Requested template not found, please specify one of available templates: ", 
+      paste0(templates, collapse = ", ")
+      )
   }
   template_code <- readLines(template_file)
 
@@ -115,7 +118,6 @@ new_stan_model <- function(
     definitions = def
   )
 
-  ## Save to file and return filename
   model_code
 
 }
