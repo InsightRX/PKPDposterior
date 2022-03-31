@@ -1,14 +1,15 @@
 #' Initialize a model
 #' If model is not compiled yet, than compile it. Otherwise used the binary.
 #' 
-#' @param model model to be compiled, from the models available in the package in `inst/models`
+#' @param model_file model file to be compiled, either full path to a model,
+#' or else will look in `models` folder inside the installed package folder.
 #' @param force force recompile
 #' @param verbose show output from Stan / cmdstanr? Defaults to `FALSE`.
 #' @param ... passed onto 
 #' 
 #' @export
 load_model <- function(
-  model,
+  model_file,
   force = FALSE,
   verbose = FALSE,
   ...
@@ -24,16 +25,17 @@ load_model <- function(
   )
 
   ## Compile Stan/Torsten model, or re-use old model
-  model_file <- system.file(
-    "models", 
-    paste0(model, ".stan"), 
-    package = "PKPDposterior"
-  )
-  if(model_file == "") {
-    stop("The requested model was not found.")
-  }
-  if(force) {
-    unlink(system.file("models", model, package = "PKPDposterior"))
+  if(!file.exists(model_file)) {
+    model_file <- system.file(
+      "models",
+      paste0(model_file, ".stan"),
+      package = "PKPDposterior"
+    )
+    if(model_file == "") {
+      stop("The requested model was not found.")
+    } else if(verbose) {
+      message("Model found in internal library.")
+    }
   }
   messages(
     stan_out <- cmdstanr::cmdstan_model(

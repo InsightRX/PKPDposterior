@@ -1,3 +1,6 @@
+## Vancomycin PK model (Thomson et al)
+## Implemented using ODE system
+
 library(PKPDposterior)
 
 mapping <- list("V1" = "V")
@@ -46,12 +49,10 @@ data <- prepare_data(
   )
 )
 
-
 ## Sample from posterior
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = prior,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95

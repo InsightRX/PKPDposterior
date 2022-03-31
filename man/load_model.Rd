@@ -5,10 +5,11 @@
 \title{Initialize a model
 If model is not compiled yet, than compile it. Otherwise used the binary.}
 \usage{
-load_model(model, force = FALSE, verbose = FALSE, ...)
+load_model(model_file, force = FALSE, verbose = FALSE, ...)
 }
 \arguments{
-\item{model}{model to be compiled, from the models available in the package in \code{inst/models}}
+\item{model_file}{model file to be compiled, either full path to a model,
+or else will look in \code{models} folder inside the installed package folder.}
 
 \item{force}{force recompile}
 

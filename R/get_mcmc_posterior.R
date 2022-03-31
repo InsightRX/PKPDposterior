@@ -2,13 +2,12 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
-#' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
 #' @param chains number of MCMC chains to simulate, passed on to Stan model
-#' @param refresh show output from sampler. Default is 0, meaning no output 
-#'   from sampler is shown.
 #' @param output_dir output directory
+#' @param method either `hmc` (Hamilton Monte Carlo, using NUTS by default) or 
+#' `vi` (variational inference).
 #' @param verbose verbosity
 #' @param skip_processing will return the raw output from the sampler, without
 #'   further processing. This can sometimes be useful when errors occur in the
@@ -27,17 +26,22 @@
 #' @seealso [prepare_data()]
 get_mcmc_posterior <- function(
   mod,
-  init,
   data,
   seed = 12345,
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  refresh = 0,
+  method = c("hmc", "vi"),
   skip_processing = FALSE,
   ...
 ) {
   
+  method <- match.arg(method)
+  sample_func <- list(
+    "hmc" = "sample",
+    "vi" = "variational" 
+  )
+    
   ## Check model OK?
   if(! "CmdStanModel" %in% class(mod)) {
     stop(
@@ -45,19 +49,26 @@ get_mcmc_posterior <- function(
       "Please use `load_model()` to load/compile models."
     )
   }
-  if(verbose) (
-    res <- mod$sample(
-      data = data,
-      init = function() { init },
-      seed = seed,
-      refresh = refresh,
-      output_dir = output_dir,
-      chains = chains,
-      ...
-    )
-  ) else {
-    suppressMessages(
-      res <- mod$sample(
+
+  ## get parameter initial values from data object
+  init <- data[names(data)[grep("theta_", names(data))]]
+  names(init) <- gsub("theta_", "", names(init))
+  
+  refresh <- ifelse(verbose, 1, 0)
+  
+  if(method == "vi") {
+    run_cmdstanr <- function() {
+      res <- mod$variational(
+        data = data,
+        seed = seed,
+        refresh = refresh,
+        output_dir = output_dir,
+        ...
+      )
+    }
+  } else {
+    run_cmdstanr <- function() {
+      mod$sample(
         data = data,
         init = function() { init },
         seed = seed,
@@ -66,8 +77,15 @@ get_mcmc_posterior <- function(
         chains = chains,
         ...
       )
-    )
+    }
   }
+  
+  ## Run
+  res <- withCallingHandlers({
+      run_cmdstanr()
+    },
+    message = function(c) if (!verbose) tryInvokeRestart("muffleMessage")
+  )
 
   ## Post-processing
   out <- list(

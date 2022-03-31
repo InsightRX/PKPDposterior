@@ -7,21 +7,18 @@ and patient data}
 \usage{
 get_mcmc_posterior(
   mod,
-  init,
   data,
   seed = 12345,
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  refresh = 0,
+  method = c("hmc", "vi"),
   skip_processing = FALSE,
   ...
 )
 }
 \arguments{
 \item{mod}{compiled Stan model}
-
-\item{init}{initial parameter set for sampler}
 
 \item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
 
@@ -33,8 +30,8 @@ get_mcmc_posterior(
 
 \item{verbose}{verbosity}
 
-\item{refresh}{show output from sampler. Default is 0, meaning no output
-from sampler is shown.}
+\item{method}{either \code{hmc} (Hamilton Monte Carlo, using NUTS by default) or
+\code{vi} (variational inference).}
 
 \item{skip_processing}{will return the raw output from the sampler, without
 further processing. This can sometimes be useful when errors occur in the

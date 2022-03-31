@@ -1,3 +1,6 @@
+## Vancomycin PK model (Thomson et al)
+## Implemented using analytic equation
+
 library(PKPDsim)
 library(PKPDposterior)
 library(ggplot2)
@@ -6,8 +9,6 @@ library(pkvancothomson)
 mapping <- list("V1" = "V")
 
 # Compile or reload model
-# this creates a binary in the installed package folder
-# at ~/R/x86_64-pc-linux-gnu-library/4.1/PKPDposterior/models/
 mod <- load_model(
   "pk_vanco_thomson", 
   force = T,
@@ -56,10 +57,15 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = prior,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95
+)
+post_vi <- get_mcmc_posterior(
+  mod = mod,
+  data = data,
+  method = "vi",
+  skip_processing = TRUE
 )
 
 ## Show info about the posterior draws
@@ -72,6 +78,16 @@ plot_params(post)
 covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
+  model = pkvancothomson::model(),
+  map = mapping,
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
+  regimen = regimen,
+  covariates = covariates,
+  n = 200,
+  summarize = TRUE
+)
+pred_post_vi <- sim_from_draws(
+  post_vi, 
   model = pkvancothomson::model(),
   map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
@@ -93,8 +109,9 @@ pred_prior <- sim_from_draws(
 )
 
 ## Plot confidence interval posterior and prior predictions
-plot_predictions(pred_prior, obs = tdm_data)
 plot_predictions(pred_post, obs = tdm_data)
+plot_predictions(pred_post_vi, obs = tdm_data)
+plot_predictions(pred_prior, obs = tdm_data)
 
 ## Plot posterior AUC distribution
 pred_post_full <- sim_from_draws( # don't summarize

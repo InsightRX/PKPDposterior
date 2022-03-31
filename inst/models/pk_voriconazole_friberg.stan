@@ -1,6 +1,10 @@
 functions{
   vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i){
     
+    // define_ode_state
+    vector[3] dAdt;
+    
+    // define_ode_parameters  
     real CL = theta[1];
     real Q = theta[2];
     real V1 = theta[3];
@@ -12,12 +16,8 @@ functions{
     real k10 = CL / V1;
     real k12 = Q / V1;
     real k21 = Q / V2;
-    
     real VMAXINH = exp(1.5) / (1 + exp(1.5));
     real Vmax = VMAX1 * (1 - VMAXINH * (t-1) / ((t-1) + (2.41 - 1))); // T50 = 2.41
-    
-    vector[3] dAdt;
-
     dAdt[1] = -KA*A[1];
     dAdt[2] =  KA*A[1] - (k10 + k12)*A[2] + k21*A[3] - (Vmax * A[2]/V1)/(KM + A[2]/V1);
     dAdt[3] = k12*A[2] - k21*A[3];
@@ -28,8 +28,8 @@ functions{
 
 data {
   int<lower = 1> n_t;            // number of events
-  int<lower = 1> n_obs;          // number of observations
-  int<lower = 1> i_obs[n_obs];    // index of observation
+  int<lower = 1> n_obs_pk;          // number of observations
+  int<lower = 1> i_obs_pk[n_obs_pk];    // index of observation
   
   // population parameters
   real<lower = 0> theta_CL;
@@ -50,9 +50,9 @@ data {
   real<lower = 0> omega_VMAX1;
 
   // error model
-  int<lower = 0, upper = 1> ltbs; // should log-transform-both-sides be used for observations? (boolean)
-  real<lower = 0> ruv_prop;
-  real<lower = 0> ruv_add;
+  int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
+  real<lower = 0> ruv_prop_pk;
+  real<lower = 0> ruv_add_pk;
 
   // NONMEM data
   int<lower = 1> cmt[n_t];
@@ -67,11 +67,11 @@ data {
   // covariates
   real WT[n_t];
   
-  row_vector<lower = 0>[n_obs] dv;  // observed concentration (dependent variable)
+  row_vector<lower = 0>[n_obs_pk] dv_pk;  // observed concentration (dependent variable)
 }
 
 transformed data {
-  row_vector[n_obs] log_dv = log(dv);
+  row_vector[n_obs_pk] log_dv_pk = log(dv_pk);
   int n_theta = 7;   // number of parameters
   int n_cmt = 3;   // number of compartments
 }
@@ -88,8 +88,8 @@ parameters {
 
 transformed parameters {
   real theta[n_theta];
-  row_vector<lower = 0>[n_t] ipred;
-  row_vector<lower = 0>[n_obs] ipred_obs;
+  row_vector<lower = 0>[n_t] ipred_pk;
+  row_vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   matrix<lower = 0>[3, n_t] A; 
 
   theta[1] = CL * pow(mean(WT)/70, 0.75);
@@ -103,10 +103,10 @@ transformed parameters {
   
   A = pmx_solve_rk45(ode, 3, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
 
-  ipred = A[2, ] ./ V1;
+  ipred_pk = A[2, ] ./ V1;
 
-  for(i in 1:n_obs){
-    ipred_obs[i] = ipred[i_obs[i]];  // predictions for observed data records
+  for(i in 1:n_obs_pk){
+    ipred_obs_pk[i] = ipred_pk[i_obs_pk[i]];  // predictions for observed data records
   }
 }
 
@@ -122,15 +122,15 @@ model{
   // F1 ~ lognormal(log(theta_F1), omega_F1);
   
   // likelihood for observed data:
-  if(ltbs) {
-    log_dv ~ normal(log(ipred_obs), ruv_add);
+  if(ltbs_pk) {
+    log_dv_pk ~ normal(log(ipred_obs_pk), ruv_add_pk);
   } else {
-    dv ~ normal(ipred_obs, (ruv_prop * ipred_obs + ruv_add));
+    dv_pk ~ normal(ipred_obs_pk, (ruv_prop_pk * ipred_obs_pk + ruv_add_pk));
   }
 }
 
 generated quantities{
-  real ipred_ruv[n_obs];
+  real ipred_ruv_pk[n_obs_pk];
 
   // sample prior
   real prior_CL = lognormal_rng(log(theta_CL), omega_CL); //"parameters", "iiv" values
@@ -141,7 +141,7 @@ generated quantities{
   real prior_KM = lognormal_rng(log(theta_KM), omega_KM);
   real prior_VMAX1 = lognormal_rng(log(theta_VMAX1), omega_VMAX1);
 
-  for(i in 1:n_obs){
-    ipred_ruv[i] = normal_rng(ipred_obs[i], (ruv_prop * ipred_obs[i] + ruv_add));
+  for(i in 1:n_obs_pk){
+    ipred_ruv_pk[i] = normal_rng(ipred_obs_pk[i], (ruv_prop_pk * ipred_obs_pk[i] + ruv_add_pk));
   }
 }

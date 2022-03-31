@@ -1,3 +1,6 @@
+## Neutropenia PK-PD example
+## Implemented using ODE system for both PK and PD
+
 library(PKPDsim)
 library(PKPDposterior)
 library(pkpdneutropeniatemplate1)
@@ -79,7 +82,6 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = prior,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95,
