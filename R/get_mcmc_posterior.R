@@ -83,7 +83,7 @@ get_mcmc_posterior <- function(
   ## Run
   res <- withCallingHandlers({
       run_cmdstanr()
-    )},
+    },
     message = function(c) if (!verbose) tryInvokeRestart("muffleMessage")
   )
 

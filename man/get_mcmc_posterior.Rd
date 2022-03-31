@@ -12,7 +12,7 @@ get_mcmc_posterior(
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  method = "hmc",
+  method = c("hmc", "vi"),
   skip_processing = FALSE,
   ...
 )

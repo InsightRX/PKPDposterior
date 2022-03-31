@@ -94,14 +94,15 @@ parse_model_definitions <- function(
   def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters), ";")
 
   ## Transformed parameters block:
-  solver_def <- list(
+  solver_args <- switch(
+    solver,
     "pmx_solve_onecpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
     "pmx_solve_twocpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
     "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
     "pmx_solve_adams" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
     "pmx_solve_bdf" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
   )
-  def[["solver_call"]] <- paste0("A = ", solver, "(", solver_def[solver], ");")
+  def[["solver_call"]] <- paste0("A = ", solver, "(", solver_args, ");")
   if(!is.null(custom_ipred)) { # custom definition of individual predictions
     ipred <- paste0("ipred_", obs_types, " = ", custom_ipred[obs_types], ";")
   } else {
