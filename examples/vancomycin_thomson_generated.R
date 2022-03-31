@@ -9,7 +9,7 @@ parameters <- list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675)
 iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
 ruv <- list(add = 1.6, prop = 0.15)
 
-model_file <- new_stan_model(
+model <- new_stan_model(
   parameters = parameters,
   parameter_definitions = list(
     "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
@@ -23,11 +23,10 @@ model_file <- new_stan_model(
     "WT" = "real"    # WT in kg
   ),
   solver = "pmx_solve_twocpt",
-  obs_cmt = 2,
-  n_cmt = 3,
   scale = "(V1 * mean(WT))",
   verbose = T
 )
+model_file <- write_stan_model(model)
 
 # Compile or reload model
 mod <- load_model(
@@ -75,7 +74,6 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = parameters,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95

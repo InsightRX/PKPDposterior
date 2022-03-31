@@ -2,7 +2,6 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
-#' @param init initial parameter set for sampler
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
 #' @param chains number of MCMC chains to simulate, passed on to Stan model
@@ -29,7 +28,6 @@
 #' @seealso [prepare_data()]
 get_mcmc_posterior <- function(
   mod,
-  init,
   data,
   seed = 12345,
   chains = 1,
@@ -57,6 +55,10 @@ get_mcmc_posterior <- function(
     )
   }
 
+  ## get parameter initial values from data object
+  init <- data[names(data)[grep("theta_", names(data))]]
+  names(init) <- gsub("theta_", "", names(init))
+  
   if(method == "vi") {
     run_cmdstanr <- function() {
       res <- mod$variational(

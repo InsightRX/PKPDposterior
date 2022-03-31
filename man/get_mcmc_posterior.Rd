@@ -7,7 +7,6 @@ and patient data}
 \usage{
 get_mcmc_posterior(
   mod,
-  init,
   data,
   seed = 12345,
   chains = 1,
@@ -21,8 +20,6 @@ get_mcmc_posterior(
 }
 \arguments{
 \item{mod}{compiled Stan model}
-
-\item{init}{initial parameter set for sampler}
 
 \item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
 

@@ -11,14 +11,22 @@ parse_model_definitions <- function(
   solver,
   obs_types,
   obs_cmt,
-  n_theta,
-  n_cmt,
   scale,
   custom_ipred
 ) {
   
   def <- list()
   cr <- "\n"
+  n_cmt <- get_n_cmt(solver, ode)
+  n_theta <- length(parameter_definitions)
+  
+  if(!is.null(ode)) {
+    def[["ode_function"]] <- new_ode_function(
+      ode = ode,
+      parameter_names = names(parameter_definitions),
+      n_cmt = n_cmt
+    )  
+  }
   
   ## Define observation variables and data
   def[["observation_variables"]] <- c(
@@ -70,16 +78,12 @@ parse_model_definitions <- function(
     "pmx_solve_twocpt" = 5
   )
   if(!is.null(theta_size[[solver]])) {
-    n_theta <- theta_size[[solver]]
-  }
-  if(!is.null(cmt_size[[solver]])) {
-    n_cmt <- cmt_size[[solver]]
+    if(n_theta != theta_size[[solver]]) {
+      stop("Length of `parameter_definitions` vector different from expected length based on chosen analytic solver. Please revise `parameter_definitions` or change solver.")
+    } 
   }
   if(is.null(n_theta)) {
     stop("Please specify size of theta vector using `n_theta`.")
-  }
-  if(is.null(n_cmt)) {
-    stop("Please specify size of compartment vector using `n_cmt`.")
   }
   def[["model_numbers"]] <- c(
     paste0("int n_theta = ", n_theta, ";"),
@@ -186,4 +190,28 @@ parse_model_definitions <- function(
 
   def
   
+}
+
+#' Get the number of compartments, either from analytical solver definition,
+#' or from the dAdt definitions in the ODE block.
+#' 
+#' @inheritParams new_stan_model
+#' 
+get_n_cmt <- function(solver, ode = NULL) {
+  if(is.null(ode)) {
+    if(solver == "pmx_solve_twocpt") {
+      n_cmt <- 2
+    } else {
+      n_cmt <- 3
+    }
+  } else {
+    ode_string <- paste0(ode, collapse="")
+    dadt_matches <- regmatches(
+      ode_string,
+      gregexpr("dAdt\\[.\\]", ode_string)
+    )[[1]]
+    cmts <- as.numeric(gsub("\\D+", "", dadt_matches))
+    n_cmt <- max(cmts)
+  }
+  n_cmt
 }

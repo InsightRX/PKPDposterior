@@ -61,7 +61,6 @@ test_that("Neutropenia model correctly generates", {
     parameter_definitions = parameter_definitions,
     ode = ode,
     covariate_definitions = NULL,
-    n_cmt = 8,
     obs_types = c("pk", "pd"),
     custom_ipred = list(
       "pk" = "A[2, ] ./ V;",

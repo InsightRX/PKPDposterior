@@ -15,11 +15,7 @@ new_stan_model(
   obs_cmt = NULL,
   scale = NULL,
   custom_ipred = NULL,
-  n_cmt = NULL,
-  n_theta = NULL,
-  file = NULL,
-  verbose = FALSE,
-  return_code = FALSE
+  verbose = FALSE
 )
 }
 \arguments{
@@ -50,12 +46,6 @@ for each observation type when multiple observation types. E.g. \code{2} or
 \item{custom_ipred}{list of custom definitions for individual predictions for
 each observation type. Sometimes this is needed when more flexibility is
 needed than the \code{scale} parameter provides.}
-
-\item{n_cmt}{number of compartments. If analytic equation, will use number
-of compartments for solver.}
-
-\item{n_theta}{number of thetas. If analytic equation, will use number of
-thetas for solver.}
 
 \item{verbose}{verbosity}
 }

@@ -72,7 +72,6 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = prior,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95

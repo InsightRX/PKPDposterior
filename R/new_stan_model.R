@@ -18,10 +18,6 @@
 #' @param custom_ipred list of custom definitions for individual predictions for 
 #' each observation type. Sometimes this is needed when more flexibility is 
 #' needed than the `scale` parameter provides.
-#' @param n_cmt number of compartments. If analytic equation, will use number 
-#' of compartments for solver.
-#' @param n_theta number of thetas. If analytic equation, will use number of 
-#' thetas for solver.
 #' @param verbose verbosity
 #' 
 #' @returns filename
@@ -63,11 +59,7 @@ new_stan_model <- function(
   obs_cmt = NULL,
   scale = NULL,
   custom_ipred = NULL,
-  n_cmt = NULL,
-  n_theta = NULL,
-  file = NULL,
-  verbose = FALSE,
-  return_code = FALSE
+  verbose = FALSE
 ) {
   
   allowed_solvers <- c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", 
@@ -84,14 +76,18 @@ new_stan_model <- function(
     stop("Argument `scale` or `custom_ipred` is required.")
   }
   if(is.null(obs_cmt) && is.null(custom_ipred)) {
-    stop("Argument `obs_cmt` or `custom_ipred` is required.")
+    if(solver %in% c("pmx_solve_onecpt", "pmx_solve_twocpt")) {
+      obs_cmt <- 2
+    } else {
+      stop("Argument `obs_cmt` or `custom_ipred` is required.")
+    }
   }
   if(!is.null(scale)) {
     if(class(scale) == "character") {
       scale_char <- scale
       scale <- list()
       for(key in obs_types) {
-        if(verbose) message(paste0("Assuming `scale` definition (`", scale_char, "`) for observation type `", key, "`"))
+        if(verbose) message(paste0("Assuming observation type `", key, "` for `scale` definition (`", scale_char, "`"))
         scale[[key]] <- scale_char
       }
     }
@@ -101,7 +97,7 @@ new_stan_model <- function(
       obs_cmt_num <- obs_cmt
       obs_cmt <- list()
       for(key in obs_types) {
-        if(verbose) message(paste0("Assuming `obs_cmt` definition (`", obs_cmt_num, "`) for observation type `", key, "`"))
+        if(verbose) message(paste0("Assuming observation type `", key, "` for `obs_cmt` definition (`", obs_cmt_num, "`)"))
         obs_cmt[[key]] <- obs_cmt_num
       }
     }
@@ -115,10 +111,6 @@ new_stan_model <- function(
     stop("Requested template not found, please specify one of available templates: ", paste0())
   }
   template_code <- readLines(template_file)
-  
-  if(is.null(n_theta)) {
-    n_theta <- length(parameter_definitions)
-  }
 
   def <- parse_model_definitions(
     parameters = parameters,
@@ -128,20 +120,10 @@ new_stan_model <- function(
     solver = solver,
     obs_types = obs_types,
     obs_cmt = obs_cmt,
-    n_theta = n_theta,
-    n_cmt = n_cmt,
     scale = scale,
     custom_ipred
   )
 
-  if(!is.null(ode)) {
-    def[["ode_function"]] <- new_ode_function(
-      ode = ode,
-      parameter_names = names(parameter_definitions),
-      n_cmt = n_cmt
-    )  
-  }
-  
   model_code <- generate_stan_code(
     template_code = template_code,
     definitions = def

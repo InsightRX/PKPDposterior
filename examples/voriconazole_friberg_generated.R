@@ -30,7 +30,7 @@ parameter_definitions <- list(
   "VMAX1" = "VMAX1 * pow(mean(WT)/70, 0.75)"
 )
 
-model_file <- new_stan_model(
+model <- new_stan_model(
   parameters = parameters,
   parameter_definitions = parameter_definitions,
   ode = ode,
@@ -39,10 +39,10 @@ model_file <- new_stan_model(
   ),
   solver = "pmx_solve_rk45",
   obs_cmt = 2,
-  n_cmt = 3,
-  scale = "V1* pow(mean(WT)/70, 0.75)",
+  scale = "V1 * pow(mean(WT)/70, 0.75)",
   verbose = T
 )
+model_file <- write_stan_model(model)
 
 # Compile or reload model
 mod <- load_model(
@@ -82,7 +82,6 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = parameters,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95

@@ -13,8 +13,6 @@ parse_model_definitions(
   solver,
   obs_types,
   obs_cmt,
-  n_theta,
-  n_cmt,
   scale,
   custom_ipred
 )
@@ -38,12 +36,6 @@ below.}
 \item{obs_cmt}{observation compartment, or list of observation compartments
 for each observation type when multiple observation types. E.g. \code{2} or
 \code{list(pk = 2, pd = 8)}.}
-
-\item{n_theta}{number of thetas. If analytic equation, will use number of
-thetas for solver.}
-
-\item{n_cmt}{number of compartments. If analytic equation, will use number
-of compartments for solver.}
 
 \item{scale}{scale definition. Can be either parameter expression or number.}
 

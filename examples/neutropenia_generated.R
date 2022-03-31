@@ -68,12 +68,11 @@ ode <- "
   dAdt[8] = ktr * (transit3 - circ);
 "
 
-model_file <- new_stan_model(
+model <- new_stan_model(
   parameters = parameters,
   parameter_definitions = parameter_definitions,
   ode = ode,
   covariate_definitions = NULL,
-  n_cmt = 8,
   solver = 'pmx_solve_rk45',
   obs_types = c("pk", "pd"),
   custom_ipred = list(
@@ -82,7 +81,7 @@ model_file <- new_stan_model(
   ),
   verbose = T
 )
-
+model_file <- write_stan_model(model)
 mod <- load_model(
   model_file = model_file,
   force = T,
@@ -130,7 +129,6 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  init = parameters,
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95,
