@@ -31,18 +31,16 @@ get_mcmc_posterior <- function(
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  method = "hmc",
+  method = c("hmc", "vi"),
   skip_processing = FALSE,
   ...
 ) {
   
+  method <- match.arg(method)
   sample_func <- list(
     "hmc" = "sample",
     "vi" = "variational" 
   )
-  if(! method %in% names(sample_func)) {
-    stop("Unrecognized MCMC method specified.")
-  }
     
   ## Check model OK?
   if(! "CmdStanModel" %in% class(mod)) {

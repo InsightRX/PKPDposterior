@@ -82,25 +82,13 @@ new_stan_model <- function(
       stop("Argument `obs_cmt` or `custom_ipred` is required.")
     }
   }
-  if(!is.null(scale)) {
-    if(class(scale) == "character") {
-      scale_char <- scale
-      scale <- list()
-      for(key in obs_types) {
-        if(verbose) message(paste0("Assuming observation type `", key, "` for `scale` definition (`", scale_char, "`"))
-        scale[[key]] <- scale_char
-      }
-    }
+  if(!is.null(scale) && inherits(scale, "character")) {
+    if (verbose) message("assuming scale definition ", scale, " for all observation types")
+    scale <- as.list(setNames(rep(scale, length(obs_types)), obs_types))
   }
-  if(!is.null(obs_cmt)) {
-    if(class(obs_cmt) %in% c("numeric", "integer")) {
-      obs_cmt_num <- obs_cmt
-      obs_cmt <- list()
-      for(key in obs_types) {
-        if(verbose) message(paste0("Assuming observation type `", key, "` for `obs_cmt` definition (`", obs_cmt_num, "`)"))
-        obs_cmt[[key]] <- obs_cmt_num
-      }
-    }
+  if (isTRUE(mode(obs_cmt) == "numeric")) {
+    if(verbose) message("assuming observation type ", obs_cmt, " for all observation types")
+    obs_cmt <- as.list(setNames(rep(obs_cmt, length(obs_types)), obs_types))
   }
 
   ## read template file
