@@ -53,7 +53,7 @@ new_stan_model <- function(
   parameter_definitions,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = NULL,
+  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", "pmx_solve_adams", "pmx_solve_bdf"),
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -61,14 +61,12 @@ new_stan_model <- function(
   custom_ipred = NULL,
   verbose = FALSE
 ) {
-  
-  allowed_solvers <- c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", 
-                          "pmx_solve_adams", "pmx_solve_bdf")
-  if(is.null(solver) || ! solver %in% allowed_solvers) {
-    stop(paste0("Please specify `solver`: ", paste0(allowed_solvers, collapse=", ")))
-  }
+  solver <- match.arg(solver)
   if(!is.null(ode) && ! solver %in% c("pmx_solve_rk45", "pmx_solve_adams", "pmx_solve_bdf")) {
-    message("When an ODE block is supplied, a Torsten ODE-solver is required. Switching to `pmx_solve_rk45`.")
+    warning(
+      "When an ODE block is supplied, a Torsten ODE-solver is required. ",
+      "Switching to `pmx_solve_rk45`."
+    )
     solver <- "pmx_solve_rk45"
   }
   if(is.null(obs_types)) obs_types <- "pk"
@@ -77,20 +75,14 @@ new_stan_model <- function(
   }
   if(is.null(obs_cmt) && is.null(custom_ipred)) {
     if(solver %in% c("pmx_solve_onecpt", "pmx_solve_twocpt")) {
-      obs_cmt <- 2
+      obs_cmt <- 2 # central compartment is 2 for both these solvers
     } else {
       stop("Argument `obs_cmt` or `custom_ipred` is required.")
     }
   }
-  if(!is.null(scale)) {
-    if(class(scale) == "character") {
-      scale_char <- scale
-      scale <- list()
-      for(key in obs_types) {
-        if(verbose) message(paste0("Assuming observation type `", key, "` for `scale` definition (`", scale_char, "`"))
-        scale[[key]] <- scale_char
-      }
-    }
+  if(!is.null(scale) && inherits(scale, "character")) {
+    if (verbose) message("assuming scale definition ", scale, " for all observation types")
+    scale <- setNames(rep(scale, length(obs_types)), obs_types)
   }
   if(!is.null(obs_cmt)) {
     if(class(obs_cmt) %in% c("numeric", "integer")) {
