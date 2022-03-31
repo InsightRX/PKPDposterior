@@ -79,7 +79,7 @@ plot_params(post)
 ## Simulate from posterior and prior:
 covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
-  post_vi, 
+  post, 
   model = pkvancothomson::model(),
   map = mapping,
   parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
