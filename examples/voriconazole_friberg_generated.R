@@ -7,8 +7,8 @@ library(PKPDposterior)
 parameters <- list(KA = 1.19, VMAX1 = 114, 
                    KM = 1.15, CL = 6.16, Q = 15.5, 
                    V2 = 103, V1 = 79)
-iiv <- list(KA = 0.1, CL = 0.5, Q = 0.42, V1 = 0.136, V2 = 0.77, KA = 0.9, KM = 1.0, VMAX1 = 0.5)
-ruv <- list(prop = 0.15, add = 1.6)
+iiv <- list(CL = 0.5, Q = 0.42, V1 = 0.136, V2 = 0.77, KA = 0.9, KM = 1.0, VMAX1 = 0.5)
+ruv <- list(prop = 0.3, add = 0.01)
 
 ode <- c(
   "real k10 = CL / V1;",
@@ -40,7 +40,7 @@ model_file <- new_stan_model(
   solver = "pmx_solve_rk45",
   obs_cmt = 2,
   n_cmt = 3,
-  scale = "V1",
+  scale = "V1* pow(mean(WT)/70, 0.75)",
   verbose = T
 )
 

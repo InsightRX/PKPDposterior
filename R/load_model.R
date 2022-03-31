@@ -33,13 +33,10 @@ load_model <- function(
     )
     if(model_file == "") {
       stop("The requested model was not found.")
-    } else {
+    } else if(verbose) {
       message("Model found in internal library.")
     }
   }
-  # if(force) {
-  #   unlink(system.file("models", model_file, package = "PKPDposterior"))
-  # }
   messages(
     stan_out <- cmdstanr::cmdstan_model(
       stan_file = model_file

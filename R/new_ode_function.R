@@ -4,7 +4,7 @@
 #' @param parameters list or vector of parameters. Needs to be in order!
 #' @param n_cmt number of compartments in the ODE
 #' 
-#' @returns Stan code with ODE function
+#' @returns Character vector containing valid Stan code with ODE function
 #' 
 #' @export
 new_ode_function <- function(
@@ -37,11 +37,9 @@ new_ode_function <- function(
   )
   def[["ode_block"]] <- paste(" ", ode)
   
-  stan_code <- generate_stan_code(
+  generate_stan_code(
     template_code = code,
     definitions = def
   )
-
-  stan_code
   
 }

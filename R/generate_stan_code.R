@@ -16,7 +16,7 @@ generate_stan_code <- function(
   for(key in names(definitions)) {
     idx <- grep(paste0("// ", key), template_code)
     indent <- ifelse(key %in% no_indent, "", "  ")
-    if(length(idx) > 0) {
+    if(length(idx) == 1) {
       template_code[[idx]] <- paste0(
         template_code[[idx]], cr,
         paste0(

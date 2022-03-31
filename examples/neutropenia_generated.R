@@ -51,7 +51,7 @@ ode <- "
   dAdt[1] = -KA * A[1];
   dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
   dAdt[3] = k12 * A[2] - k21 * A[3];
-  conc = A[2] / V1;
+  conc = A[2] / V;
   
   EDrug = ALPHA * conc; // slope model, not Emax
   prol = A[4] + CIRC0;
@@ -61,7 +61,7 @@ ode <- "
   circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
   
   // initial condition
-  dAdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^GAMMA) - 1);
+  dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);
   dAdt[5] = ktr * (prol - transit1);
   dAdt[6] = ktr * (transit1 - transit2);
   dAdt[7] = ktr * (transit2 - transit3);
@@ -74,6 +74,7 @@ model_file <- new_stan_model(
   ode = ode,
   covariate_definitions = NULL,
   n_cmt = 8,
+  solver = 'pmx_solve_rk45',
   obs_types = c("pk", "pd"),
   custom_ipred = list(
     "pk" = "A[2, ] ./ V;",
