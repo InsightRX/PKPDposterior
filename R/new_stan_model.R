@@ -22,10 +22,7 @@
 #' of compartments for solver.
 #' @param n_theta number of thetas. If analytic equation, will use number of 
 #' thetas for solver.
-#' @param file file to save model to. If NULL, will save to temporary file.
 #' @param verbose verbosity
-#' @param return_code return code? Default FALSE, i.e. return the model 
-#' filename.
 #' 
 #' @returns filename
 #' 
@@ -140,30 +137,17 @@ new_stan_model <- function(
   if(!is.null(ode)) {
     def[["ode_function"]] <- new_ode_function(
       ode = ode,
-      parameters = names(parameter_definitions),
+      parameter_names = names(parameter_definitions),
       n_cmt = n_cmt
     )  
   }
-  
   
   model_code <- generate_stan_code(
     template_code = template_code,
     definitions = def
   )
 
-  if(verbose) {
-    writeLines(model_code)
-  }
-
   ## Save to file and return filename
-  if(return_code) {
-    return(model_code)
-  } 
-  if(is.null(file)) {
-    file <- tempfile(fileext = ".stan")
-  }
-  
-  writeLines(model_code, con=file)
-  file
-  
+  model_code
+
 }

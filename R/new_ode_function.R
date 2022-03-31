@@ -1,7 +1,8 @@
 #' Generates the ODE function that is used in a Stan/Torsten model
 #' 
 #' @param ode Stan code for ODE block
-#' @param parameters list or vector of parameters. Needs to be in order!
+#' @param parameter_names vector of parameter names. Needs to be in order defined by the 
+#' chosen Torsten analytic solver.
 #' @param n_cmt number of compartments in the ODE
 #' 
 #' @returns Character vector containing valid Stan code with ODE function
@@ -9,7 +10,7 @@
 #' @export
 new_ode_function <- function(
   ode,
-  parameters,
+  parameter_names,
   n_cmt
 ) {
   
@@ -25,15 +26,11 @@ new_ode_function <- function(
   
   def <- list()
   def[["define_ode_state"]] <- paste0("  vector[", n_cmt, "] dAdt;")
-  if(class(parameters) == "list") {
-    par_names <- names(parameters)
-  } else if(class(parameters) == "character") {
-    par_names <- parameters
-  } else {
+  if(class(parameter_names) != "character") {
     stop("`parameters` needs to be either a list or a character vector.")
   }
   def[["define_ode_parameters"]] <- paste0(
-    "  real ", par_names, " = theta[", 1:length(par_names), "];"
+    "  real ", parameter_names, " = theta[", 1:length(parameter_names), "];"
   )
   def[["ode_block"]] <- paste(" ", ode)
   

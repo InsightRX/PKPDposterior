@@ -57,12 +57,7 @@ of compartments for solver.}
 \item{n_theta}{number of thetas. If analytic equation, will use number of
 thetas for solver.}
 
-\item{file}{file to save model to. If NULL, will save to temporary file.}
-
 \item{verbose}{verbosity}
-
-\item{return_code}{return code? Default FALSE, i.e. return the model
-filename.}
 }
 \value{
 filename

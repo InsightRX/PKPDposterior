@@ -68,8 +68,7 @@ test_that("Neutropenia model correctly generates", {
       "pd" = "A[8, ] + theta[7];"
     ),
     solver = "pmx_solve_rk45",
-    verbose = F,
-    return_code = TRUE
+    verbose = F
   )
   code_ref <- readRDS(test_path("data", "neutropenia_model_code.rds"))
   # saveRDS(code, test_path("data", "neutropenia_model_code.rds"))

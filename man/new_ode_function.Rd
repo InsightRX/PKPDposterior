@@ -4,17 +4,18 @@
 \alias{new_ode_function}
 \title{Generates the ODE function that is used in a Stan/Torsten model}
 \usage{
-new_ode_function(ode, parameters, n_cmt)
+new_ode_function(ode, parameter_names, n_cmt)
 }
 \arguments{
 \item{ode}{Stan code for ODE block}
 
-\item{parameters}{list or vector of parameters. Needs to be in order!}
+\item{parameter_names}{vector of parameter names. Needs to be in order defined by the
+chosen Torsten analytic solver.}
 
 \item{n_cmt}{number of compartments in the ODE}
 }
 \value{
-Stan code with ODE function
+Character vector containing valid Stan code with ODE function
 }
 \description{
 Generates the ODE function that is used in a Stan/Torsten model

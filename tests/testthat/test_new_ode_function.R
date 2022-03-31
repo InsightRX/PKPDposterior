@@ -16,7 +16,7 @@ ode <- c(
 test_that("ode funnction generator works", {
   res <- new_ode_function(
     ode = ode,
-    parameters = parameters,
+    parameter_names = names(parameters),
     n_cmt = 3
   )
   expect_equal(length(res), 8)
