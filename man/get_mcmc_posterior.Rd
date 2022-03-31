@@ -12,7 +12,6 @@ get_mcmc_posterior(
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  refresh = 0,
   method = "hmc",
   skip_processing = FALSE,
   ...
@@ -30,9 +29,6 @@ get_mcmc_posterior(
 \item{output_dir}{output directory}
 
 \item{verbose}{verbosity}
-
-\item{refresh}{show output from sampler. Default is 0, meaning no output
-from sampler is shown.}
 
 \item{method}{either \code{hmc} (Hamilton Monte Carlo, using NUTS by default) or
 \code{vi} (variational inference).}

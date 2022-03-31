@@ -5,8 +5,6 @@
 #' @param data dataset (see [prepare_data()])
 #' @param seed seed for sampling
 #' @param chains number of MCMC chains to simulate, passed on to Stan model
-#' @param refresh show output from sampler. Default is 0, meaning no output 
-#'   from sampler is shown.
 #' @param output_dir output directory
 #' @param method either `hmc` (Hamilton Monte Carlo, using NUTS by default) or 
 #' `vi` (variational inference).
@@ -33,7 +31,6 @@ get_mcmc_posterior <- function(
   chains = 1,
   output_dir = tempdir(),
   verbose = TRUE,
-  refresh = 0,
   method = "hmc",
   skip_processing = FALSE,
   ...
@@ -59,16 +56,17 @@ get_mcmc_posterior <- function(
   init <- data[names(data)[grep("theta_", names(data))]]
   names(init) <- gsub("theta_", "", names(init))
   
+  refresh <- ifelse(verbose, 1, 0)
+  
   if(method == "vi") {
     run_cmdstanr <- function() {
       res <- mod$variational(
         data = data,
-        init = function() { init },
         seed = seed,
         refresh = refresh,
         output_dir = output_dir,
         ...
-      )  
+      )
     }
   } else {
     run_cmdstanr <- function() {
