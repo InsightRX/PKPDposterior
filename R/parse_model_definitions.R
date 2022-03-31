@@ -34,7 +34,10 @@ parse_model_definitions <- function(
     paste0("int<lower = 1> n_obs_", obs_types, ";  // number of observation"),
     paste0("int<lower = 1> i_obs_", obs_types, "[n_obs_", obs_types, "];  // index of observation")
   )
-  def[["observation_data"]] <- paste0("vector<lower = 0>[n_obs_", obs_types, "] dv_", obs_types, ";  // observed concentration (Dependent Variable)")
+  def[["observation_data"]] <- paste0(
+    "vector<lower = 0>[n_obs_", obs_types, "] dv_", obs_types, ";", 
+    " // observed concentration (Dependent Variable)"
+  )
 
   ## define model parameters in data section
   def[["population_parameters"]] <- paste0("real<lower=0> theta_", names(parameters), ";")
@@ -68,7 +71,9 @@ parse_model_definitions <- function(
   }
 
   ## Transformed data block:
-  def[["log_transform_observations"]] <- paste0("vector[n_obs_", obs_types, "] log_dv_", obs_types, " = log(dv_", obs_types, ");")
+  def[["log_transform_observations"]] <- paste0(
+    "vector[n_obs_", obs_types, "] log_dv_", obs_types, " = log(dv_", obs_types, ");"
+  )
   cmt_size <- list(
     "pmx_solve_onecpt" = 2,
     "pmx_solve_twocpt" = 3
@@ -110,7 +115,10 @@ parse_model_definitions <- function(
   }
   def[["ipred_definition"]] = c(
     ipred,
-    paste0("ipred_obs_", obs_types, " = ipred_", obs_types, "'[i_obs_", obs_types, "]; // predictions only for observed data records")
+    paste0(
+      "ipred_obs_", obs_types, " = ipred_", obs_types, "'[i_obs_", obs_types, "];", 
+      " // predictions only for observed data records"
+    )
   )
 
   ## Parse parameters for analytic equations
@@ -134,7 +142,8 @@ parse_model_definitions <- function(
   )
   
   if(is.null(ode)) {
-    pk_equations <- parameter_definitions[unlist(param_req[solver])] # make sure to have the order correct for the analytic solver to understand
+    # make sure to have the order correct for the analytic solver to understand
+    pk_equations <- parameter_definitions[unlist(param_req[solver])] 
     def[["pk_block"]] <- c(
       "array[n_t, n_theta] real theta;",
       "for(j in 1:n_t) {",
@@ -212,7 +221,7 @@ get_n_cmt <- function(solver, ode = NULL) {
       gregexpr("dAdt\\[.\\]", ode_string)
     )[[1]]
     cmts <- as.numeric(gsub("\\D+", "", dadt_matches))
-    n_cmt <- max(cmts)
+    n_cmt <- max(cmts, na.rm = TRUE)
   }
   n_cmt
 }
