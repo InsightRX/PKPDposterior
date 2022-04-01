@@ -85,14 +85,10 @@ post <- get_mcmc_posterior(
   iter_warmup = 500,
   iter_sampling = 500,
   adapt_delta = 0.95,
-  verbose = TRUE
+  verbose = TRUE,
+  skip_processing = TRUE
 )
-post <- readRDS(file = "test.rds")
-extract_from_draws(
-  post, 
-  data,
-  TRUE
-)
+extract_map_estimates(post)
 
 ## Plot parameter distributions
 plot_params(post)

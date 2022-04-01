@@ -22,9 +22,11 @@ print.PKPDposterior <- function(x, ...) {
   )
   print(par_table, ...)
   
-  cat("\nObserved data, posterior:\n")
   print_cols <- c("time", "dv", "mean", "loc", "pct", "pct5", "pct95")
-  if("type" %in% names(x$observed_post)) print_cols <- c("type", print_cols)
+    cat("\nObserved data, posterior:\n")
   print(x$observed_post[, print_cols], ...)
 
+  cat("\nObserved data, prior:\n")
+  print(x$observed_prior[, print_cols], ...)
+  
 }
