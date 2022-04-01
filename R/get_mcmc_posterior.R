@@ -112,9 +112,11 @@ get_mcmc_posterior <- function(
   )
 
   ## Sampler diagnostics
-  out$sampler_diagnostics <- posterior::summarise_draws(
-    res$sampler_diagnostics()
-  )
+  if (method == "hmc") {
+    out$sampler_diagnostics <- posterior::summarise_draws(
+      res$sampler_diagnostics()
+    ) 
+  }
 
   ## Finalize & return
   class(out) <- c("PKPDposterior", "list")
