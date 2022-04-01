@@ -69,7 +69,7 @@ test_that("sim_from_draws draws from prior instead of posterior when asked", {
     summarize = FALSE
   )
   expect_equal(class(res), c("PKPDsim_data", "data.frame"))
-  expect_equal(round(res$y[1:5],1), c(0.0, 126.3, 4.3, 0.4, 0.0))
+  expect_equal(round(res$y[1:5],1), c(0.0, 211.3, 31.7, 8.9, 2.5))
 })
 
 test_that("sim_from_draws errors when posterior object is malformed", {
