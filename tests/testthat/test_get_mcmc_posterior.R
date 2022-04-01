@@ -1,9 +1,5 @@
 # Set up environment for tests; re-use objects to reduce test time
-parameters <- list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675)
-iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
-ruv <- list(add = 1.6, prop = 0.15)
-
-mod <- load_model("pk_vanco_thomson_ode")
+mod <- load_model("pk_vanco_thomson")
 
 regimen <- PKPDsim::new_regimen(
   amt = 1500, 
@@ -26,12 +22,9 @@ data <- prepare_data(
   covariates, 
   tdm_data,
   dose_cmt = 2,
-  parameters = parameters,
-  iiv = iiv,
-  ruv = list(
-    prop = 0.15,
-    add = 1.6
-  ),
+  parameters = list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675),
+  iiv = list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3),
+  ruv = list(prop = 0.15, add = 1.6),
   ltbs = FALSE
 )
 
@@ -57,6 +50,12 @@ test_that("Get posterior estimate: hmc method", {
       iter_sampling = 5, # not realistic value, just to speed up testing
       adapt_delta = 0.95,
       verbose = FALSE
+    ),
+    post2 <- get_mcmc_posterior(
+      mod = mod,
+      data = data,
+      method = "vi",
+      verbose = FALSE
     )
   )
   expected_names <- c(
@@ -70,13 +69,29 @@ test_that("Get posterior estimate: hmc method", {
     list(
       CL = 2.21950367643213, 
       Q = 2.60915639369181, 
-      V1 = 0.577035421853898, 
-      V2 = 0.435911841250733
+      V1 = 0.577034739551428, 
+      V2 = 0.43590902324682
     )
   )
   expect_equal(post1$observed_post$median, c(30.1667, 11.3313))
   expect_true(inherits(post1$draws_df, "data.frame"))
   expect_true(inherits(post1$draws_df, "draws_df"))
+  
+  expect_named(post2, expected_names[1:5], ignore.order = TRUE)
+  expect_true(inherits(post2, "PKPDposterior"))
+  expect_equal(
+    post2$map,
+    list(
+      lp_approx__ = -1.16811510661346, 
+      CL = 2.68096798893404, 
+      Q = 1.57646993508194, 
+      V1 = 0.564520072805394, 
+      V2 = 0.205024981316967
+    )
+  )
+  expect_equal(post2$observed_post$mean, c(30.2991531, 11.60416205))
+  expect_true(inherits(post2$draws_df, "data.frame"))
+  expect_true(inherits(post2$draws_df, "draws_df"))
 })
 
 test_that("Skip processing = TRUE returns unprocessed object", {
