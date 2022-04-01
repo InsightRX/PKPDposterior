@@ -54,7 +54,7 @@ get_mcmc_posterior <- function(
   init <- data[names(data)[grep("theta_", names(data))]]
   names(init) <- gsub("theta_", "", names(init))
   
-  refresh <- ifelse(verbose, 1, 0)
+  refresh <- ifelse(verbose, 50, 0)
   
   if(method == "vi") {
     run_cmdstanr <- function() {
@@ -94,7 +94,8 @@ get_mcmc_posterior <- function(
     settings = list(
       init = init,
       seed = seed
-    )
+    ),
+    data = data
   )
   
   if(skip_processing) {
@@ -107,7 +108,6 @@ get_mcmc_posterior <- function(
   out$observed_post <- extract_from_draws(
     out, 
     data,
-    filter = "ipred_obs",
     verbose
   )
 
