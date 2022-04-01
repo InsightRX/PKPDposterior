@@ -48,7 +48,7 @@ extract_from_draws <- function(
     obs_data$pct95 <- as.numeric(apply(obs_post, 2, "quantile", 0.95))
     obs_data$pct97.5 <- as.numeric(apply(obs_post, 2, "quantile", 0.975))
     
-    obs_data_all <- bind_rows(
+    obs_data_all <- dplyr::bind_rows(
       obs_data_all,
       obs_data
     )
