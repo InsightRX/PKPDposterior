@@ -7,7 +7,7 @@
 #'   need to provide. 
 #' 
 #' @export
-get_init <- function(
+prior_from_PKPDsim_model <- function(
   model,
   map = list(),
   drop = c()

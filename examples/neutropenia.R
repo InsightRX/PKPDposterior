@@ -25,7 +25,7 @@ mod <- load_model(
 )
 
 ## define init values (use population values): 
-prior <- get_init(
+prior <- prior_from_PKPDsim_model(
   "pkpd_neutropenia_template1", 
   map = mapping,
   drop = c("KA", "Q", "V2")

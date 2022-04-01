@@ -24,7 +24,7 @@ mod <- load_model(
 )
 
 ## define init values (use population values): 
-prior <- get_init(
+prior <- prior_from_PKPDsim_model(
   "pkvoriconazolefriberg", 
   map = mapping, 
   drop = c("T50", "TDM_INIT", "F1", "TLAG", "BCF")
