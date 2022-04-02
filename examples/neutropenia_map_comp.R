@@ -109,3 +109,51 @@ plot_predictions(pred, obs = pd_data) +
   xlim(c(0.1, 300)) +
   scale_y_log10(limits = c(0.3, 9)) +
   vpc::theme_empty()
+
+comb_data$obs_type <- c(1,1,2,2,2,2)
+library(pkpdneutropeniatemplate1)
+indiv_est <- PKPDmap::get_map_estimates(
+  model = pkpdneutropeniatemplate1::model(),
+  data = comb_data %>% mutate(y = dv),
+  parameters = pkpdneutropeniatemplate1::parameters(),
+  covariates = covariates,
+  omega = omega,
+  error = list(add = c(0.2, 0.3), prop = c(0, 0)),
+  regimen = regimen,
+  obs_type_label = "obs_type",
+  fixed = c("KA", "Q", "V2", "GAMMA"),
+  verbose = T
+)
+res <- sim(
+  pkpdneutropeniatemplate1::model(),
+  omega = indiv_est$vcov_full,
+  regimen = regimen,
+  n = 200,
+  t_obs = seq(0, 15*24, 6),
+  parameters = indiv_est$parameters,
+  covariates = covariates,
+  output_include = list(variables = TRUE)
+) %>%
+  mutate(y = ANC)
+ci <- c(0.05, 0.95)
+pred_map <- res %>% 
+  dplyr::filter(.data$comp == "obs") %>%
+  dplyr::group_by(.data$t) %>%
+  dplyr::summarise(
+    ymedian = stats::median(.data$y, na.rm = TRUE), 
+    ymin = stats::quantile(.data$y, ci[1], na.rm = TRUE),
+    ymax = stats::quantile(.data$y, ci[2], na.rm = TRUE)
+  ) %>%
+  mutate(type = "map")
+pred_comb <- bind_rows(
+  pred %>% mutate(type = "hmc"), 
+  pred_map
+)
+obs <- bind_rows(pd_data %>% mutate(type = "hmc"), 
+                 pd_data %>% mutate(type = "map"))
+plot_predictions(pred_comb, obs = obs) +
+  xlim(c(0.1, 300)) +
+  scale_y_log10(limits = c(0.3, 9)) +
+  vpc::theme_empty() +
+  facet_wrap(~type)
+
