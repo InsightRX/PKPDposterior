@@ -1,4 +1,4 @@
-test_that("prepare_data returns correct format", {
+test_that("PKPDsim_to_stan_data returns correct format", {
   regimen <- PKPDsim::new_regimen(
     amt = 1500,
     n = 4,
@@ -22,7 +22,7 @@ test_that("prepare_data returns correct format", {
     dv = c(900, 800),
     cmt = c(2, 2)
   )
-  res <- prepare_data(
+  res <- PKPDsim_to_stan_data(
     regimen, 
     covariates, 
     tdm_data,
