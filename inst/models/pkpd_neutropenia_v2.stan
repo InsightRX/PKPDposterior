@@ -112,10 +112,10 @@ transformed data{
 
 parameters{
   real<lower = 0> CL;
-  real<lower = 0> Q;
+  // real<lower = 0> Q;
   real<lower = 0> V1;
-  real<lower = 0> V2;
-  real<lower = 0> ka;
+  // real<lower = 0> V2;
+  // real<lower = 0> ka;
   real<lower = 0> mtt;
   real<lower = 0> circ0;
   real<lower = 0> alpha;
@@ -132,10 +132,10 @@ transformed parameters{
   matrix[n_cmt, n_t] A;
 
   theta[1] = CL;
-  theta[2] = Q; // Q;
+  theta[2] = 5; // Q;
   theta[3] = V1;
-  theta[4] = V2; // V2;
-  theta[5] = ka; // ka;
+  theta[4] = 100; // V2;
+  theta[5] = 1; // ka;
   theta[6] = mtt;   //  mean transit time
   theta[7] = circ0; // baseline level of neutrophils
   theta[8] = gamma; // feedback
