@@ -19,7 +19,7 @@ mapping <- list( # mapping between parameter names Stan vs PKPDsim
 )
 
 mod <- load_model(
-  "pkpd_neutropenia_v1",
+  "pkpd_neutropenia_v2",
   force = T,
   verbose = T
 )
@@ -52,7 +52,7 @@ pd_data <- data.frame(
   type = "pd"
 )
 comb_data <- bind_rows(
-  tdm_data, 
+  tdm_data,
   pd_data
 )
 
