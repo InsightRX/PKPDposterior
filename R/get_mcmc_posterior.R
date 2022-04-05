@@ -94,7 +94,8 @@ get_mcmc_posterior <- function(
     settings = list(
       init = init,
       seed = seed
-    )
+    ),
+    data = data
   )
   
   if(skip_processing) {
@@ -104,12 +105,7 @@ get_mcmc_posterior <- function(
   out$map <- extract_map_estimates(out)
     
   ## Model diagnostics
-  out$observed_post <- extract_from_draws(
-    out, 
-    data,
-    filter = "ipred_obs",
-    verbose
-  )
+  out$observed_post <- extract_from_draws(out, verbose)
 
   ## Sampler diagnostics
   out$sampler_diagnostics <- posterior::summarise_draws(
