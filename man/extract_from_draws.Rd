@@ -6,12 +6,10 @@
 Includes e.g. the quantile of the observed data in the posterior draws
 and the mean, 95\% CI, and standard deviations of the posterior.}
 \usage{
-extract_from_draws(post, data, verbose = TRUE)
+extract_from_draws(post, verbose = TRUE)
 }
 \arguments{
 \item{post}{posterior object from CmdStanR}
-
-\item{data}{data.frame with observed data}
 
 \item{verbose}{verbosity}
 }

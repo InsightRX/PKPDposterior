@@ -108,9 +108,11 @@ get_mcmc_posterior <- function(
   out$observed_post <- extract_from_draws(out, verbose)
 
   ## Sampler diagnostics
-  out$sampler_diagnostics <- posterior::summarise_draws(
-    res$sampler_diagnostics()
-  )
+  if(!is.null(res$sampler_diagnostics)) { # not available for VI method
+    out$sampler_diagnostics <- posterior::summarise_draws(
+      res$sampler_diagnostics()
+    )
+  }
 
   ## Finalize & return
   class(out) <- c("PKPDposterior", "list")
