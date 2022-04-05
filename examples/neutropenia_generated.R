@@ -129,14 +129,14 @@ data <- prepare_data(
 post <- get_mcmc_posterior(
   mod = mod,
   data = data,
-  iter_warmup = 500,
-  iter_sampling = 500,
+  iter_warmup = 250,
+  iter_sampling = 250,
   adapt_delta = 0.95,
-  verbose = TRUE,
-  skip_processing = TRUE
+  verbose = TRUE
 )
 
-extract_map_estimates(post)
+## Show posterior info
+post
 
 ## Plot parameter distributions
 plot_params(post)

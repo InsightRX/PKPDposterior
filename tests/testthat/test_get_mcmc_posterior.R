@@ -59,7 +59,7 @@ test_that("Get posterior estimate: hmc method", {
     )
   )
   expected_names <- c(
-    "raw", "draws_df", "settings", "map", "observed_post", "sampler_diagnostics"
+    "raw", "draws_df", "settings", "data", "map", "observed_post", "sampler_diagnostics"
   )
   
   expect_named(post1, expected_names, ignore.order = TRUE)
@@ -77,7 +77,7 @@ test_that("Get posterior estimate: hmc method", {
   expect_true(inherits(post1$draws_df, "data.frame"))
   expect_true(inherits(post1$draws_df, "draws_df"))
   
-  expect_named(post2, expected_names[1:5], ignore.order = TRUE)
+  expect_named(post2, expected_names[1:6], ignore.order = TRUE)
   expect_true(inherits(post2, "PKPDposterior"))
   expect_equal(
     post2$map,
@@ -110,7 +110,7 @@ test_that("Skip processing = TRUE returns unprocessed object", {
       verbose = FALSE
     )
   )
-  expected_names <- c("raw", "draws_df", "settings")
+  expected_names <- c("raw", "draws_df", "settings", "data")
   
   expect_named(post2, expected_names, ignore.order = TRUE)
   expect_false(inherits(post2, "PKPDposterior"))

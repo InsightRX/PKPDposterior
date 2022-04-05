@@ -11,6 +11,7 @@ sim_from_draws(
   parameters = NULL,
   prior = FALSE,
   n = NULL,
+  variable = "y",
   summarize = FALSE,
   ci = c(0.05, 0.95),
   ...
@@ -33,6 +34,8 @@ the same name in the samples.}
 
 \item{n}{number of parameter draws / simulations to do. A value of \code{NULL}
 indicates all draws should be used.}
+
+\item{variable}{use a variable from the simulated data, defaults to \code{y}.}
 
 \item{summarize}{should data be summarized to median and confidence interval?
 Defaults to \code{FALSE}, i.e. to return all simulated observations from

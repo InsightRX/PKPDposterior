@@ -3,42 +3,64 @@
 #' and the mean, 95% CI, and standard deviations of the posterior.
 #' 
 #' @param post posterior object from CmdStanR
-#' @param data data.frame with observed data
-#' @param filter column name filter to use
 #' @param verbose verbosity
 #' 
 extract_from_draws <- function(
-  post, 
-  data,
-  filter = "ipred_obs",
+  post,
   verbose = TRUE
 ) {
   
-  obs_post <- as.data.frame(post$draws_df)
-  obs_post <- obs_post[, grepl(filter, names(obs_post))]
+  obs_types <- gsub("dv_", "", names(post$data)[grep("^dv_", names(post$data))])
+  obs_data_all <- purrr::map_dfr(
+    obs_types, 
+    calc_stats_for_draws_predictions, 
+    post = post
+  )
+
+  ## warnings of poor fit
+  if(any(obs_data_all$pct > 0.99) || any(obs_data_all$pct < 0.01)) {
+    if(verbose) message(
+      "One or more observed data points were at the edges of the posterior ",
+      "(1st percentile)"
+    )
+  }
+  
+  obs_data_all
+  
+}
+
+#' Calculates statistics on draws from posterior for predictions (e.g. 
+#' concentrations)
+#' 
+#' @param post posterior object
+#' @param obs_type observation type label, default is `pk`
+#' 
+#' @returns data frame with statistics for each observation timepoint, such as
+#' mean, median, sd, confidence intervals etc.
+#' 
+calc_stats_for_draws_predictions <- function(
+  post,
+  obs_type = "pk"
+) {
+  obs_post <- as.data.frame(post$draws_df) # needs to be a standard data.frame
+  obs_post <- obs_post[, grepl(paste0("ipred_obs_", obs_type), names(obs_post))]
   post_info <- obs_post %>%
     posterior::summarise_draws(c("mean", "median", "sd"))
   obs_data <- data.frame(
-    time = data$time,
-    dv = data$DV,
-    evid = data$evid
-  )
-  if(sum(obs_data$evid == 0) == nrow(post_info)) {
-    if (verbose) message("Filtering observations...")
-    obs_data <- dplyr::bind_cols(
-      obs_data[obs_data$evid == 0,],
-      post_info[,-1]
-    )
-  }
-
-  ## add percentile of observed in 
+    time = post$data$time,
+    dv = post$data$DV,
+    evid = post$data$evid
+  ) %>%
+    dplyr::slice(post$data[[paste0("i_obs_", obs_type)]]) %>%
+    dplyr::mutate(type = !!obs_type) %>%
+    dplyr::bind_cols(post_info)
   for(i in 1:nrow(obs_data)) {
     obs_data$pct[i] <- get_quantile(
       obs_data$dv[i], 
-      as.numeric(obs_post[,i])
+      as.numeric(obs_post[ ,i])
     )
   }
-
+  
   ## add visualization of percentiles for the print function
   obs_data$loc <- plot_percentile(obs_data$pct)
   
@@ -52,14 +74,5 @@ extract_from_draws <- function(
   obs_data$pct95 <- as.numeric(apply(obs_post, 2, "quantile", 0.95))
   obs_data$pct97.5 <- as.numeric(apply(obs_post, 2, "quantile", 0.975))
   
-  ## warnings of poor fit
-  if(any(obs_data$pct > 0.99) || any(obs_data$pct < 0.01)) {
-    if(verbose) message(
-      "One or more observed data points were at the edges of the posterior ",
-      "(1st percentile)"
-    )
-  }
-  
   obs_data
-  
 }

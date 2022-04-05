@@ -11,6 +11,7 @@
 #' @param prior simulate from prior (`TRUE`) or posterior (`FALSE`) 
 #' @param n number of parameter draws / simulations to do. A value of `NULL` 
 #'   indicates all draws should be used.
+#' @param variable use a variable from the simulated data, defaults to `y`.
 #' @param summarize should data be summarized to median and confidence interval? 
 #'   Defaults to `FALSE`, i.e. to return all simulated observations from 
 #'   parameter draws.
@@ -25,6 +26,7 @@ sim_from_draws <- function(
   parameters = NULL,
   prior = FALSE,
   n = NULL,
+  variable = "y",
   summarize = FALSE,
   ci = c(0.05, 0.95),
   ...
@@ -84,6 +86,7 @@ sim_from_draws <- function(
       ...
     )
   }
+  res$y <- res[[variable]]
   
   if(!summarize) {
     res
