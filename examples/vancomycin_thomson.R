@@ -80,10 +80,8 @@ validate_stan_model(
   stan_model = mod,
   pkpdsim_model = pkvancothomson::model(),
   parameters = pkvancothomson::parameters(),
-  regimen = new_regimen(amt = 1000, n = 4, interval = 12, t_inf = 1, type = "infusion", cmt = 1),
-  covariates = covariates,
-  mapping = mapping,
-  dose_cmt = 2
+  data = data,
+  mapping = mapping
 )
 
 ## Simulate from posterior and prior:
