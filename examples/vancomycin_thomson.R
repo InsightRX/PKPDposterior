@@ -74,8 +74,20 @@ post
 ## Plot parameter distributions
 plot_params(post)
 
-## Simulate from posterior and prior:
+## Validate model vs PKPDsim implementation
+
 covariates$CL_HEMO <- new_covariate(0)
+validate_stan_model(
+  stan_model = mod,
+  pkpdsim_model = pkvancothomson::model(),
+  parameters = pkvancothomson::parameters(),
+  regimen = new_regimen(amt = 1000, n = 4, interval = 12, t_inf = 1, type = "infusion", cmt = 1),
+  covariates = covariates,
+  mapping = mapping,
+  dose_cmt = 2
+)
+
+## Simulate from posterior and prior:
 pred_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(),
