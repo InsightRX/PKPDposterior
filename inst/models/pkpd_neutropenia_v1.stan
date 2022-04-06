@@ -7,19 +7,19 @@ functions{
   
   vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i) {
     real CL    = theta[1];
+    real Q     = theta[2];
     real V1    = theta[3];
+    real V2    = theta[4];
+    real ka    = theta[5];
     real mtt   = theta[6];
     real circ0 = theta[7];
     real gamma = theta[8];
     real alpha = theta[9];
-    // real Q    = theta[2];
-    // real V2   = theta[4];
-    // real ka   = theta[5];
     
-    real ka  = 0;
+    // real ka  = 1;
     real k10 = CL / V1;
-    real k12 = 0; // Q / V1;
-    real k21 = 0; // Q / V2;
+    real k12 = Q / V1;
+    real k21 = Q / V2;
     real ktr = 4 / mtt;
     
     vector[8] dAdt;
@@ -68,7 +68,7 @@ data {
   real<lower = 0> theta_mtt;
   real<lower = 0> theta_circ0;
   real<lower = 0> theta_alpha;
-  real<lower = 0> theta_gamma;  
+  // real<lower = 0> theta_gamma;  
   
   // inter-individual variability (SD scale)
   real<lower = 0> omega_CL;
@@ -76,7 +76,7 @@ data {
   real<lower = 0> omega_mtt;
   real<lower = 0> omega_circ0;
   real<lower = 0> omega_alpha;
-  real<lower = 0> omega_gamma;  
+  // real<lower = 0> omega_gamma;  
 
   // error model
   int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
@@ -112,11 +112,14 @@ transformed data{
 
 parameters{
   real<lower = 0> CL;
+  // real<lower = 0> Q;
   real<lower = 0> V1;
+  // real<lower = 0> V2;
+  // real<lower = 0> ka;
   real<lower = 0> mtt;
   real<lower = 0> circ0;
   real<lower = 0> alpha;
-  real<lower = 0> gamma;
+  // real<lower = 0> gamma;
 }
 
 transformed parameters{
@@ -129,13 +132,13 @@ transformed parameters{
   matrix[n_cmt, n_t] A;
 
   theta[1] = CL;
-  theta[2] = 0; // Q;
+  theta[2] = 5; // Q;
   theta[3] = V1;
-  theta[4] = 1; // V2;
-  theta[5] = 0; // ka;
+  theta[4] = 100; // V2;
+  theta[5] = 1; // ka;
   theta[6] = mtt;   //  mean transit time
   theta[7] = circ0; // baseline level of neutrophils
-  theta[8] = gamma; // feedback
+  theta[8] = 0.2; // feedback, gamma
   theta[9] = alpha; // slope
 
   A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
@@ -156,13 +159,13 @@ model{
   mtt     ~ lognormal(log(theta_mtt), omega_mtt);
   circ0   ~ lognormal(log(theta_circ0), omega_circ0);
   alpha   ~ lognormal(log(theta_alpha), omega_alpha);
-  gamma   ~ lognormal(log(theta_gamma), omega_gamma);
+  // gamma   ~ lognormal(log(theta_gamma), omega_gamma);
 
   // observed data likelihood
   if(ltbs_pk) {
-    log_dv_pk ~ normal(log(ipred_obs_pk), ruv_add_pk);
+   log_dv_pk ~ normal(log(ipred_obs_pk), ruv_add_pk);
   } else {
-    dv_pk ~ normal(ipred_obs_pk, (ruv_prop_pk * ipred_obs_pk + ruv_add_pk));
+   dv_pk ~ normal(ipred_obs_pk, (ruv_prop_pk * ipred_obs_pk + ruv_add_pk));
   }
   if(ltbs_pd) {
     log_dv_pd ~ normal(log(ipred_obs_pd), ruv_add_pd);
@@ -186,7 +189,7 @@ generated quantities{
   real prior_mtt = lognormal_rng(log(theta_mtt), omega_mtt);
   real prior_circ0 = lognormal_rng(log(theta_circ0), omega_circ0);
   real prior_alpha = lognormal_rng(log(theta_alpha), omega_alpha);
-  real prior_gamma = lognormal_rng(log(theta_gamma), omega_gamma);
+  // real prior_gamma = lognormal_rng(log(theta_gamma), omega_gamma);
   
   if(ltbs_pk) {
     for(i in 1:n_obs_pk) {

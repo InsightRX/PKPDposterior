@@ -10,6 +10,7 @@ library(ggplot2)
 cmdstanr::set_cmdstan_path(
   path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
 )
+mapping <- NULL
 parameters <- list(CL = 5, V = 50,
                    SLOPE = 0.1, MTT = 100, 
                    CIRC0 = 5, GAMMA = 0.2)

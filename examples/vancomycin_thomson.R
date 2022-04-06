@@ -75,7 +75,6 @@ post
 plot_params(post)
 
 ## Validate model vs PKPDsim implementation
-
 covariates$CL_HEMO <- new_covariate(0)
 validate_stan_model(
   stan_model = mod,

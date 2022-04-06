@@ -54,7 +54,7 @@ get_mcmc_posterior <- function(
   init <- data[names(data)[grep("theta_", names(data))]]
   names(init) <- gsub("theta_", "", names(init))
   
-  refresh <- ifelse(verbose, 1, 0)
+  refresh <- ifelse(verbose, 50, 0)
   
   if(method == "vi") {
     run_cmdstanr <- function() {

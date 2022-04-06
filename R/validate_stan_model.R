@@ -3,76 +3,60 @@
 #' 
 #' @param stan_model Stan/Torsten model
 #' @param pkpdsim_model PKPDsim implementation
+#' 
+#' @export
 validate_stan_model <- function(
   stan_model,
   pkpdsim_model,
-  parameters,
-  t_obs = c(3, 6, 24),
-  regimen,
-  covariates = NULL,
+  data,
+  parameters = NULL,
+  # t_obs = c(3, 6, 24),
+  # regimen,
+  # covariates = NULL,
   mapping = NULL,
-  dose_cmt = 2,
+  # dose_cmt = 2,
   n = 50,
+  obs_types = c("pk", "pd"),
   max_abs_delta = 1e-3,
   max_rel_delta = 1e-5,
   verbose = FALSE
 ) {
   
-  # 1. simulate some dummy data in PKPDsim using a certain sampling schema. Needs to be reasonable data (so the sampler doesn’t crash), but otherwise can be anything.
-  message("Simulating dummy data...")
-  dummy_data <- PKPDsim::sim(
-    pkpdsim_model,
-    parameters = parameters,
-    regimen = regimen,
-    covariates = covariates,
-    t_obs = t_obs,
-    only_obs = TRUE,
-    output_include = list()
-  )
-  
-  # 2. pass this data into Stan and sample, e.g. 100 times. 
-  #    We should extract both the posterior estimates for the PK parameters, 
-  #    as well as the predictions for the samples.
-  par_stan <- remap(parameters, mapping, reverse = TRUE)
-  iiv <- par_stan
-  for(key in names(iiv)) iiv[[key]] <- 0.2
-  data <- prepare_data(
-    regimen,
-    covariates, 
-    data = dummy_data %>% 
-      dplyr::mutate(dv = y) %>%
-      dplyr::select(t, dv),
-    parameters = par_stan,
-    iiv = iiv,
-    ruv = list(
-      prop = 0.1,
-      add = 0.1
-    ),
-    dose_cmt = dose_cmt
-  )
-  
-  # 3. Sample from the posterior using the prepared data
   message("Sampling from posterior...")
   suppressMessages({
     post <- get_mcmc_posterior(
       mod,
       data = data,
-      iter_warmup = 500,
+      iter_warmup = n,
       iter_sampling = n,
       verbose = verbose
     )
   })
   draws <- as.data.frame(post$draws_df)
   
-  # 4. The posterior parameter estimates can be fed into PKPDsim (use parameters_table), and used to simulate observations. 
+  # 4. Convert sampled posterior parameters into parameters_table for PKPDsim
+  par_stan <- gsub("theta_", "", names(data)[grep("^theta_", names(data))])
   parameters_table <- remap(
-    draws[, intersect(names(par_stan), names(draws))],
-    mapping
+    draws[, intersect(par_stan, names(draws))], 
+    mapping, 
+    reverse = FALSE
   )
   for(key in names(parameters)) { # add fixed parameters
     if(is.null(parameters_table[[key]])) parameters_table[[key]] <- parameters[[key]]
   }
   message("Simulating posterior observations with PKPDsim...")
+  
+  ## Parse observation types
+  obs_type <- rep(NA, length(data$time))
+  for(key in obs_types) {
+    obs_type[data[[paste0("i_obs_", key)]]] <- key
+  }
+  t_obs <- data$time[!is.na(obs_type)]
+  obs_type <- obs_type[!is.na(obs_type)]
+  unq_obs_type <- unique(obs_type)
+  obs_type <- match(obs_type, unq_obs_type)
+  
+  ## Simulate
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
     sim(
       ode = pkpdsim_model,
@@ -80,25 +64,31 @@ validate_stan_model <- function(
       covariates = covariates,
       regimen = regimen,
       only_obs = TRUE,
-      t_obs = t_obs
-    )  
+      t_obs = t_obs,
+      obs_type = obs_type,
+      output_include = list(variable = TRUE)
+    )
   })
   
   # 5. Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
   message("Comparing Stan and PKPDsim data...")
-  comp <- draws[, grep("ipred_obs_pk", names(draws))] %>% 
+  comp <- draws[, grep("ipred_obs_", names(draws))] %>% 
     tidyr::pivot_longer(cols = names(.)) %>%
     dplyr::mutate(
       pkpdsim = simdata$y,
       delta = value - pkpdsim,
-      delta_rel = ifelse(pkpdsim == 0, delta, delta / pkpdsim)
+      delta_rel = ifelse(pkpdsim == 0, delta, delta / pkpdsim),
+      idx = rep(seq(t_obs), n)
     )
-  
-  if(max(abs(comp$delta)) < max_abs_delta && max(abs(comp$delta_rel)) < max_rel_delta) {
-    message("Succesful validation.")
-  } else {
-    message("Validation unsuccesful!")
+
+  for(i in seq(unq_obs_type)) {
+    tmp <- comp[comp$idx == i,]
+    message("- max absolute delta (", unq_obs_type[i], "): ", max(abs(tmp$delta)))
+    message("- max relative delta (", unq_obs_type[i], "): ", max(abs(tmp$delta_rel)))
   }
-  message("Max absolute delta: ", max(abs(comp$delta)))
-  message("Max relative delta: ", max(abs(comp$delta_rel)))
+  if(max(abs(comp$delta)) < max_abs_delta && max(abs(comp$delta_rel)) < max_rel_delta) {
+    message(testthat:::praise_emoji(), " ", crayon::green("Validation successful."))
+  } else {
+    message(crayon::red("Validation not succesful!"))
+  }
 }
