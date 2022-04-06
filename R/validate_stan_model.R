@@ -3,6 +3,16 @@
 #' 
 #' @param stan_model Stan/Torsten model
 #' @param pkpdsim_model PKPDsim implementation
+#' @param data dataset (see [prepare_data()])
+#' @param parameters list of parameter estimates that are used in simulation if 
+#'   not already present in either the posterior or the prior draws. I.e. 
+#'   specified parameters in this named list will not override parameters with 
+#'   the same name in the samples.
+#' @param n number of patient datasets to use in validation. Default is 50.
+#' @param max_abs_delta maximum allowed absolute delta between Stan and PKPDsim
+#' @param max_rel_delta maximum allowed relative delta between Stan and PKPDsim,
+#'   in which PKPDsim is treated as reference.
+#' @param verbose verbose output?
 #' 
 #' @export
 validate_stan_model <- function(
@@ -10,13 +20,8 @@ validate_stan_model <- function(
   pkpdsim_model,
   data,
   parameters = NULL,
-  # t_obs = c(3, 6, 24),
-  # regimen,
-  # covariates = NULL,
   mapping = NULL,
-  # dose_cmt = 2,
   n = 50,
-  obs_types = c("pk", "pd"),
   max_abs_delta = 1e-3,
   max_rel_delta = 1e-5,
   verbose = FALSE
@@ -47,6 +52,7 @@ validate_stan_model <- function(
   message("Simulating posterior observations with PKPDsim...")
   
   ## Parse observation types
+  obs_types <- gsub("n_obs_", "", names(data)[grep("^n_obs_", names(data))])
   obs_type <- rep(NA, length(data$time))
   for(key in obs_types) {
     obs_type[data[[paste0("i_obs_", key)]]] <- key

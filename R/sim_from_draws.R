@@ -6,7 +6,7 @@
 #'   PKPDsim model.
 #' @param parameters list of parameter estimates that are used in simulation if 
 #'   not already present in either the posterior or the prior draws. I.e. 
-#'   specifiied parameters in this named list will not override parameters with 
+#'   specified parameters in this named list will not override parameters with 
 #'   the same name in the samples.
 #' @param prior simulate from prior (`TRUE`) or posterior (`FALSE`) 
 #' @param n number of parameter draws / simulations to do. A value of `NULL` 

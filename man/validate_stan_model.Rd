@@ -12,7 +12,6 @@ validate_stan_model(
   parameters = NULL,
   mapping = NULL,
   n = 50,
-  obs_types = c("pk", "pd"),
   max_abs_delta = 0.001,
   max_rel_delta = 1e-05,
   verbose = FALSE
@@ -22,6 +21,22 @@ validate_stan_model(
 \item{stan_model}{Stan/Torsten model}
 
 \item{pkpdsim_model}{PKPDsim implementation}
+
+\item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
+
+\item{parameters}{list of parameter estimates that are used in simulation if
+not already present in either the posterior or the prior draws. I.e.
+specified parameters in this named list will not override parameters with
+the same name in the samples.}
+
+\item{n}{number of patient datasets to use in validation. Default is 50.}
+
+\item{max_abs_delta}{maximum allowed absolute delta between Stan and PKPDsim}
+
+\item{max_rel_delta}{maximum allowed relative delta between Stan and PKPDsim,
+in which PKPDsim is treated as reference.}
+
+\item{verbose}{verbose output?}
 }
 \description{
 Validate the numerical simulation properties of a Stan model vs the model

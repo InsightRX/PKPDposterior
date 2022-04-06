@@ -27,7 +27,7 @@ PKPDsim model.}
 
 \item{parameters}{list of parameter estimates that are used in simulation if
 not already present in either the posterior or the prior draws. I.e.
-specifiied parameters in this named list will not override parameters with
+specified parameters in this named list will not override parameters with
 the same name in the samples.}
 
 \item{prior}{simulate from prior (\code{TRUE}) or posterior (\code{FALSE})}
