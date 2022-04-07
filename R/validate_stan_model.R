@@ -39,7 +39,7 @@ validate_stan_model <- function(
   })
   draws <- as.data.frame(post$draws_df)
   
-  # 4. Convert sampled posterior parameters into parameters_table for PKPDsim
+  # Convert sampled posterior parameters into parameters_table for PKPDsim
   par_stan <- gsub("theta_", "", names(data)[grep("^theta_", names(data))])
   parameters_table <- remap(
     draws[, intersect(par_stan, names(draws))], 
@@ -49,8 +49,7 @@ validate_stan_model <- function(
   for(key in names(parameters)) { # add fixed parameters
     if(is.null(parameters_table[[key]])) parameters_table[[key]] <- parameters[[key]]
   }
-  message("Simulating posterior observations with PKPDsim...")
-  
+
   ## Parse observation types
   obs_types <- gsub("n_obs_", "", names(data)[grep("^n_obs_", names(data))])
   obs_type <- rep(NA, length(data$time))
@@ -63,6 +62,7 @@ validate_stan_model <- function(
   obs_type <- match(obs_type, unq_obs_type)
   
   ## Simulate
+  message("Simulating posterior observations with PKPDsim...")
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
     sim(
       ode = pkpdsim_model,
@@ -76,7 +76,7 @@ validate_stan_model <- function(
     )
   })
   
-  # 5. Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
+  # Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
   message("Comparing Stan and PKPDsim data...")
   comp <- draws[, grep("ipred_obs_", names(draws))] %>% 
     tidyr::pivot_longer(cols = names(.)) %>%
@@ -87,6 +87,7 @@ validate_stan_model <- function(
       idx = rep(seq(t_obs), n)
     )
 
+  ## Report outcome
   for(i in seq(unq_obs_type)) {
     tmp <- comp[comp$idx == i,]
     message("- max absolute delta (", unq_obs_type[i], "): ", max(abs(tmp$delta)))
