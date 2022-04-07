@@ -20,7 +20,7 @@ get_mcmc_posterior(
 \arguments{
 \item{mod}{compiled Stan model}
 
-\item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
+\item{data}{dataset (see \code{\link[=PKPDsim_to_stan_data]{PKPDsim_to_stan_data()}})}
 
 \item{seed}{seed for sampling}
 
@@ -54,5 +54,5 @@ Draw samples from the posterior given a Stan/Torsten model
 and patient data
 }
 \seealso{
-\code{\link[=prepare_data]{prepare_data()}}
+\code{\link[=PKPDsim_to_stan_data]{PKPDsim_to_stan_data()}}
 }

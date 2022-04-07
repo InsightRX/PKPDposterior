@@ -24,7 +24,7 @@ mod <- load_model(
 )
 
 ## define init values (use population values): 
-prior <- get_init(
+prior <- prior_from_PKPDsim_model(
   "pkvoriconazolefriberg", 
   map = mapping, 
   drop = c("T50", "TDM_INIT", "F1", "TLAG", "BCF")
@@ -47,7 +47,7 @@ tdm_data <- data.frame(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- prepare_data(
+data <- PKPDsim_to_stan_data(
   regimen, 
   covariates, 
   tdm_data,

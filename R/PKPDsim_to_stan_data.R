@@ -43,7 +43,7 @@
 #'   dv = c(900, 800), 
 #'   cmt = c(2, 2)
 #' )
-#' prepare_data(
+#' PKPDsim_to_stan_data(
 #'   regimen, 
 #'   covariates, 
 #'   tdm_data,
@@ -52,7 +52,7 @@
 #'   ruv = list(prop = 0.1, add = 1)
 #' )
 
-prepare_data <- function(
+PKPDsim_to_stan_data <- function(
   regimen, 
   covariates, 
   data,
@@ -174,7 +174,7 @@ prepare_data <- function(
 
 #' Convert list of covariate objects to NONMEM formatted data
 #'
-#' @inheritParams prepare_data
+#' @inheritParams PKPDsim_to_stan_data
 covariates_to_nm <- function(covariates) {
   if(is.null(covariates)) {
     return(NULL)
@@ -195,7 +195,7 @@ covariates_to_nm <- function(covariates) {
 
 #' Convert TDM data to NONMEM format
 #'
-#' @inheritParams prepare_data
+#' @inheritParams PKPDsim_to_stan_data
 tdm_to_nm <- function(data) {
   if(is.null(data$cmt)) {
     data$CMT <- 1 # irrelevant, handled in Stan model

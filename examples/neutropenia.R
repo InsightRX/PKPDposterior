@@ -25,7 +25,7 @@ mod <- load_model(
 )
 
 ## define init values (use population values): 
-prior <- get_init(
+prior <- prior_from_PKPDsim_model(
   "pkpd_neutropenia_template1", 
   map = mapping,
   drop = c("KA", "Q", "V2")
@@ -57,7 +57,7 @@ comb_data <- bind_rows(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- prepare_data(
+data <- PKPDsim_to_stan_data(
   regimen,
   covariates = covariates, 
   data = comb_data,
