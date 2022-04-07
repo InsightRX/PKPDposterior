@@ -161,6 +161,14 @@ prepare_data <- function(
   out$TYPE <- NULL
   out$n_t <- nrow(nm_data)
   
+  ## Attach some input data as attributes, for re-use
+  attr(out, "parameters") <- parameters
+  attr(out, "regimen") <- regimen
+  attr(out, "covariates") <- covariates
+  attr(out, "data") <- data
+  attr(out, "iiv") <- iiv
+  attr(out, "ruv") <- ruv
+  
   out
 }
 

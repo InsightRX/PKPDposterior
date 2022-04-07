@@ -9,7 +9,8 @@ validate_stan_model(
   stan_model,
   pkpdsim_model,
   data,
-  parameters = NULL,
+  parameters,
+  covariates,
   mapping = NULL,
   n = 50,
   max_abs_delta = 0.001,
@@ -22,12 +23,18 @@ validate_stan_model(
 
 \item{pkpdsim_model}{PKPDsim implementation}
 
-\item{data}{dataset (see \code{\link[=prepare_data]{prepare_data()}})}
+\item{data}{dataset (see \code{\link[=PKPDsim_to_stan_data]{PKPDsim_to_stan_data()}})}
 
 \item{parameters}{list of parameter estimates that are used in simulation if
 not already present in either the posterior or the prior draws. I.e.
 specified parameters in this named list will not override parameters with
 the same name in the samples.}
+
+\item{covariates}{Optional. List of covariates used in PKPDsim model not
+already specified in \code{data}.}
+
+\item{mapping}{remap model parameters from Stan to PKPDsim syntax, specified
+as a list. E.g. \code{map = list(V1 = V)}.}
 
 \item{n}{number of patient datasets to use in validation. Default is 50.}
 

@@ -75,11 +75,11 @@ post
 plot_params(post)
 
 ## Validate model vs PKPDsim implementation
-covariates$CL_HEMO <- new_covariate(0)
 validate_stan_model(
   stan_model = mod,
   pkpdsim_model = pkvancothomson::model(),
   parameters = pkvancothomson::parameters(),
+  covariates = list(CL_HEMO = new_covariate(0)),
   data = data,
   mapping = mapping
 )
