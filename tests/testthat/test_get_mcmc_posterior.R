@@ -17,7 +17,7 @@ tdm_data <- data.frame(
   dv = c(40, 14)
 )
 
-data <- prepare_data(
+data <- PKPDsim_to_stan_data(
   regimen,
   covariates, 
   tdm_data,

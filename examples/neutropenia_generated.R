@@ -114,7 +114,7 @@ comb_data <- bind_rows(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- prepare_data(
+data <- PKPDsim_to_stan_data(
   regimen,
   covariates = covariates, 
   data = comb_data,

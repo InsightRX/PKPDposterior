@@ -2,7 +2,7 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
-#' @param data dataset (see [prepare_data()])
+#' @param data dataset (see [PKPDsim_to_stan_data()])
 #' @param seed seed for sampling
 #' @param chains number of MCMC chains to simulate, passed on to Stan model
 #' @param output_dir output directory
@@ -23,7 +23,7 @@
 #' - adapt_delta
 #' 
 #' @export
-#' @seealso [prepare_data()]
+#' @seealso [PKPDsim_to_stan_data()]
 get_mcmc_posterior <- function(
   mod,
   data,
