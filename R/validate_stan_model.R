@@ -83,7 +83,7 @@ validate_stan_model <- function(
   # Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
   if (verbose) message("Comparing Stan and PKPDsim data...")
   comp <- draws[, grep("ipred_obs_", names(draws))] %>% 
-    tidyr::pivot_longer(cols = names(.)[grep("ipred_obs_", names(.))]) %>%
+    tidyr::pivot_longer(cols = starts_with("ipred_obs_")) %>%
     dplyr::mutate(
       pkpdsim = simdata$y,
       delta = value - pkpdsim,
