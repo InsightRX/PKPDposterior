@@ -3,7 +3,7 @@
 #' 
 #' @param stan_model Stan/Torsten model
 #' @param pkpdsim_model PKPDsim implementation
-#' @param data dataset (see [prepare_data()])
+#' @param data dataset (see [PKPDsim_to_stan_data()])
 #' @param parameters list of parameter estimates that are used in simulation if 
 #'   not already present in either the posterior or the prior draws. I.e. 
 #'   specified parameters in this named list will not override parameters with 
@@ -27,7 +27,7 @@ validate_stan_model <- function(
   verbose = FALSE
 ) {
   
-  message("Sampling from posterior...")
+  if (verbose) message("Sampling from posterior...")
   suppressMessages({
     post <- get_mcmc_posterior(
       mod,
@@ -49,7 +49,8 @@ validate_stan_model <- function(
   for(key in names(parameters)) { # add fixed parameters
     if(is.null(parameters_table[[key]])) parameters_table[[key]] <- parameters[[key]]
   }
-
+  if (verbose) message("Simulating posterior observations with PKPDsim...")
+  
   ## Parse observation types
   obs_types <- gsub("n_obs_", "", names(data)[grep("^n_obs_", names(data))])
   obs_type <- rep(NA, length(data$time))
@@ -77,7 +78,7 @@ validate_stan_model <- function(
   })
   
   # Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
-  message("Comparing Stan and PKPDsim data...")
+  if (verbose) message("Comparing Stan and PKPDsim data...")
   comp <- draws[, grep("ipred_obs_", names(draws))] %>% 
     tidyr::pivot_longer(cols = names(.)) %>%
     dplyr::mutate(
