@@ -7,8 +7,7 @@
 #'   mode from the sampled values.
 #' 
 #' @returns list of modes of posterior (MAP estimate) for the parameters
-#' 
-#' @export
+
 extract_map_estimates <- function(
   post,
   parameters = NULL,
