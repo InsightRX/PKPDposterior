@@ -2,7 +2,7 @@
 #' and patient data
 #' 
 #' @param mod compiled Stan model
-#' @param data dataset (see [PKPDsim_to_stan_data()])
+#' @param data dataset (see [new_stan_data()])
 #' @param seed seed for sampling
 #' @param chains number of MCMC chains to simulate, passed on to Stan model
 #' @param output_dir output directory
@@ -23,7 +23,7 @@
 #' - adapt_delta
 #' 
 #' @export
-#' @seealso [PKPDsim_to_stan_data()]
+#' @seealso [new_stan_data()]
 get_mcmc_posterior <- function(
   mod,
   data,
@@ -51,7 +51,7 @@ get_mcmc_posterior <- function(
   }
 
   ## get parameter initial values from data object
-  init <- data[names(data)[grep("theta_", names(data))]]
+  init <- data$stan_data[names(data$stan_data)[grep("theta_", names(data$stan_data))]]
   names(init) <- gsub("theta_", "", names(init))
   
   refresh <- ifelse(verbose, 50, 0)
@@ -59,7 +59,7 @@ get_mcmc_posterior <- function(
   if(method == "vi") {
     run_cmdstanr <- function() {
       res <- mod$variational(
-        data = data,
+        data = data$stan_data,
         seed = seed,
         refresh = refresh,
         output_dir = output_dir,
@@ -69,7 +69,7 @@ get_mcmc_posterior <- function(
   } else {
     run_cmdstanr <- function() {
       mod$sample(
-        data = data,
+        data = data$stan_data,
         init = function() { init },
         seed = seed,
         refresh = refresh,

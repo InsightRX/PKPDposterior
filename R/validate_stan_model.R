@@ -34,7 +34,7 @@ validate_stan_model <- function(
   
   if (verbose) message("Sampling from posterior...")
   post <- get_mcmc_posterior(
-    mod,
+    stan_model,
     data = data,
     iter_warmup = 200,
     iter_sampling = n,
@@ -68,7 +68,7 @@ validate_stan_model <- function(
   ## Simulate
   covariates_sim <- c(attr(data, "covariates"), covariates)
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
-    sim(
+    PKPDsim::sim(
       ode = pkpdsim_model,
       parameters = as.list(parameters_table[i,]),
       covariates = covariates_sim,
@@ -83,11 +83,11 @@ validate_stan_model <- function(
   # Observations from PKPDsim should be compared to those sampled from Stan. They should be equal.
   if (verbose) message("Comparing Stan and PKPDsim data...")
   comp <- draws[, grep("ipred_obs_", names(draws))] %>% 
-    tidyr::pivot_longer(cols = starts_with("ipred_obs_")) %>%
+    tidyr::pivot_longer(cols = dplyr::starts_with("ipred_obs_")) %>%
     dplyr::mutate(
       pkpdsim = simdata$y,
-      delta = value - pkpdsim,
-      delta_rel = ifelse(pkpdsim == 0, delta, delta / pkpdsim),
+      delta = .data$value - .data$pkpdsim,
+      delta_rel = ifelse(.data$pkpdsim == 0, .data$delta, .data$delta / .data$pkpdsim),
       idx = rep(seq(t_obs), n)
     )
 
@@ -99,8 +99,27 @@ validate_stan_model <- function(
     message("- max relative \U{0394} (", unq_obs_type[i], "): ", max(abs(tmp$delta_rel)))
   }
   if(max(abs(comp$delta)) < max_abs_delta && max(abs(comp$delta_rel)) < max_rel_delta) {
-    message(testthat:::praise_emoji(), " ", crayon::green("Validation successful."))
+    message(
+      praise_emoji(), 
+      " ", 
+      crayon::green("Validation successful.")
+    )
   } else {
     warning("Validation not succesful!")
   }
+}
+
+#' Praise using emoji.
+#' 
+#' Taken from testthat. Not checking for utf8 compatibility.
+praise_emoji <- function() {
+  sample(c(
+    "\U0001f600", # smile
+    "\U0001f973", # party face
+    "\U0001f638", # cat grin
+    "\U0001f308", # rainbow
+    "\U0001f947", # gold medal
+    "\U0001f389", # party popper
+    "\U0001f38a" # confetti ball
+  ), 1)
 }

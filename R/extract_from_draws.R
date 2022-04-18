@@ -10,7 +10,7 @@ extract_from_draws <- function(
   verbose = TRUE
 ) {
   
-  obs_types <- gsub("dv_", "", names(post$data)[grep("^dv_", names(post$data))])
+  obs_types <- gsub("dv_", "", names(post$data$stan_data)[grep("^dv_", names(post$data$stan_data))])
   obs_data_all <- purrr::map_dfr(
     obs_types, 
     calc_stats_for_draws_predictions, 
@@ -47,11 +47,11 @@ calc_stats_for_draws_predictions <- function(
   post_info <- obs_post %>%
     posterior::summarise_draws(c("mean", "median", "sd"))
   obs_data <- data.frame(
-    time = post$data$time,
-    dv = post$data$DV,
-    evid = post$data$evid
+    time = post$data$stan_data$time,
+    dv = post$data$stan_data$DV,
+    evid = post$data$stan_data$evid
   ) %>%
-    dplyr::slice(post$data[[paste0("i_obs_", obs_type)]]) %>%
+    dplyr::slice(post$data$stan_data[[paste0("i_obs_", obs_type)]]) %>%
     dplyr::mutate(type = !!obs_type) %>%
     dplyr::bind_cols(post_info)
   for(i in 1:nrow(obs_data)) {

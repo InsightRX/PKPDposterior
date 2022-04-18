@@ -17,7 +17,7 @@ tdm_data <- data.frame(
   dv = c(40, 14)
 )
 
-data <- PKPDsim_to_stan_data(
+data <- new_stan_data(
   regimen,
   covariates, 
   tdm_data,
@@ -34,7 +34,7 @@ test_that("Unsupported MCMC method produces error", {
 })
 
 test_that("Invalid STAN model produces error", {
-  expect_error(get_mcmc_posterior(list(),data))
+  expect_error(get_mcmc_posterior(list(), data))
 })
 
 test_that("Get posterior estimate: hmc method", {
