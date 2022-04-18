@@ -40,7 +40,7 @@ tdm_data <- data.frame(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- PKPDsim_to_stan_data(
+data <- new_stan_data(
   regimen,
   covariates, 
   tdm_data,
@@ -74,8 +74,17 @@ post
 ## Plot parameter distributions
 plot_params(post)
 
+## Validate model vs PKPDsim implementation
+validate_stan_model(
+  stan_model = mod,
+  pkpdsim_model = pkvancothomson::model(),
+  parameters = pkvancothomson::parameters(),
+  covariates = list(CL_HEMO = new_covariate(0)),
+  data = data,
+  mapping = mapping
+)
+
 ## Simulate from posterior and prior:
-covariates$CL_HEMO <- new_covariate(0)
 pred_post <- sim_from_draws(
   post, 
   model = pkvancothomson::model(),

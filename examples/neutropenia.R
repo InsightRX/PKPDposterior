@@ -57,7 +57,7 @@ comb_data <- bind_rows(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- PKPDsim_to_stan_data(
+data <- new_stan_data(
   regimen,
   covariates = covariates, 
   data = comb_data,
@@ -78,6 +78,15 @@ data <- PKPDsim_to_stan_data(
   dose_cmt = 2
 )
 
+## Validate model vs PKPDsim implementation
+validate_stan_model(
+  stan_model = mod,
+  pkpdsim_model = pkpdneutropeniatemplate1::model(),
+  parameters = pkpdneutropeniatemplate1::parameters(),
+  data = data,
+  mapping = mapping
+)
+
 ## Sample from posterior
 post <- get_mcmc_posterior(
   mod = mod,
@@ -87,8 +96,6 @@ post <- get_mcmc_posterior(
   adapt_delta = 0.95,
   verbose = TRUE
 )
-# saveRDS(post, "post.rds")
-# post <- readRDS("post.rds")
 
 ## Plot parameter distributions
 plot_params(post)

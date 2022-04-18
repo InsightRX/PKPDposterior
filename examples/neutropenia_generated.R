@@ -10,6 +10,7 @@ library(ggplot2)
 cmdstanr::set_cmdstan_path(
   path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
 )
+mapping <- NULL
 parameters <- list(CL = 5, V = 50,
                    SLOPE = 0.1, MTT = 100, 
                    CIRC0 = 5, GAMMA = 0.2)
@@ -114,7 +115,7 @@ comb_data <- bind_rows(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- PKPDsim_to_stan_data(
+data <- new_stan_data(
   regimen,
   covariates = covariates, 
   data = comb_data,

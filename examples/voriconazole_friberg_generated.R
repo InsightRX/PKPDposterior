@@ -68,7 +68,7 @@ tdm_data <- data.frame(
 )
 
 ## Create combined dataset for Torsten/Stan to read:
-data <- PKPDsim_to_stan_data(
+data <- new_stan_data(
   regimen, 
   covariates, 
   tdm_data,
