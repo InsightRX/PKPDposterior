@@ -2,8 +2,7 @@
 #' 
 #' @param x value to calculate quantile for
 #' @param y vector of values, posterior draws in most cases
-#' 
-#' @export
+
 get_quantile <- function(x, y) {
   stats::ecdf(y)(x)
 }
