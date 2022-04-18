@@ -1,7 +1,6 @@
 #' Prepare data object for use in get_mcmc_posterior()
 #'
 #' @inheritParams new_stan_data
-#' @export
 
 PKPDsim_to_stan_data <- function(
   regimen, 
