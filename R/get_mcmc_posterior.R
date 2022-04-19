@@ -51,7 +51,7 @@ get_mcmc_posterior <- function(
   }
   
   ## Check that input data is OK for model
-  check_input_data(mod, data)
+  check_input_data(code = mod$code(), data = data)
  
   ## get parameter initial values from data object
   init <- data$stan_data[names(data$stan_data)[grep("theta_", names(data$stan_data))]]

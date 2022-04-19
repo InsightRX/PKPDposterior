@@ -1,13 +1,12 @@
 #' Check that the supplied input data is OK for the model
 #' 
-#' @inheritParams get_mcmc_posterior
+#' @param code Stan model code
+#' @param data input data, generated using `new_stan_data()`.
 #' 
 check_input_data <- function(
-  mod,
+  code,
   data
 ) {
-  
-  code <- mod$code()
   
   ## Check that all observation types defined in model are supplied in input data:
   obs_types_mod <- lapply(

@@ -4,12 +4,12 @@
 \alias{check_input_data}
 \title{Check that the supplied input data is OK for the model}
 \usage{
-check_input_data(mod, data)
+check_input_data(code, data)
 }
 \arguments{
-\item{mod}{compiled Stan model}
+\item{code}{Stan model code}
 
-\item{data}{dataset (see \code{\link[=new_stan_data]{new_stan_data()}})}
+\item{data}{input data, generated using \code{new_stan_data()}.}
 }
 \description{
 Check that the supplied input data is OK for the model
