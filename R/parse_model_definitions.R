@@ -165,7 +165,6 @@ parse_model_definitions <- function(
     )
   }
   
-  
   def[["likelihood_parameters"]] <- paste0(
     names(parameters), " ~ lognormal(log(theta_", 
     names(parameters), "), omega_", 

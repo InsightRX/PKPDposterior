@@ -26,6 +26,7 @@ model <- new_stan_model(
   scale = "(V1 * mean(WT))",
   verbose = T
 )
+
 model_file <- write_stan_model(model)
 
 # Compile or reload model
@@ -62,6 +63,7 @@ data <- new_stan_data(
   tdm_data,
   dose_cmt = 2,
   parameters = parameters,
+  fix = c("V1"),
   iiv = iiv,
   ruv = list(
     prop = 0.15,

@@ -25,6 +25,8 @@ transformed data{
   // log_transform_observations
 
   // model_numbers
+  
+  // fixed_parameters
 
 }
 

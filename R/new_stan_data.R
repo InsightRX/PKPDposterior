@@ -7,6 +7,9 @@
 #' @param dose_cmt Specify what dose compartment. Observation compartment in 
 #' dataset is irrelevant, handled in model.
 #' @param parameters list of population parameters, e.g. `list(CL = 5, V = 50)`
+#' @param fix optional, vector of parameters to fix. These parameters will be
+#' still be sampled from the posterior but from a negligibly narrow distribution
+#' around the central value specified in `parameters`.
 #' @param iiv list of inter-individual variability for parameters. Should have 
 #' exact same list elements as `parameters`, and magnitude supplied on SD scale. 
 #' @param ruv magnitude of residual unexplained variability (RUV). Should be a 
@@ -60,6 +63,7 @@ new_stan_data <- function(
   covariates, 
   data,
   parameters,
+  fix = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -72,6 +76,7 @@ new_stan_data <- function(
     covariates = covariates, 
     data = data,
     parameters = parameters,
+    fix = fix,
     iiv = iiv,
     ruv = ruv,
     dose_cmt = dose_cmt,
@@ -81,6 +86,7 @@ new_stan_data <- function(
   
   list(
     parameters = parameters,
+    fix = fix,
     regimen = regimen,
     covariates = covariates,
     data = data,

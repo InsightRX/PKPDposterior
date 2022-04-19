@@ -7,6 +7,7 @@ PKPDsim_to_stan_data <- function(
   covariates, 
   data,
   parameters,
+  fix = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -59,7 +60,12 @@ PKPDsim_to_stan_data <- function(
     if(is.null(iiv[[key]])) {
       stop("`iiv` object requires same list elements as `parameters` object.")
     }
-    out[[paste0("omega_", key)]] <- iiv[[key]]
+    if(key %in% fix) {
+      message("Fixing ", key, " parameter")
+      out[[paste0("omega_", key)]] <- 0.001 # fixed, negligibly narrow distribution. See https://groups.google.com/g/stan-users/c/UMl1jWLGkx0?pli=1
+    } else {
+      out[[paste0("omega_", key)]] <- iiv[[key]]
+    }
   }
   
   ## Additional info
