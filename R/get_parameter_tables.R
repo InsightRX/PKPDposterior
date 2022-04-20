@@ -11,7 +11,10 @@ get_parameter_tables <- function(
   if(is.null(post$settings) || is.null(post$draws_df)) {
     stop("Provided posterior object does not contain expected info.")
   }
-  params <- names(post$settings$init)
+  params <- setdiff(
+    names(post$settings$init),
+    post$data$fix # remove fixed parameters
+  )
   prior_params <- paste0("prior_", params)
   suppressWarnings({
     par_table <- post$draws_df %>% 

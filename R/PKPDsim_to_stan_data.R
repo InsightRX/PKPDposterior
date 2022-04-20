@@ -61,7 +61,12 @@ PKPDsim_to_stan_data <- function(
       stop("`iiv` object requires same list elements as `parameters` object.")
     }
     if(key %in% fix) {
-      message("Fixing ", key, " parameter")
+      message(
+        "Fixing ", key, " parameter. ", 
+        "Please note that this slows down HMC sampling and should be used only ",
+        "for testing. For production models, remove the parameter from the ",
+        "likelihood definition and hardcode it in the model definition."
+      )
       out[[paste0("omega_", key)]] <- 0.001 # fixed, negligibly narrow distribution. See https://groups.google.com/g/stan-users/c/UMl1jWLGkx0?pli=1
     } else {
       out[[paste0("omega_", key)]] <- iiv[[key]]

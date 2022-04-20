@@ -63,7 +63,6 @@ data <- new_stan_data(
   tdm_data,
   dose_cmt = 2,
   parameters = parameters,
-  fix = c("V1"),
   iiv = iiv,
   ruv = list(
     prop = 0.15,

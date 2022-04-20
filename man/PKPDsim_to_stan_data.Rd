@@ -9,6 +9,7 @@ PKPDsim_to_stan_data(
   covariates,
   data,
   parameters,
+  fix = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -25,6 +26,14 @@ PKPDsim_to_stan_data(
 \item{data}{Data frame with columns \code{t}, \code{dv}, and \code{cmt}}
 
 \item{parameters}{list of population parameters, e.g. \code{list(CL = 5, V = 50)}}
+
+\item{fix}{optional, vector of parameters to fix. These parameters will
+still be sampled from the posterior but from a negligibly narrow distribution
+around the central value specified in \code{parameters}. This is considered a
+quick-and-dirty way to fix a parameter, and will actually slow down HMC
+sampling. It should therefore only be used for testing purposes. To
+properly fix a parameter just remove it from the parameter list and hardcode
+it in the model when generating the model.}
 
 \item{iiv}{list of inter-individual variability for parameters. Should have
 exact same list elements as \code{parameters}, and magnitude supplied on SD scale.}
