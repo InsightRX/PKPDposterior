@@ -18,8 +18,7 @@ mod <- load_model(
 ## define init values (use population values): 
 prior <- prior_from_PKPDsim_model(
   "pkvancothomson", 
-  map = mapping, 
-  drop = c("TH_CRCL", "TDM_INIT")
+  map = mapping
 )
 
 ## Define regimen, covariates, and TDM data
@@ -46,7 +45,9 @@ data <- new_stan_data(
   tdm_data,
   dose_cmt = 2,
   parameters = prior,
-  iiv = list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3),
+  iiv = list(
+    CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3, TH_CRCL = 0, TDM_INIT = 0
+  ),
   ruv = list(
     prop = 0.15,
     add = 1.6
