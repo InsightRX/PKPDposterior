@@ -26,6 +26,7 @@ model <- new_stan_model(
   scale = "(V1 * mean(WT))",
   verbose = T
 )
+
 model_file <- write_stan_model(model)
 
 # Compile or reload model
