@@ -18,7 +18,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: cmdstanr, posterior, PKPDsim, dplyr, purrr, magrittr, rlang, tidyr, 
   ggplot2, crayon
-Suggests: testthat (>= 3.0.0)
+Suggests: 
+    mockery,
+    testthat (>= 3.0.0)
 Remotes:
     InsightRX/PKPDsim
 Config/testthat/edition: 3

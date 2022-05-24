@@ -4,12 +4,6 @@
 #' @param stan_model Stan/Torsten model
 #' @param pkpdsim_model PKPDsim implementation
 #' @param data dataset (see [PKPDsim_to_stan_data()])
-#' @param parameters list of parameter estimates that are used in simulation if 
-#'   not already present in either the posterior or the prior draws. I.e. 
-#'   specified parameters in this named list will not override parameters with 
-#'   the same name in the samples.
-#' @param covariates Optional. List of covariates used in PKPDsim model not 
-#'   already specified in `data`.
 #' @param mapping remap model parameters from Stan to PKPDsim syntax, specified 
 #'   as a list. E.g. `map = list(V1 = V)`.
 #' @param n number of patient datasets to use in validation. Default is 50.
@@ -23,8 +17,6 @@ validate_stan_model <- function(
   stan_model,
   pkpdsim_model,
   data,
-  parameters,
-  covariates,
   mapping = NULL,
   n = 50,
   max_abs_delta = 1e-3,
@@ -49,8 +41,10 @@ validate_stan_model <- function(
     mapping, 
     reverse = FALSE
   )
-  for(key in names(parameters)) { # add fixed parameters
-    if(is.null(parameters_table[[key]])) parameters_table[[key]] <- parameters[[key]]
+  for(key in names(data[["parameters"]])) { # add fixed parameters
+    if(is.null(parameters_table[[key]])){
+      parameters_table[[key]] <- data[["parameters"]][[key]]
+    } 
   }
   if (verbose) message("Simulating posterior observations with PKPDsim...")
   
@@ -66,13 +60,13 @@ validate_stan_model <- function(
   obs_type <- match(obs_type, unq_obs_type)
   
   ## Simulate
-  covariates_sim <- c(attr(data, "covariates"), covariates)
+  covariates_sim <- data[["covariates"]]
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
     PKPDsim::sim(
       ode = pkpdsim_model,
       parameters = as.list(parameters_table[i,]),
       covariates = covariates_sim,
-      regimen = attr(data, "regimen"),
+      regimen = data[["regimen"]],
       only_obs = TRUE,
       t_obs = t_obs,
       obs_type = obs_type,
