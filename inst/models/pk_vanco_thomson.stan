@@ -60,6 +60,7 @@ transformed parameters{
   vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   matrix<lower = 0>[n_cmt, n_t] A;
   real<lower = 0> TH_CRCL = theta_TH_CRCL;
+  real<lower = 0> TDM_INIT = theta_TDM_INIT;
   
   for(j in 1:n_t) {
     theta[j, 1] = CL * (1.0 + TH_CRCL * ((CRCL[j] * 16.6667) - 66.0));
