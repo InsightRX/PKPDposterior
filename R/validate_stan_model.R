@@ -35,26 +35,29 @@ validate_stan_model <- function(
   draws <- as.data.frame(post$draws_df)
   
   # Convert sampled posterior parameters into parameters_table for PKPDsim
-  par_stan <- gsub("theta_", "", names(data)[grep("^theta_", names(data))])
+  par_stan <- gsub(
+    "theta_", 
+    "", 
+    names(data$stan_data)[grep("^theta_", names(data$stan_data))]
+  )
   parameters_table <- remap(
     draws[, intersect(par_stan, names(draws))], 
     mapping, 
     reverse = FALSE
   )
-  for(key in names(data[["parameters"]])) { # add fixed parameters
-    if(is.null(parameters_table[[key]])){
-      parameters_table[[key]] <- data[["parameters"]][[key]]
-    } 
-  }
   if (verbose) message("Simulating posterior observations with PKPDsim...")
   
   ## Parse observation types
-  obs_types <- gsub("n_obs_", "", names(data)[grep("^n_obs_", names(data))])
-  obs_type <- rep(NA, length(data$time))
+  obs_types <- gsub(
+    "n_obs_", 
+    "", 
+    names(data$stan_data)[grep("^n_obs_", names(data$stan_data))]
+  )
+  obs_type <- rep(NA, length(data$stan_data$time))
   for(key in obs_types) {
-    obs_type[data[[paste0("i_obs_", key)]]] <- key
+    obs_type[data$stan_data[[paste0("i_obs_", key)]]] <- key
   }
-  t_obs <- data$time[!is.na(obs_type)]
+  t_obs <- data$stan_data$time[!is.na(obs_type)]
   obs_type <- obs_type[!is.na(obs_type)]
   unq_obs_type <- unique(obs_type)
   obs_type <- match(obs_type, unq_obs_type)

@@ -31,7 +31,8 @@ regimen <- PKPDsim::new_regimen(
 )
 covariates <- list(
    WT = PKPDsim::new_covariate(value = 70, unit = "kg"),
-   CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr")
+   CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr"),
+   CL_HEMO = PKPDsim::new_covariate(value = 0, unit = "l/hr")
 )
 tdm_data <- data.frame(
    t = c(2.5, 11.5), 
@@ -79,8 +80,6 @@ plot_params(post)
 validate_stan_model(
   stan_model = mod,
   pkpdsim_model = pkvancothomson::model(),
-  parameters = pkvancothomson::parameters(),
-  covariates = list(CL_HEMO = new_covariate(0)),
   data = data,
   mapping = mapping
 )
