@@ -10,13 +10,17 @@ data{
   real<lower = 0> theta_Q;
   real<lower = 0> theta_V1;
   real<lower = 0> theta_V2;
+  real<lower = 0> theta_TH_CRCL;
+  real<lower = 0> theta_TDM_INIT; // not used, for compatibility
   
   // inter-individual variability (SD scale)
   real<lower = 0> omega_CL;
   real<lower = 0> omega_Q;
   real<lower = 0> omega_V1;
   real<lower = 0> omega_V2;
-
+  real<lower = 0> omega_TH_CRCL; // not used, for compatibility
+  real<lower = 0> omega_TDM_INIT; // not used, for compatibility
+ 
   // error model
   int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
   real<lower = 0> ruv_prop_pk;
@@ -55,9 +59,11 @@ transformed parameters{
   row_vector<lower = 0>[n_t] ipred_pk;
   vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   matrix<lower = 0>[n_cmt, n_t] A;
+  real<lower = 0> TH_CRCL = theta_TH_CRCL;
+  real<lower = 0> TDM_INIT = theta_TDM_INIT;
   
   for(j in 1:n_t) {
-    theta[j, 1] = CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0));
+    theta[j, 1] = CL * (1.0 + TH_CRCL * ((CRCL[j] * 16.6667) - 66.0));
     theta[j, 2] = Q;
     theta[j, 3] = V1 * WT[j];
     theta[j, 4] = V2 * WT[j];
@@ -75,10 +81,10 @@ transformed parameters{
 
 model{
   // likelihood for parameters:
-  CL     ~ lognormal(log(theta_CL), omega_CL);
-  Q      ~ lognormal(log(theta_Q), omega_Q);
-  V1     ~ lognormal(log(theta_V1), omega_V1);
-  V2     ~ lognormal(log(theta_V2), omega_V2);
+  CL      ~ lognormal(log(theta_CL), omega_CL);
+  Q       ~ lognormal(log(theta_Q), omega_Q);
+  V1      ~ lognormal(log(theta_V1), omega_V1);
+  V2      ~ lognormal(log(theta_V2), omega_V2);
   
   // likelihood for observed data:
   if(ltbs_pk) {
