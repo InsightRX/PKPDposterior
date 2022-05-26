@@ -3,6 +3,7 @@
 // ode_function (optional)
 functions{
   vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i) {
+    
     // define_ode_state
     vector[8] dAdt;
 
@@ -19,39 +20,38 @@ functions{
 
     // ode_block
     
-  real ka  = 0;
-  real k10 = CL / V;
-  real k12 = 0;
-  real k21 = 0;
-  real ktr = 4 / MTT;
-  
-  real conc;
-  real EDrug;
-  real transit1;
-  real transit2;
-  real transit3;
-  real circ;
-  real prol;
-  
-  dAdt[1] = -KA * A[1];
-  dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
-  dAdt[3] = k12 * A[2] - k21 * A[3];
-  conc = A[2] / V;
-  
-  EDrug = ALPHA * conc; // slope model, not Emax
-  prol = A[4] + CIRC0;
-  transit1 = A[5] + CIRC0;
-  transit2 = A[6] + CIRC0;
-  transit3 = A[7] + CIRC0;
-  circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
-  
-  // initial condition
-  dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);
-  dAdt[5] = ktr * (prol - transit1);
-  dAdt[6] = ktr * (transit1 - transit2);
-  dAdt[7] = ktr * (transit2 - transit3);
-  dAdt[8] = ktr * (transit3 - circ);
-
+    real ka  = 0;
+    real k10 = CL / V;
+    real k12 = 0;
+    real k21 = 0;
+    real ktr = 4 / MTT;
+    
+    real conc;
+    real EDrug;
+    real transit1;
+    real transit2;
+    real transit3;
+    real circ;
+    real prol;
+    
+    dAdt[1] = -KA * A[1];
+    dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
+    dAdt[3] = k12 * A[2] - k21 * A[3];
+    conc = A[2] / V;
+    
+    EDrug = ALPHA * conc; // slope model, not Emax
+    prol = A[4] + CIRC0;
+    transit1 = A[5] + CIRC0;
+    transit2 = A[6] + CIRC0;
+    transit3 = A[7] + CIRC0;
+    circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
+    
+    // initial condition
+    dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);
+    dAdt[5] = ktr * (prol - transit1);
+    dAdt[6] = ktr * (transit1 - transit2);
+    dAdt[7] = ktr * (transit2 - transit3);
+    dAdt[8] = ktr * (transit3 - circ);
 
     return dAdt;
   }

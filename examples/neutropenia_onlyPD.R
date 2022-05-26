@@ -20,8 +20,7 @@ iiv <- list(
   CIRC0 = 0.5, GAMMA = 0.2
 )
 ruv <- list(
-  pk = list(add = 0.2),
-  pd = list(add = 0.3)
+  pd = list(add = 0.2)
 )
 parameter_definitions <- list(
   "CL" = "CL",
@@ -75,9 +74,8 @@ model <- new_stan_model(
   ode = ode,
   covariate_definitions = NULL,
   solver = 'pmx_solve_rk45',
-  obs_types = c("pk", "pd"),
+  obs_types = c("pd"),
   custom_ipred = list(
-    "pk" = "A[2, ] ./ V;",
     "pd" = "A[8, ] + theta[7];"
   ),
   verbose = T
@@ -99,27 +97,17 @@ regimen <- new_regimen(
   t_inf = 2
 )
 covariates <- NULL
-tdm_data <- data.frame(
-  t = c(2.5, 11.5), 
-  dv = c(40, 14),
-  type = "pk"
-)
 pd_data <- data.frame(
   t = c(3, 6, 9, 12) * 24, 
   dv = c(5, 1.5, .8, 2),
   type = "pd"
 )
-comb_data <- bind_rows(
-  tdm_data, 
-  pd_data
-)
-comb_data <- pd_data
 
 ## Create combined dataset for Torsten/Stan to read:
 data <- new_stan_data(
   regimen,
   covariates = covariates, 
-  data = comb_data,
+  data = pd_data,
   parameters = parameters,
   iiv = iiv,
   ltbs = list(pk = TRUE, pd = TRUE),

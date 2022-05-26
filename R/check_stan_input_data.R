@@ -1,9 +1,10 @@
-#' Check that the supplied input data is OK for the model
+#' Check that the supplied input data for Stan is OK for the model
 #' 
 #' @param code Stan model code
-#' @param data input data, generated using `new_stan_data()`.
+#' @param data input data, generated using `new_stan_data()`, which includes
+#' an element `stan_data` that is checked in this function.
 #' 
-check_input_data <- function(
+check_stan_input_data <- function(
   code,
   data
 ) {
@@ -12,11 +13,15 @@ check_input_data <- function(
   obs_types_mod <- lapply(
     code[grep("\\[n_obs_(.*)\\]", code)], 
     function(x) { gsub(".*\\[n_obs_(.*)\\].*", "\\1", x) }
-  ) %>% unlist() %>% unique()
+  ) %>% 
+    unlist() %>% 
+    unique()
   obs_types_data <- lapply(
     names(data$stan_data)[grep("n_obs_(.*)", names(data$stan_data))], 
     function(x) { gsub("n_obs_(.*)", "\\1", x) }
-  ) %>% unlist() %>% unique()
+  ) %>% 
+    unlist() %>% 
+    unique()
 
   if(!all(obs_types_mod %in% obs_types_data)) {
     stop(

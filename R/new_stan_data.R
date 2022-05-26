@@ -8,12 +8,11 @@
 #' dataset is irrelevant, handled in model.
 #' @param parameters list of population parameters, e.g. `list(CL = 5, V = 50)`
 #' @param fix optional, vector of parameters to fix. These parameters will 
-#' still be sampled from the posterior but from a negligibly narrow distribution
-#' around the central value specified in `parameters`. This is considered a
-#' quick-and-dirty way to fix a parameter, and will actually slow down HMC 
+#' be sampled from the posterior with negligibly narrow distribution. This is 
+#' considered a quick-and-dirty way to fix a parameter, and will slow down HMC 
 #' sampling. It should therefore only be used for testing purposes. To 
-#' properly fix a parameter just remove it from the parameter list and hardcode
-#' it in the model when generating the model.
+#' properly fix a parameter, remove it from the parameter list and hardcode
+#' it in the model.
 #' @param iiv list of inter-individual variability for parameters. Should have 
 #' exact same list elements as `parameters`, and magnitude supplied on SD scale. 
 #' @param ruv magnitude of residual unexplained variability (RUV). Should be a 
