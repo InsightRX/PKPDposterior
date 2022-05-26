@@ -49,7 +49,10 @@ get_mcmc_posterior <- function(
       "Please use `load_model()` to load/compile models."
     )
   }
-
+  
+  ## Check that input data is OK for model
+  check_stan_input_data(code = mod$code(), data = data)
+ 
   ## get parameter initial values from data object
   init <- data$stan_data[names(data$stan_data)[grep("theta_", names(data$stan_data))]]
   names(init) <- gsub("theta_", "", names(init))
