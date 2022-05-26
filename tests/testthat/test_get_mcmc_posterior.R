@@ -10,7 +10,8 @@ regimen <- PKPDsim::new_regimen(
 )
 covariates <- list(
   WT = PKPDsim::new_covariate(value = 70, unit = "kg"),
-  CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr")
+  CRCL = PKPDsim::new_covariate(value = 5, unit = "l/hr"),
+  CL_HEMO = PKPDsim::new_covariate(value = 0, unit = "l/hr")
 )
 tdm_data <- data.frame(
   t = c(2.5, 11.5), 
@@ -22,8 +23,17 @@ data <- new_stan_data(
   covariates, 
   tdm_data,
   dose_cmt = 2,
-  parameters = list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675),
-  iiv = list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3),
+  parameters = list(
+    CL = 2.99, 
+    TH_CRCL = 0.0154, 
+    Q = 2.28, 
+    V2 = 0.732, 
+    TDM_INIT = 0, 
+    V1 = 0.675
+  ),
+  iiv = list(
+    CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3, TH_CRCL = 0, TDM_INIT = 0
+  ),
   ruv = list(prop = 0.15, add = 1.6),
   ltbs = FALSE
 )
@@ -59,7 +69,8 @@ test_that("Get posterior estimate: hmc method", {
     )
   )
   expected_names <- c(
-    "raw", "draws_df", "settings", "data", "map", "observed_post", "sampler_diagnostics"
+    "raw", "draws_df", "settings", "data", "map", 
+    "observed_post", "sampler_diagnostics"
   )
   
   expect_named(post1, expected_names, ignore.order = TRUE)
@@ -70,7 +81,9 @@ test_that("Get posterior estimate: hmc method", {
       CL = 2.21950367643213, 
       Q = 2.60915639369181, 
       V1 = 0.577034739551428, 
-      V2 = 0.43590902324682
+      V2 = 0.43590902324682,
+      TH_CRCL = 0.0153410247780514, 
+      TDM_INIT = -0.00382955986679012
     )
   )
   expect_equal(post1$observed_post$median, c(30.1667, 11.3313))
@@ -86,7 +99,9 @@ test_that("Get posterior estimate: hmc method", {
       CL = 2.68096798893404, 
       Q = 1.57646993508194, 
       V1 = 0.564520072805394, 
-      V2 = 0.205024981316967
+      V2 = 0.205024981316967,
+      TH_CRCL = 0.0153795608145162, 
+      TDM_INIT = -0.00132721983660977
     )
   )
   expect_equal(post2$observed_post$mean, c(30.2991531, 11.60416205))
