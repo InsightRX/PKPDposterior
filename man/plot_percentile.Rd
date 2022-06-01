@@ -12,3 +12,4 @@ plot_percentile(x)
 \description{
 Adapted from PKPDmap::plot_eta()
 }
+\keyword{internal}

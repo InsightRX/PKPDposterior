@@ -3,6 +3,7 @@
 #' Adapted from PKPDmap::plot_eta()
 #' 
 #' @param x percentile of parameter or observation in posterior
+#' @keywords internal
 plot_percentile<- function(x) {
   if(length(x) > 1) {
     return(unlist(lapply(x, plot_percentile)))

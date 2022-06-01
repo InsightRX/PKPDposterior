@@ -5,7 +5,7 @@
 #' chosen Torsten analytic solver.
 #' @param n_cmt number of compartments in the ODE
 #' 
-#' @returns Character vector containing valid Stan code with ODE function
+#' @return Character vector containing valid Stan code with ODE function
 #' 
 #' @export
 new_ode_function <- function(

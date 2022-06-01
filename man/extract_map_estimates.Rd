@@ -20,3 +20,4 @@ list of modes of posterior (MAP estimate) for the parameters
 \description{
 Reports the mode for the posterior of each parameter
 }
+\keyword{internal}

@@ -9,3 +9,4 @@ praise_emoji()
 \description{
 Taken from testthat. Not checking for utf8 compatibility.
 }
+\keyword{internal}

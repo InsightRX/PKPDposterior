@@ -109,6 +109,7 @@ validate_stan_model <- function(
 #' Praise using emoji.
 #' 
 #' Taken from testthat. Not checking for utf8 compatibility.
+#' @keywords internal
 praise_emoji <- function() {
   sample(c(
     "\U0001f600", # smile

@@ -5,7 +5,8 @@
 #' @param template_code template model code
 #' @param definitions list of model definitions, parsed using 
 #' `parse_model_definitions()`.
-#' 
+#'
+#' @keywords internal
 generate_stan_code <- function(
   template_code,
   definitions

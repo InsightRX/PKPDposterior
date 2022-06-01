@@ -14,3 +14,4 @@ get_quantile(x, y)
 \description{
 Get quantile for a given new value, given a vector of values.
 }
+\keyword{internal}

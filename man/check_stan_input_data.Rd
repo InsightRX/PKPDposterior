@@ -15,3 +15,4 @@ an element \code{stan_data} that is checked in this function.}
 \description{
 Check that the supplied input data for Stan is OK for the model
 }
+\keyword{internal}
