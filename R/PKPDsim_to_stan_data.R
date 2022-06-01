@@ -143,7 +143,7 @@ covariates_to_nm <- function(covariates) {
   dat$AMT <- 0
   dat$RATE <- 0
   dat$DV <- 0
-  dat$CMT <- 2 # TODO: don't hard code
+  dat$CMT <- 2 # placeholder to ensure correct data format; value doesn't matter
   dat
 }
 
