@@ -21,6 +21,4 @@ Imports: cmdstanr, posterior, PKPDsim, dplyr, purrr, magrittr, rlang, tidyr,
 Suggests: 
     mockery,
     testthat (>= 3.0.0)
-Remotes:
-    InsightRX/PKPDsim
 Config/testthat/edition: 3
