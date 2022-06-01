@@ -70,14 +70,32 @@ first 8 rows) should be appended with a tag for the respective observation type,
 e.g. `dv_pk` and `dv_pd`, or `dv_parent` and `dv_metab`, etc. See the
 neutropenia model for an example.
 
+## Contributing
+
+We welcome input from the community:
+
+- If you think you have encountered a bug, please [submit an issue](https://github.com/InsightRX/PKPDposterior/issues) 
+on the GitHub page. Please include a reproducible example of the unexpected 
+behavior.
+
+- Please [open a pull request](https://github.com/InsightRX/PKPDposterior/pulls) if
+you have a fix or updates that would improve the package. If you're not sure if
+your proposed changes are useful or within scope of the package, feel free to
+contact one of the authors of this package.
+
 ## Disclaimer
 
-The software is provided as-is, and use of this software in any context is the
-sole responsibility of the user. InsightRX, employees of InsightRX, and
-contributors to this software package are not liable for any damages stemming
-directly or indirectly from the use of this software.
+The functionality in this R package is provided "as is". While its authors 
+adhere to software development best practices, the software may still contain 
+unintended errors.
 
-While InsightRX adheres to high quality standards in development and maintenance
-of software products, the current package has not been validated for clinical
-use, and is currently not used in any of the commercially available products
-provided by InsightRX.
+InsightRX Inc. and the authors of this package can not be held liable for any
+damages resulting from any use of this software. By the use of this software 
+package, the user waives all warranties, expressed or implied, including any 
+warranties to the accuracy, quality or suitability of InsightRX for any 
+particular purpose, either medical or non-medical.
+
+
+<div align="right">
+© <img src="man/figures/insightrx_logo_color.png" alt="InsightRX logo" width="120" />
+</div>
