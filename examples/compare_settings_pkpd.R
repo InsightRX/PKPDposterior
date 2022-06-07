@@ -6,103 +6,78 @@ library(pkvancothomson)
 library(dplyr)
 library(ggplot2)
 
-calc_stats_chains <- function(post) {
-  post$draws_df %>%
-    group_by(.chain) %>%
-    select(!!names(parameters)) %>%
-    tidyr::pivot_longer(cols = !!names(parameters)) %>%
-    group_by(.chain, name) %>%
-    summarise(value = mean(value)) %>%
-    group_by(name) %>%
-    summarise(rse = sd(value) / mean(value), max_dev = max(value - mean(value)))
-}
-calc_mean <- function(post) {
-  as.data.frame(post$draws_df) %>%
-    select(!!names(parameters)) %>%
-    tidyr::pivot_longer(cols = !!names(parameters)) %>%
-    group_by(name) %>%
-    summarise(value = mean(value))
-}
-calc_stats <- function(post, ref_post) {
-  mean_ref <- calc_mean(ref_post)
-  data.frame(
-    name = mean_ref$name,
-    rse = (calc_mean(post)$value - mean_ref$value) / mean_ref$value
-  )
-}
-
-## Vancomycin model (Thomson et al)
-parameters <- list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675)
-params_pkpdsim <- list(CL = 2.99, Q = 2.28, V2 = 0.732, V1 = 0.675, TH_CRCL = 0, TDM_INIT = 0)
-iiv <- list(CL = 0.27, Q = 0.49, V1 = 0.15, V2 = 1.3)
-ruv <- list(add = 1.6, prop = 0.15)
-model <- new_stan_model(
-  parameters = parameters,
-  parameter_definitions = list(
-    "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
-    "Q"  = "Q",
-    "V1" = "V1 * WT[j]",
-    "V2" = "V2 * WT[j]",
-    "KA" = "0" 
-  ),
-  covariate_definitions = list(
-    "CRCL" = "real", # CrCl in L/hr
-    "WT" = "real"    # WT in kg
-  ),
-  solver = "pmx_solve_twocpt",
-  scale = "(V1 * mean(WT))",
-  verbose = T
+## define init values (use population values): 
+prior <- prior_from_PKPDsim_model(
+  "pkpd_neutropenia_template1", 
+  map = mapping,
+  drop = c("KA", "Q", "V2")
 )
-model_file <- write_stan_model(model)
-
-# Compile or reload model
-mod <- load_model(
-  model_file, 
-  force = T,
-  verbose = T
-)
-
-## mapping of parameter names between PKPDsim and Stan/Torsten
-mapping <- list("V1" = "V")
 
 ## Define regimen, covariates, and TDM data
 regimen <- new_regimen(
   amt = 1500, 
-  n = 4, 
-  times = c(0, 12, 24, 36), 
+  n = 3, 
+  times = c(0, 24, 48), 
   type = 'infusion',
+  cmt = 2,
   t_inf = 2
 )
-covariates <- list(
-  WT = new_covariate(value = 70, unit = "kg"),
-  CRCL = new_covariate(value = 5, unit = "l/hr"),
-  CL_HEMO = new_covariate(0)
+covariates <- NULL
+tdm_data <- data.frame(
+  t = c(2.5, 11.5), 
+  dv = c(40, 14),
+  type = "pk"
 )
-tdm_data <- sim(
-  pkvancothomson::model(),
-  regimen = regimen,
-  parameters = remap(params_pkpdsim, mapping),
-  covariates = covariates,
-  t_obs = c(2.5, 11.5),
-  only_obs = TRUE
-) %>% 
-  select(t, dv = y)
+pd_data <- data.frame(
+  t = c(3, 6, 9, 12) * 24, 
+  dv = c(5, 1.5, .8, 2),
+  type = "pd"
+)
+comb_data <- bind_rows(
+  tdm_data, 
+  pd_data
+)
 
 ## Create combined dataset for Torsten/Stan to read:
 data <- new_stan_data(
   regimen,
-  covariates, 
-  tdm_data,
-  dose_cmt = 2,
-  parameters = parameters,
-  iiv = iiv,
-  ruv = list(
-    prop = 0.15,
-    add = 1.6
+  covariates = covariates, 
+  data = comb_data,
+  parameters = prior,
+  iiv = list(
+    CL = 0.2,
+    V1 = 0.5,
+    mtt = 0.2,
+    circ0 = 0.2,
+    alpha = 1.0,
+    gamma = 0.5
   ),
-  ltbs = FALSE
+  ltbs = list(pk = TRUE, pd = TRUE),
+  ruv = list(
+    pk = list(add = 0.2),
+    pd = list(add = 0.3)
+  ),
+  dose_cmt = 2
 )
 
+## Validate model vs PKPDsim implementation
+validate_stan_model(
+  stan_model = mod,
+  pkpdsim_model = pkpdneutropeniatemplate1::model(),
+  parameters = pkpdneutropeniatemplate1::parameters(),
+  data = data,
+  mapping = mapping
+)
+
+## Sample from posterior
+post <- get_mcmc_posterior(
+  mod = mod,
+  data = data,
+  iter_warmup = 500,
+  iter_sampling = 500,
+  adapt_delta = 0.95,
+  verbose = TRUE
+)
 ## 1. number of threads
 warmup <- c(100, 200, 300, 500)
 sampling <- c(300, 500, 800, 1000)
@@ -111,9 +86,10 @@ ref_post <- get_mcmc_posterior(
   mod = mod,
   data = data,
   iter_warmup = 2000,
-  iter_sampling = 5000,
+  iter_sampling = 2000,
+  threads = 4,
   adapt_delta = 0.95,
-  chains = 1
+  verbose = TRUE
 )
 
 reps <- 5
@@ -231,8 +207,3 @@ dat3 %>%
   geom_line() +
   geom_point() +
   facet_wrap(~ name)
-
-saveRDS(dat, "~/PKPDposterior_benchmark/dat.rds")
-saveRDS(dat2, "~/PKPDposterior_benchmark/dat2.rds")
-saveRDS(dat3, "~/PKPDposterior_benchmark/dat3.rds")
-
