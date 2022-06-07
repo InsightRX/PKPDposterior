@@ -2,7 +2,7 @@
 #' model
 #' 
 #' @inheritParams new_stan_model
-#' 
+#' @keywords internal
 parse_model_definitions <- function(
   parameters,
   parameter_definitions,
@@ -202,7 +202,7 @@ parse_model_definitions <- function(
 #' or from the dAdt definitions in the ODE block.
 #' 
 #' @inheritParams new_stan_model
-#' 
+#' @keywords internal
 get_n_cmt <- function(solver, ode = NULL) {
   if(is.null(ode)) {
     if(solver == "pmx_solve_twocpt") {

@@ -6,8 +6,8 @@
 #' @param ... arguments passed on to `get_mode` for calculating the parameter
 #'   mode from the sampled values.
 #' 
-#' @returns list of modes of posterior (MAP estimate) for the parameters
-
+#' @return list of modes of posterior (MAP estimate) for the parameters
+#' @keywords internal
 extract_map_estimates <- function(
   post,
   parameters = NULL,

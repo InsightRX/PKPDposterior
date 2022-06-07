@@ -8,6 +8,13 @@
 \description{
 MCMC-based inference based a population PK model and individual TDM data.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://insightrx.github.io/PKPDposterior/}
+}
+
+}
 \author{
 \strong{Maintainer}: Ron Keizer \email{ron@insight-rx.com}
 

@@ -19,3 +19,4 @@ Generate a Stan model code from model definitions and template code.
 This is an internal function. For creating a Stan model, please use
 \code{new_stan_model()}.
 }
+\keyword{internal}

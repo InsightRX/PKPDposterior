@@ -18,3 +18,4 @@ Extract info for observed data from posterior draws.
 Includes e.g. the quantile of the observed data in the posterior draws
 and the mean, 95\% CI, and standard deviations of the posterior.
 }
+\keyword{internal}

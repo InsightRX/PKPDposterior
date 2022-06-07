@@ -17,3 +17,4 @@ is used.}
 Get the number of compartments, either from analytical solver definition,
 or from the dAdt definitions in the ODE block.
 }
+\keyword{internal}

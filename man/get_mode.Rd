@@ -16,3 +16,4 @@ This function implements a simple estimation of model using the peak of the
 univariate kernel density calculated by \code{\link[stats:density]{stats::density()}}. More advanced
 methods are available in \code{modeest} package.
 }
+\keyword{internal}

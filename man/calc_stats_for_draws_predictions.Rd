@@ -20,3 +20,4 @@ mean, median, sd, confidence intervals etc.
 Calculates statistics on draws from posterior for predictions (e.g.
 concentrations)
 }
+\keyword{internal}

@@ -1,7 +1,7 @@
 #' Prepare data object for use in get_mcmc_posterior()
 #'
 #' @inheritParams new_stan_data
-
+#' @keywords internal
 PKPDsim_to_stan_data <- function(
   regimen, 
   covariates, 
@@ -129,6 +129,7 @@ PKPDsim_to_stan_data <- function(
 #' Convert list of covariate objects to NONMEM formatted data
 #'
 #' @inheritParams new_stan_data
+#' @keywords internal
 covariates_to_nm <- function(covariates) {
   if(is.null(covariates)) {
     return(NULL)
@@ -150,6 +151,7 @@ covariates_to_nm <- function(covariates) {
 #' Convert TDM data to NONMEM format
 #'
 #' @inheritParams new_stan_data
+#' @keywords internal
 tdm_to_nm <- function(data) {
   if(is.null(data$cmt)) {
     data$CMT <- 1 # irrelevant, handled in Stan model
