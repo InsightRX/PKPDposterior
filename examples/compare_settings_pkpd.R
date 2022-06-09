@@ -2,9 +2,27 @@
 
 library(PKPDposterior)
 library(PKPDsim)
-library(pkvancothomson)
+library(pkpdneutropeniatemplate1)
 library(dplyr)
 library(ggplot2)
+
+cmdstanr::set_cmdstan_path(
+  path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
+)
+
+mapping <- list( # mapping between parameter names Stan vs PKPDsim
+  "V1" = "V", 
+  "gamma" = "GAMMA",
+  "mtt" = "MTT",
+  "alpha" = "SLOPE",
+  "circ0" = "CIRC0"
+)
+
+mod <- load_model(
+  "pkpd_neutropenia_v1",
+  force = T,
+  verbose = T
+)
 
 ## define init values (use population values): 
 prior <- prior_from_PKPDsim_model(
@@ -60,15 +78,6 @@ data <- new_stan_data(
   dose_cmt = 2
 )
 
-## Validate model vs PKPDsim implementation
-validate_stan_model(
-  stan_model = mod,
-  pkpdsim_model = pkpdneutropeniatemplate1::model(),
-  parameters = pkpdneutropeniatemplate1::parameters(),
-  data = data,
-  mapping = mapping
-)
-
 ## Sample from posterior
 post <- get_mcmc_posterior(
   mod = mod,
@@ -78,6 +87,7 @@ post <- get_mcmc_posterior(
   adapt_delta = 0.95,
   verbose = TRUE
 )
+
 ## 1. number of threads
 warmup <- c(100, 200, 300, 500)
 sampling <- c(300, 500, 800, 1000)
@@ -207,3 +217,8 @@ dat3 %>%
   geom_line() +
   geom_point() +
   facet_wrap(~ name)
+
+saveRDS(ref_post, "~/PKPDposterior_benchmark/pd_ref_post.rds")
+saveRDS(dat, "~/PKPDposterior_benchmark/pd_dat.rds")
+saveRDS(dat2, "~/PKPDposterior_benchmark/pd_dat2.rds")
+saveRDS(dat3, "~/PKPDposterior_benchmark/pd_dat3.rds")

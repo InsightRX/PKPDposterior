@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 
 calc_stats_chains <- function(post) {
+  parameters <- post$map
   post$draws_df %>%
     group_by(.chain) %>%
     select(!!names(parameters)) %>%
@@ -17,6 +18,7 @@ calc_stats_chains <- function(post) {
     summarise(rse = sd(value) / mean(value), max_dev = max(value - mean(value)))
 }
 calc_mean <- function(post) {
+  parameters <- post$map
   as.data.frame(post$draws_df) %>%
     select(!!names(parameters)) %>%
     tidyr::pivot_longer(cols = !!names(parameters)) %>%
@@ -118,6 +120,7 @@ ref_post <- get_mcmc_posterior(
 
 reps <- 5
 dat <- data.frame()
+a <- Sys.time()
 for(i in seq(warmup)) {
   for(j in seq(sampling)) {
     for(k in 1:reps) {
@@ -142,6 +145,7 @@ for(i in seq(warmup)) {
     }
   }
 }
+Sys.time()-a
 
 dat %>%
   group_by(name, warmup, sampling) %>%
@@ -199,6 +203,7 @@ dat2 %>%
 ## 5. adapt_delta
 reps <- 5
 dat3 <- data.frame()
+a <- Sys.time()
 for(i in seq(warmup)) {
   for(j in seq(sampling)) {
     for(k in 1:reps) {
@@ -223,6 +228,7 @@ for(i in seq(warmup)) {
     }
   }
 }
+Sys.time()-a
 
 dat3 %>%
   group_by(name, warmup, sampling) %>%
@@ -232,6 +238,7 @@ dat3 %>%
   geom_point() +
   facet_wrap(~ name)
 
+saveRDS(ref_post, "~/PKPDposterior_benchmark/ref_post.rds")
 saveRDS(dat, "~/PKPDposterior_benchmark/dat.rds")
 saveRDS(dat2, "~/PKPDposterior_benchmark/dat2.rds")
 saveRDS(dat3, "~/PKPDposterior_benchmark/dat3.rds")
