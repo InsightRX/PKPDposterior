@@ -12,3 +12,8 @@ articles:
     contents:
       - model-syntax
       - sampler-settings
+  - title: Examples
+    navbar: Examples
+    contents:
+      - example-vanco
+      
