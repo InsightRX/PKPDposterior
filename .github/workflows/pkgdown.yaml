@@ -28,13 +28,13 @@ jobs:
           cd Torsten/cmdstan
           make build
 
-      # - uses: r-lib/actions/setup-r-dependencies@v1
-      #   with:
-      #     extra-packages: pkgdown
-      #     needs: website
+      - uses: r-lib/actions/setup-r-dependencies@v1
+        with:
+          extra-packages: pkgdown
+          needs: website
 
-      # - name: Deploy package
-      #   run: |
-      #     git config --local user.name "$GITHUB_ACTOR"
-      #     git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      #     Rscript -e 'pkgdown::build_site()'
+      - name: Deploy package
+        run: |
+          git config --local user.name "$GITHUB_ACTOR"
+          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          Rscript -e 'pkgdown::build_site()'
