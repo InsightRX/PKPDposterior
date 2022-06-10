@@ -12,6 +12,8 @@
 #' @param skip_processing will return the raw output from the sampler, without
 #'   further processing. This can sometimes be useful when errors occur in the
 #'   processing stage.
+#' @param iter_warmup number of warmup (burn-in) iterations
+#' @param iter_sampling number of regular sampling iterations
 #' @param ... arguments passed to `mod$sample()`
 #' 
 #' Common arguments to cmdstanr include:
@@ -29,6 +31,8 @@ get_mcmc_posterior <- function(
   data,
   seed = 12345,
   chains = 1,
+  iter_warmup = 500,
+  iter_sampling = 500,
   output_dir = tempdir(),
   verbose = TRUE,
   method = c("hmc", "vi"),
@@ -78,6 +82,8 @@ get_mcmc_posterior <- function(
         refresh = refresh,
         output_dir = output_dir,
         chains = chains,
+        iter_warmup = iter_warmup,
+        iter_sampling = iter_sampling,
         ...
       )
     }

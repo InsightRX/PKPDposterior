@@ -49,5 +49,15 @@ nonmem_to_stan_data <- function(
   tdms <- nm[nm$EVID == 0, c("TIME", "DV", "CMT")]
   colnames(tdms) <- c("t", "dv", "cmt")
   
-  new_stan_data(reg, covs, tdms, parameters, iiv, ruv, dose_cmt, ltbs, verbose) 
+  new_stan_data(
+    regimen = reg, 
+    covariates = covs, 
+    data = tdms, 
+    parameters = parameters, 
+    iiv = iiv, 
+    ruv = ruv, 
+    dose_cmt = dose_cmt, 
+    ltbs = ltbs, 
+    verbose = verbose
+  ) 
 }

@@ -10,6 +10,8 @@ get_mcmc_posterior(
   data,
   seed = 12345,
   chains = 1,
+  iter_warmup = 500,
+  iter_sampling = 500,
   output_dir = tempdir(),
   verbose = TRUE,
   method = c("hmc", "vi"),
@@ -25,6 +27,10 @@ get_mcmc_posterior(
 \item{seed}{seed for sampling}
 
 \item{chains}{number of MCMC chains to simulate, passed on to Stan model}
+
+\item{iter_warmup}{number of warmup (burn-in) iterations}
+
+\item{iter_sampling}{number of regular sampling iterations}
 
 \item{output_dir}{output directory}
 

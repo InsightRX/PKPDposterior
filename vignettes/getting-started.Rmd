@@ -8,14 +8,16 @@ vignette: >
 ---
 
 We will start with defining a simple population PK model, for a fictitious drug.
-We will define a one-compartment model, defined using standard PK parameters,
-and with some inter-individual variability (IIV) and residual variability.
+We will define a one-compartment model, defined using standard PK parameters, inter-individual variability (IIV) and residual variability. We will then provide some TDM data, and sample from the posterior to learn about the patient's individual PK parameters.
 
-```{r r-load, echo=F}
+First, we will load the necessary libraries
+
+```{r libs}
 library(PKPDposterior)
+library(PKPDsim)
 ```
 
-First, we will define the values of the population PK parameters:
+and define the values of the population PK parameters:
 
 ```{r params}
 pars <- list(
@@ -54,12 +56,12 @@ model <- new_stan_model(
   parameter_definitions = list(
     "CL" = "CL * (WT[j]/70)^0.75",
     "Q"  = "Q  * (WT[j]/70)^0.75",
-    "V1" = "V1 * WT[j]",
-    "V2" = "V2 * WT[j]",
+    "V1" = "V1 * (WT[j]/70)",
+    "V2" = "V2 * (WT[j]/70)",
     "KA" = "0"
   ),
   covariate_definitions = list(
-    "WT" = "real"    # WT in kg
+    "WT" = "real"
   ),
   solver = "pmx_solve_twocpt",
   scale = "(V1 * mean(WT))"
@@ -67,6 +69,7 @@ model <- new_stan_model(
 ```
 
 The other elements that were specified above were:
+
 - the covariate definitions: we only need to specify what the data type of the
 respective covariates is. Here, we only have a continuous covariate, so we specify
 it as `real`.
@@ -77,7 +80,69 @@ about the available solvers.
 blood).
 
 We can then write this model to file, and compile it using Stan:
+
 ```{r compile}
 model_file <- write_stan_model(model)
 mod <- load_model(model_file)
+```
+
+Next, we should define the dosing regimen for the drug, as well as patient covariates,
+which is done using PKPDsim functionality:
+
+```{r regimen}
+regimen <- new_regimen(
+  amt = 1500, 
+  n = 3, 
+  times = c(0, 24, 48), 
+  type = 'infusion',
+  cmt = 2,
+  t_inf = 2
+)
+covariates <- list(WT = new_covariate(70))
+```
+
+Finally, we can define the TDM data that we want to use to inform the posterior:
+
+```{r tdm}
+tdm_data <- data.frame(
+  t = c(2.5, 11.5), 
+  dv = c(40, 14),
+  type = "pk"
+)
+```
+
+These data inputs should then be combined into a Stan dataset:
+
+```{r stan_data}
+data <- new_stan_data(
+  regimen = regimen,
+  covariates = covariates, 
+  data = tdm_data,
+  parameters = pars,
+  iiv = iiv,
+  ruv = ruv,
+  dose_cmt = 2 # into the central compartment
+)
+```
+
+Now we have both the model and the data ready to sample from the posterior:
+
+```{r sample, message=F, warning=F, error=F}
+post <- get_mcmc_posterior(
+  mod = mod,
+  data = data,
+  verbose = TRUE
+)
+```
+
+Summary info about the posterior can be shown by just evaluating the object:
+
+```{r post-sum}
+post
+```
+
+Parameter distributions for the posterior and prior can be plotted using the `plot_params()` function:
+
+```{r params-distr, warning=F}
+plot_params(post)
 ```
