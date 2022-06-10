@@ -18,13 +18,19 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v1
-        with:
-          extra-packages: pkgdown
-          needs: website
-
-      - name: Deploy package
+      - name: Install Torsten
         run: |
-          git config --local user.name "$GITHUB_ACTOR"
-          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          Rscript -e 'pkgdown::build_site()'
+          git clone https://github.com/metrumresearchgroup/Torsten.git
+          cd Torsten/cmdstan
+          make build
+
+      # - uses: r-lib/actions/setup-r-dependencies@v1
+      #   with:
+      #     extra-packages: pkgdown
+      #     needs: website
+
+      # - name: Deploy package
+      #   run: |
+      #     git config --local user.name "$GITHUB_ACTOR"
+      #     git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      #     Rscript -e 'pkgdown::build_site()'
