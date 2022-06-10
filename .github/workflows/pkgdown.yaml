@@ -38,6 +38,7 @@ jobs:
         run: |
           git clone https://github.com/InsightRX/PKPDmodels.git
           cd PKPDmodels
+          Rscript -e "remotes::install_github('InsightRX/PKPDsim')"
           Rscript -e "PKPDsim::model_from_api('models/pk_vanco_thomson.json5', to_package = TRUE, install_all = TRUE)"
           cd ..
 
