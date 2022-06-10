@@ -22,16 +22,16 @@ jobs:
         with:
           use-public-rspm: true
 
+      - uses: r-lib/actions/setup-r-dependencies@v1
+        with:
+          extra-packages: pkgdown
+          needs: website
+
       - name: Install Torsten
         run: |
           git clone https://github.com/metrumresearchgroup/Torsten.git
           cd Torsten/cmdstan
           make build
-
-      - uses: r-lib/actions/setup-r-dependencies@v1
-        with:
-          extra-packages: pkgdown
-          needs: website
 
       - name: Deploy package
         run: |
