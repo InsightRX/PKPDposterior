@@ -38,7 +38,7 @@ jobs:
         run: |
           git clone https://github.com/InsightRX/PKPDmodels.git
           cd PKPDmodels
-          Rscript -e "model_from_api('models/pk_vanco_thomson.json5', to_package = TRUE, install_all = TRUE)"
+          Rscript -e "PKPDsim::model_from_api('models/pk_vanco_thomson.json5', to_package = TRUE, install_all = TRUE)"
           cd ..
 
       - name: Deploy package
