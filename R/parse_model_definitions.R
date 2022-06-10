@@ -6,6 +6,7 @@
 parse_model_definitions <- function(
   parameters,
   parameter_definitions,
+  variable_definitions,
   ode,
   covariate_definitions,
   solver,
@@ -132,6 +133,7 @@ parse_model_definitions <- function(
     }
   }
   
+  def[["variable_definitions"]] <- paste0("real ", names(variable_definitions), ";")
   def[["transformed_parameters_definitions"]] <- c(
     paste0("row_vector<lower = 0>[n_t] ipred_", obs_types, ";"),
     paste0("vector<lower = 0>[n_obs_", obs_types, "] ipred_obs_", obs_types, ";"),
@@ -144,6 +146,9 @@ parse_model_definitions <- function(
     def[["pk_block"]] <- c(
       "array[n_t, n_theta] real theta;",
       "for(j in 1:n_t) {",
+      paste0(
+        "  ", names(variable_definitions), " = ", as.character(variable_definitions), ";" 
+      ),
       paste0(
         "  theta[j, ", seq(pk_equations), "] = ",
         pk_equations,
@@ -205,7 +210,7 @@ parse_model_definitions <- function(
 #' @keywords internal
 get_n_cmt <- function(solver, ode = NULL) {
   if(is.null(ode)) {
-    if(solver == "pmx_solve_twocpt") {
+    if(solver == "pmx_solve_onecpt") {
       n_cmt <- 2
     } else {
       n_cmt <- 3

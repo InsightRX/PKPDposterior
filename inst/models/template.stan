@@ -38,6 +38,8 @@ transformed parameters{
   
   // transformed_parameters_definitions
 
+  // variable_definitions
+
   // pk_block
 
   // solver_call
