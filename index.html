@@ -38,7 +38,22 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
+  <a class="nav-link" href="articles/PKPDposterior.html">Get started</a>
+</li>
+<li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Documentation</h6>
+    <a class="dropdown-item" href="articles/model-syntax.html">Model syntax</a>
+    <a class="dropdown-item" href="articles/sampler-settings.html">Sampler settings</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Examples</h6>
+    <a class="dropdown-item" href="articles/example-vanco.html">Vancomycin</a>
+    <a class="dropdown-item" href="articles/example-pkpd-neutropenia.html">Neutropenia (PKPD)</a>
+  </div>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -58,7 +73,7 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This software package provides convenience functions around Stan, Torsten, and PKPDsim. The goal of the package is to make it easier to full-Bayesian inference in the context of model-informed precision dosing.</p>
+<p>This software package provides convenience functions around Stan (CmdStanR), Torsten, and PKPDsim. The goal of the package is to make it easier to full-Bayesian inference in the context of model-informed precision dosing.</p>
 <p>The software is intended for use in education and research, and is <strong>not intended for clinical use</strong>. By design, this package does not include functionality that directly provides dosing advice.</p>
 </div>
 <div class="section level2">
@@ -66,7 +81,7 @@
 </h2>
 <p>Install the latest version of PKPDposterior using remotes or devtools:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"InsightRX/PKPDposterior"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"InsightRX/PKPDposterior"</span><span class="op">)</span>
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"InsightRX/PKPDposterior"</span><span class="op">)</span></code></pre></div>
 <p>PKPDposterior depends on Torsten and Stan. If you don’t already have these software working, follow the instructions for installing <a href="https://github.com/metrumresearchgroup/Torsten" class="external-link">Torsten</a>. Then, add the file path to your Stan installation location to your environment variables.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -78,100 +93,6 @@
     path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"STAN_PATH"</span><span class="op">)</span>, <span class="st">"cmdstan"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p>Great! Now you should be all ready to start modeling!</p>
-</div>
-<div class="section level2">
-<h2 id="model-syntax">Model syntax<a class="anchor" aria-label="anchor" href="#model-syntax"></a>
-</h2>
-<p>For structured analysis in PKPDposterior it is required to write your Stan/Torsten models using standardized syntax. The following variables are recognized, with their approximate equivalent in NONMEM, if available:</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Variable name</th>
-<th>Meaning</th>
-<th>NONMEM equivalent</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>dv</code></td>
-<td>Vector of observed values</td>
-<td>
-<code>DV</code> column in input</td>
-</tr>
-<tr class="even">
-<td><code>ipred</code></td>
-<td>Vector of predicted values for all event times</td>
-<td>
-<code>IPRED</code> column in output</td>
-</tr>
-<tr class="odd">
-<td><code>ipred_obs</code></td>
-<td>Vector of predicted values for observation records only</td>
-<td>
-<code>IPRED</code> column in output for records where <code>EVID==0</code>
-</td>
-</tr>
-<tr class="even">
-<td><code>ipred_ruv</code></td>
-<td>Vector of predicted values for observation records only, with residual variability simulated</td>
-<td>
-<code>Y</code> in model file, <code>DV</code> in output table</td>
-</tr>
-<tr class="odd">
-<td><code>n_t</code></td>
-<td>Number of event records</td>
-<td>Number of rows in input dataset</td>
-</tr>
-<tr class="even">
-<td><code>n_cmt</code></td>
-<td>Number of compartments</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><code>n_obs</code></td>
-<td>Number of observations</td>
-<td>Number of rows in input dataset with <code>EVID==0</code>
-</td>
-</tr>
-<tr class="even">
-<td><code>i_obs</code></td>
-<td>Index of observation records within all event records</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><code>theta</code></td>
-<td>Vector of model parameters</td>
-<td>
-<code>$THETA</code> (although not same data format)</td>
-</tr>
-<tr class="even">
-<td><code>ode</code></td>
-<td>Function for the ODE system</td>
-<td><code>$ODE</code></td>
-</tr>
-<tr class="odd">
-<td><code>A</code></td>
-<td>Vector of amounts in compartments</td>
-<td>
-<code>A</code> in model file</td>
-</tr>
-<tr class="even">
-<td><code>dAdt</code></td>
-<td>Vector of gradients for ODE system</td>
-<td>
-<code>DADT</code> in model file</td>
-</tr>
-<tr class="odd">
-<td><code>prior_&lt;parameter&gt;</code></td>
-<td>Samples of prior parameter distribution</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>For models with more than one observation type, such as PK-PD models, or a parent-metabolite model, the variables related to observations (i.e. in the first 8 rows) should be appended with a tag for the respective observation type, e.g. <code>dv_pk</code> and <code>dv_pd</code>, or <code>dv_parent</code> and <code>dv_metab</code>, etc. See the neutropenia model for an example.</p>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>

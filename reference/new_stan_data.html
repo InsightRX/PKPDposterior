@@ -18,8 +18,23 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/PKPDposterior.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Documentation</h6>
+    <a class="dropdown-item" href="../articles/model-syntax.html">Model syntax</a>
+    <a class="dropdown-item" href="../articles/sampler-settings.html">Sampler settings</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Examples</h6>
+    <a class="dropdown-item" href="../articles/example-vanco.html">Vancomycin</a>
+    <a class="dropdown-item" href="../articles/example-pkpd-neutropenia.html">Neutropenia (PKPD)</a>
+  </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -59,12 +74,12 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>regimen</dt>
-<dd><p>Regimen object (created by <code><a href="https://rdrr.io/pkg/PKPDsim/man/new_regimen.html" class="external-link">PKPDsim::new_regimen()</a></code>)</p></dd>
+<dd><p>Regimen object (created by <code><a href="https://insightrx.github.io/PKPDsim/reference/new_regimen.html" class="external-link">PKPDsim::new_regimen()</a></code>)</p></dd>
 
 
 <dt>covariates</dt>
 <dd><p>List of covariate objects created by
-<code><a href="https://rdrr.io/pkg/PKPDsim/man/new_covariate.html" class="external-link">PKPDsim::new_covariate()</a></code></p></dd>
+<code><a href="https://insightrx.github.io/PKPDsim/reference/new_covariate.html" class="external-link">PKPDsim::new_covariate()</a></code></p></dd>
 
 
 <dt>data</dt>
@@ -120,19 +135,19 @@ is <code>FALSE</code>.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">regimen</span> <span class="op">&lt;-</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PKPDsim/man/new_regimen.html" class="external-link">new_regimen</a></span><span class="op">(</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">regimen</span> <span class="op">&lt;-</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_regimen.html" class="external-link">new_regimen</a></span><span class="op">(</span></span>
 <span class="r-in">  amt <span class="op">=</span> <span class="fl">1500</span>, </span>
 <span class="r-in">  n <span class="op">=</span> <span class="fl">4</span>, </span>
 <span class="r-in">  times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">12</span>, <span class="fl">24</span>, <span class="fl">36</span><span class="op">)</span>, </span>
 <span class="r-in">  type <span class="op">=</span> <span class="st">'infusion'</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span class="r-in">  WT <span class="op">=</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PKPDsim/man/new_covariate.html" class="external-link">new_covariate</a></span><span class="op">(</span></span>
+<span class="r-in">  WT <span class="op">=</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_covariate.html" class="external-link">new_covariate</a></span><span class="op">(</span></span>
 <span class="r-in">    value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">149.5</span><span class="op">)</span>,</span>
 <span class="r-in">    times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span><span class="op">)</span>,</span>
 <span class="r-in">    unit <span class="op">=</span> <span class="st">"kg"</span></span>
 <span class="r-in">  <span class="op">)</span>,</span>
-<span class="r-in">  CRCL <span class="op">=</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PKPDsim/man/new_covariate.html" class="external-link">new_covariate</a></span><span class="op">(</span></span>
+<span class="r-in">  CRCL <span class="op">=</span> <span class="fu">PKPDsim</span><span class="fu">::</span><span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_covariate.html" class="external-link">new_covariate</a></span><span class="op">(</span></span>
 <span class="r-in">    value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.5</span>, <span class="fl">6.7</span><span class="op">)</span>,</span>
 <span class="r-in">    times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span>,</span>
 <span class="r-in">    unit <span class="op">=</span> <span class="st">"l/hr"</span></span>
