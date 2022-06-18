@@ -210,10 +210,10 @@ parse_model_definitions <- function(
 #' @keywords internal
 get_n_cmt <- function(solver, ode = NULL) {
   if(is.null(ode)) {
-    if(solver == "pmx_solve_onecpt") {
-      n_cmt <- 2
-    } else {
+    if(solver == "pmx_solve_twocpt") {
       n_cmt <- 3
+    } else {
+      n_cmt <- 2
     }
   } else {
     ode_string <- paste0(ode, collapse="")

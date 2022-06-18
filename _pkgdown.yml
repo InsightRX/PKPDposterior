@@ -6,7 +6,7 @@ articles:
   - title: Intro
     navbar: ~
     contents:
-      - getting-started
+      - PKPDposterior
   - title: Documentation
     navbar: Documentation
     contents:
