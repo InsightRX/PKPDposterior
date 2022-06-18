@@ -25,3 +25,4 @@ Remotes:
   stan-dev/cmdstanr
 Config/testthat/edition: 3
 URL: https://insightrx.github.io/PKPDposterior/
+VignetteBuilder: knitr

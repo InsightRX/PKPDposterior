@@ -1,0 +1,30 @@
+---
+title: "Sampler settings"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sampler settings}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+For debugging and developing models, where it is important to get rapid feedback, 
+or for educational use, a low number of warmup and regular samples, e.g. 300 / 500, 
+sampled on a single chain is often good enough. For production / clinical use,
+however, we would recommend a larger number of samples, and sampled on multiple 
+chains. With more chains, you will also be able to calculate additional diagnostics 
+about convergence. 
+
+In our internal testing of several common PK and PK/PD problems, the influence 
+of adapt_delta was limited, a lower value of 0.8 giving very similar precision 
+as 0.95, at a slightly lower computational burden.
+
+If speed of computation is critical for the intended application, it would be appropriate 
+to perform a benchmark study for the specific problem to identify settings that 
+satisfy both the time and precision constraints. 
+
+The following default settings for `get_mcmc_posterior()` override the defaults 
+used by CmdStanR, and are aimed at intermediate precision and faster computation:
+  
+- `iter_warmup`: 500
+- `iter_sampling`: 500
+- `chains`: 1

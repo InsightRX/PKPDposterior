@@ -1,0 +1,185 @@
+---
+title: "Vancomycin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vancomycin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+This examples shows how to implement the vancomycin population PK model published by Thomson et al (JAC 200, http://www.ncbi.nlm.nih.gov/pubmed/19299472), and sample from the posterior for the individual patients after TDM.
+
+We will first create the Stan model and sample from the posterior. Afterwards, we will
+leverage the PKPDsim model in the `pkvancothomson` library to simulate the posterior
+for the dependent variable and create a confidence interval plot.
+
+```{r libs, echo=F}
+library(PKPDposterior)
+library(PKPDsim)
+```
+
+First, we define the model and parameters:
+
+```{r params, warning=F, message=F}
+parameters <- list(
+  CL = 2.99, 
+  Q = 2.28, 
+  V2 = 0.732, 
+  V1 = 0.675
+)
+iiv <- list(
+  CL = 0.27,
+  Q = 0.49, 
+  V1 = 0.15, 
+  V2 = 1.3
+)
+ruv <- list(add = 1.6, prop = 0.15)
+
+model <- new_stan_model(
+  parameters = parameters,
+  parameter_definitions = list(
+    "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
+    "Q"  = "Q",
+    "V1" = "V1 * WT[j]",
+    "V2" = "V2 * WT[j]",
+    "KA" = "0" 
+  ),
+  covariate_definitions = list(
+    "CRCL" = "real", # CrCl in L/hr
+    "WT" = "real"    # WT in kg
+  ),
+  solver = "pmx_solve_twocpt",
+  scale = "(V1 * mean(WT))",
+  verbose = T
+)
+
+model_file <- write_stan_model(model)
+```
+
+and compile the model:
+
+```{r compile, warning=F, message=F}
+mod <- load_model(
+  model_file, 
+  force = T,
+  verbose = T
+)
+```
+
+Define the input data and prepare for use in Stan:
+
+```{r data}
+regimen <- new_regimen(
+  amt = 1500, 
+  n = 4, 
+  times = c(0, 12, 24, 36), 
+  type = 'infusion',
+  t_inf = 2
+)
+
+covariates <- list(
+  WT = new_covariate(value = 70, unit = "kg"),
+  CRCL = new_covariate(value = 5, unit = "l/hr")
+)
+
+tdm_data <- data.frame(
+  t = c(2.5, 11.5), 
+  dv = c(40, 14)
+)
+
+data <- new_stan_data(
+  regimen,
+  covariates, 
+  tdm_data,
+  dose_cmt = 2,
+  parameters = parameters,
+  iiv = iiv,
+  ruv = list(
+    prop = 0.15,
+    add = 1.6
+  ),
+  ltbs = FALSE
+)
+```
+
+Then, we can sample from the posterior using:
+
+```{r sample, message=F, warning=F, error=F}
+post <- get_mcmc_posterior(
+  mod = mod,
+  data = data
+)
+```
+
+Summary info about the posterior:
+
+```{r post-info, warning=F}
+post
+```
+
+Plot parameter distributions:
+
+```{r param-dist, warning=F, message=F}
+plot_params(post)
+```
+
+We can now generate the posterior for the dependent value using the PKPDsim model.
+
+First we define an additional required covariates and a mapping between parameters
+in the PKPDposterior model and the PKPDsim model.
+
+```{r mapping}
+mapping <- list("V1" = "V") # mapping between parameters in the 
+covariates$CL_HEMO <- new_covariate(0) # required covariate for PKPDsim model
+```
+
+The PKPDsim model package `pkvancothomson` that is used in this example can be 
+installed using the `PKPDmodels` repository available [here](https://github.com/InsightRX/PKPDmodels). After cloning this repository,
+install the `pkvancothomson` package using:
+
+```{r vanco-pkg, eval=F}
+model_from_api("models/pk_vanco_thomson.json5", to_package = TRUE, install_all = TRUE)
+```
+
+Then we can simulate the posterior of the dependent variable: 
+
+```{r pred-posterior, warning=F, message=F}
+library(pkvancothomson)
+pred_post <- sim_from_draws(
+  post, 
+  model = pkvancothomson::model(),
+  map = mapping,
+  parameters = list( # required additional parameters for PKPDsim-model
+    TH_CRCL = 0.0154, 
+    TDM_INIT = 0
+  ),
+  regimen = regimen,
+  covariates = covariates,
+  n = 200,
+  summarize = TRUE
+)
+pred_prior <- sim_from_draws(
+  post, 
+  model = pkvancothomson::model(), 
+  map = mapping,
+  parameters = list(TH_CRCL = 0.0154, TDM_INIT = 0),
+  regimen = regimen,
+  covariates = covariates,
+  prior = TRUE,
+  n = 200,
+  summarize = TRUE
+)
+```
+
+Now we can plot the confidence interval for the posterior and prior predictions using:
+
+```{r plot-ci}
+plot_predictions(
+  pred_prior, 
+  obs = tdm_data
+)
+plot_predictions(
+  pred_post, 
+  obs = tdm_data
+)
+```
