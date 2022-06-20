@@ -13,7 +13,6 @@ name: pkgdown
 
 env:
   CMDSTAN: /home/runner/work/PKPDposterior/PKPDposterior/Torsten/cmdstan
-  STAN_PATH: /home/runner/work/PKPDposterior/PKPDposterior/Torsten
 
 jobs:
   pkgdown:
