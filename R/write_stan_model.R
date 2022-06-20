@@ -2,7 +2,7 @@
 #' @param code Stan code (vector of character strings).
 #' @param file filename to write to. If no name specified, will create temporary
 #' file.
-#' @returns filename of saved model
+#' @return filename of saved model
 #' @export
 write_stan_model <- function(
   code,

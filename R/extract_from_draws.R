@@ -4,7 +4,7 @@
 #' 
 #' @param post posterior object from CmdStanR
 #' @param verbose verbosity
-#' 
+#' @keywords internal
 extract_from_draws <- function(
   post,
   verbose = TRUE
@@ -35,9 +35,10 @@ extract_from_draws <- function(
 #' @param post posterior object
 #' @param obs_type observation type label, default is `pk`
 #' 
-#' @returns data frame with statistics for each observation timepoint, such as
+#' @return data frame with statistics for each observation timepoint, such as
 #' mean, median, sd, confidence intervals etc.
-#' 
+#'
+#' @keywords internal
 calc_stats_for_draws_predictions <- function(
   post,
   obs_type = "pk"

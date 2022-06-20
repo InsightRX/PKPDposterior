@@ -7,4 +7,5 @@
 #' @importFrom stats density ecdf median quantile setNames
 #' @importFrom ggplot2 ggplot aes geom_ribbon geom_line geom_point 
 #'   geom_histogram facet_wrap
+#' @keywords internal
 NULL

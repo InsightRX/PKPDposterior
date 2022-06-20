@@ -47,3 +47,4 @@ needed than the \code{scale} parameter provides.}
 Parse model definitions into a list that can be used to generate a Stan
 model
 }
+\keyword{internal}

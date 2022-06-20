@@ -54,3 +54,4 @@ is \code{FALSE}.}
 \description{
 Prepare data object for use in get_mcmc_posterior()
 }
+\keyword{internal}

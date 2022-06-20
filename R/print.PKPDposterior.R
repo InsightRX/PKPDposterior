@@ -4,6 +4,7 @@
 #' @param ... arguments passed onto print function
 #' 
 #' @export
+#' @keywords internal
 print.PKPDposterior <- function(x, ...) {
   cat("Parameters:\n")
   par_table <- data.frame(

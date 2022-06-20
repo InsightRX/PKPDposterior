@@ -109,7 +109,7 @@ test_that("returns PKPDposterior data object", {
   expect_true(inherits(obj, "list"))
   expect_named(
     obj,
-    c("parameters", "regimen", "covariates", "data", "iiv", "ruv", "stan_data"),
+    c("parameters", "fix", "regimen", "covariates", "data", "iiv", "ruv", "stan_data"),
     ignore.order = TRUE
   )
   

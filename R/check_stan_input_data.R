@@ -3,7 +3,7 @@
 #' @param code Stan model code
 #' @param data input data, generated using `new_stan_data()`, which includes
 #' an element `stan_data` that is checked in this function.
-#' 
+#' @keywords internal
 check_stan_input_data <- function(
   code,
   data

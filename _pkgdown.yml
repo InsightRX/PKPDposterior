@@ -1,0 +1,20 @@
+url: https://insightrx.github.io/PKPDposterior/
+template:
+  bootstrap: 5
+
+articles:
+  - title: Intro
+    navbar: ~
+    contents:
+      - PKPDposterior
+  - title: Documentation
+    navbar: Documentation
+    contents:
+      - model-syntax
+      - sampler-settings
+  - title: Examples
+    navbar: Examples
+    contents:
+      - example-vanco
+      - example-pkpd-neutropenia
+      
