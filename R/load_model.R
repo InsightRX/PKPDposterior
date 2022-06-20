@@ -16,13 +16,6 @@ load_model <- function(
 ) {
   
   messages <- ifelse(verbose, function(x) { x }, suppressMessages)
-  
-  ## Initialize
-  messages(
-    cmdstanr::set_cmdstan_path(
-      path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
-    )
-  )
 
   ## Compile Stan/Torsten model, or re-use old model
   if(!file.exists(model_file)) {
@@ -37,6 +30,7 @@ load_model <- function(
       message("Model found in internal library.")
     }
   }
+
   messages(
     stan_out <- cmdstanr::cmdstan_model(
       stan_file = model_file

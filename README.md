@@ -25,22 +25,12 @@ software working, follow the instructions for installing
 path to your Stan installation location to your environment variables.
 
 ```r
-Sys.setenv(STAN_PATH = "path/to/stan")
+Sys.setenv(CMDSTAN = "path/to/Torsten/cmdstan")
 ```
 
-To avoid running the above command every time you restart your R session,
-consider adding this environment variable to your .Rprofile or other
+To avoid running the above command every time you restart your R session, 
+consider adding this environment variable to your .Renviron or other 
 configuration file.
-
-Prepare your R session to use Stan by running the following line of code:
-
-```r
-cmdstanr::set_cmdstan_path(
-    path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
-)
-```
-
-Great! Now you should be all ready to start modeling!
 
 ## Contributing
 
