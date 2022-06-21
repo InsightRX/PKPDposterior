@@ -1,18 +1,16 @@
 #' Initialize a model
-#' If model is not compiled yet, than compile it. Otherwise used the binary.
+#' If model is not compiled yet, then compile it. Otherwise, use the binary.
 #' 
 #' @param model_file model file to be compiled, either full path to a model,
 #' or else will look in `models` folder inside the installed package folder.
 #' @param force force recompile
 #' @param verbose show output from Stan / cmdstanr? Defaults to `FALSE`.
-#' @param ... passed onto 
 #' 
 #' @export
 load_model <- function(
   model_file,
   force = FALSE,
-  verbose = FALSE,
-  ...
+  verbose = FALSE
 ) {
   
   messages <- ifelse(verbose, function(x) { x }, suppressMessages)
