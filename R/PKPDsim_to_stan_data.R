@@ -21,17 +21,6 @@ PKPDsim_to_stan_data <- function(
   )
   cov <- covariates_to_nm(covariates)
   
-  ## Parse observed data
-  # sets <- list()
-  # if(!is.null(data$type)) {
-  #   types <- unique(data$type) 
-  #   for(key in types) {
-  #     sets[[key]] <- tdm_to_nm(data[data$type == "key",])
-  #     obs <- bind_rows()
-  #   }
-  # } else {
-  #   
-  # }
   obs <-  tdm_to_nm(data)
 
   ## Combine into one dataset

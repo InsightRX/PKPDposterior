@@ -3,7 +3,7 @@
 #' 
 #' @param stan_model Stan/Torsten model
 #' @param pkpdsim_model PKPDsim implementation
-#' @param data dataset (see [PKPDsim_to_stan_data()])
+#' @param data dataset (see [new_stan_data()])
 #' @param mapping remap model parameters from Stan to PKPDsim syntax, specified 
 #'   as a list. E.g. `map = list(V1 = V)`.
 #' @param n number of patient datasets to use in validation. Default is 50.

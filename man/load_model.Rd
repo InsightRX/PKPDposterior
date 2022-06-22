@@ -3,9 +3,9 @@
 \name{load_model}
 \alias{load_model}
 \title{Initialize a model
-If model is not compiled yet, than compile it. Otherwise used the binary.}
+If model is not compiled yet, then compile it. Otherwise, use the binary.}
 \usage{
-load_model(model_file, force = FALSE, verbose = FALSE, ...)
+load_model(model_file, force = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{model_file}{model file to be compiled, either full path to a model,
@@ -14,10 +14,8 @@ or else will look in \code{models} folder inside the installed package folder.}
 \item{force}{force recompile}
 
 \item{verbose}{show output from Stan / cmdstanr? Defaults to \code{FALSE}.}
-
-\item{...}{passed onto}
 }
 \description{
 Initialize a model
-If model is not compiled yet, than compile it. Otherwise used the binary.
+If model is not compiled yet, then compile it. Otherwise, use the binary.
 }
