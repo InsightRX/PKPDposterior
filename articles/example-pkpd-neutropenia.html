@@ -83,173 +83,173 @@
 <p>We will first create the Stan model and sample from the posterior.</p>
 <p>First, we define the model and parameters. Note that in this exmaple we specify <code>ruv</code> as a list that contains separate residual errors for <code>pk</code>- and <code>pd</code>-labeled observations.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CL <span class="op">=</span> <span class="fl">5</span>, V <span class="op">=</span> <span class="fl">50</span>,
-                   SLOPE <span class="op">=</span> <span class="fl">0.1</span>, MTT <span class="op">=</span> <span class="fl">100</span>, 
-                   CIRC0 <span class="op">=</span> <span class="fl">5</span>, GAMMA <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>
-<span class="va">iiv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-  CL <span class="op">=</span> <span class="fl">0.2</span>, V <span class="op">=</span> <span class="fl">0.5</span>, 
-  SLOPE <span class="op">=</span> <span class="fl">1.0</span>, MTT <span class="op">=</span> <span class="fl">0.2</span>, 
-  CIRC0 <span class="op">=</span> <span class="fl">0.5</span>, GAMMA <span class="op">=</span> <span class="fl">0.2</span>
-<span class="op">)</span>
-<span class="va">ruv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-  pk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>add <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,
-  pd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>add <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="va">parameter_definitions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-  <span class="st">"CL"</span> <span class="op">=</span> <span class="st">"CL"</span>,
-  <span class="st">"Q"</span> <span class="op">=</span> <span class="fl">0</span>,
-  <span class="st">"V"</span> <span class="op">=</span> <span class="st">"V"</span>,
-  <span class="st">"V2"</span> <span class="op">=</span> <span class="fl">1</span>,
-  <span class="st">"KA"</span> <span class="op">=</span> <span class="fl">0</span>,
-  <span class="st">"MTT"</span> <span class="op">=</span> <span class="st">"MTT"</span>,
-  <span class="st">"CIRC0"</span> <span class="op">=</span> <span class="st">"CIRC0"</span>,
-  <span class="st">"GAMMA"</span> <span class="op">=</span> <span class="st">"GAMMA"</span>,
-  <span class="st">"ALPHA"</span> <span class="op">=</span> <span class="st">"SLOPE"</span>
-<span class="op">)</span>
-<span class="va">ode</span> <span class="op">&lt;-</span> <span class="st">"
-  real ka  = 0;
-  real k10 = CL / V;
-  real k12 = 0;
-  real k21 = 0;
-  real ktr = 4 / MTT;
-  
-  real conc;
-  real EDrug;
-  real transit1;
-  real transit2;
-  real transit3;
-  real circ;
-  real prol;
-  
-  dAdt[1] = -KA * A[1];
-  dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
-  dAdt[3] = k12 * A[2] - k21 * A[3];
-  conc = A[2] / V;
-  
-  EDrug = ALPHA * conc; // slope model, not Emax
-  prol = A[4] + CIRC0;
-  transit1 = A[5] + CIRC0;
-  transit2 = A[6] + CIRC0;
-  transit3 = A[7] + CIRC0;
-  circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
-  
-  // initial condition
-  dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);
-  dAdt[5] = ktr * (prol - transit1);
-  dAdt[6] = ktr * (transit1 - transit2);
-  dAdt[7] = ktr * (transit2 - transit3);
-  dAdt[8] = ktr * (transit3 - circ);
-"</span>
-
-<span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_stan_model.html">new_stan_model</a></span><span class="op">(</span>
-  parameters <span class="op">=</span> <span class="va">parameters</span>,
-  parameter_definitions <span class="op">=</span> <span class="va">parameter_definitions</span>,
-  ode <span class="op">=</span> <span class="va">ode</span>,
-  covariate_definitions <span class="op">=</span> <span class="cn">NULL</span>,
-  solver <span class="op">=</span> <span class="st">'pmx_solve_rk45'</span>,
-  obs_types <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pk"</span>, <span class="st">"pd"</span><span class="op">)</span>,
-  custom_ipred <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-    <span class="st">"pk"</span> <span class="op">=</span> <span class="st">"A[2, ] ./ V;"</span>,
-    <span class="st">"pd"</span> <span class="op">=</span> <span class="st">"A[8, ] + theta[7];"</span>
-  <span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">T</span>
-<span class="op">)</span>
-<span class="va">model_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/write_stan_model.html">write_stan_model</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CL <span class="op">=</span> <span class="fl">5</span>, V <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>                   SLOPE <span class="op">=</span> <span class="fl">0.1</span>, MTT <span class="op">=</span> <span class="fl">100</span>, </span>
+<span>                   CIRC0 <span class="op">=</span> <span class="fl">5</span>, GAMMA <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="va">iiv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  CL <span class="op">=</span> <span class="fl">0.2</span>, V <span class="op">=</span> <span class="fl">0.5</span>, </span>
+<span>  SLOPE <span class="op">=</span> <span class="fl">1.0</span>, MTT <span class="op">=</span> <span class="fl">0.2</span>, </span>
+<span>  CIRC0 <span class="op">=</span> <span class="fl">0.5</span>, GAMMA <span class="op">=</span> <span class="fl">0.2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ruv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  pk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>add <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
+<span>  pd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>add <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">parameter_definitions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"CL"</span> <span class="op">=</span> <span class="st">"CL"</span>,</span>
+<span>  <span class="st">"Q"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="st">"V"</span> <span class="op">=</span> <span class="st">"V"</span>,</span>
+<span>  <span class="st">"V2"</span> <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="st">"KA"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="st">"MTT"</span> <span class="op">=</span> <span class="st">"MTT"</span>,</span>
+<span>  <span class="st">"CIRC0"</span> <span class="op">=</span> <span class="st">"CIRC0"</span>,</span>
+<span>  <span class="st">"GAMMA"</span> <span class="op">=</span> <span class="st">"GAMMA"</span>,</span>
+<span>  <span class="st">"ALPHA"</span> <span class="op">=</span> <span class="st">"SLOPE"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ode</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  real ka  = 0;</span></span>
+<span><span class="st">  real k10 = CL / V;</span></span>
+<span><span class="st">  real k12 = 0;</span></span>
+<span><span class="st">  real k21 = 0;</span></span>
+<span><span class="st">  real ktr = 4 / MTT;</span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  real conc;</span></span>
+<span><span class="st">  real EDrug;</span></span>
+<span><span class="st">  real transit1;</span></span>
+<span><span class="st">  real transit2;</span></span>
+<span><span class="st">  real transit3;</span></span>
+<span><span class="st">  real circ;</span></span>
+<span><span class="st">  real prol;</span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  dAdt[1] = -KA * A[1];</span></span>
+<span><span class="st">  dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];</span></span>
+<span><span class="st">  dAdt[3] = k12 * A[2] - k21 * A[3];</span></span>
+<span><span class="st">  conc = A[2] / V;</span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  EDrug = ALPHA * conc; // slope model, not Emax</span></span>
+<span><span class="st">  prol = A[4] + CIRC0;</span></span>
+<span><span class="st">  transit1 = A[5] + CIRC0;</span></span>
+<span><span class="st">  transit2 = A[6] + CIRC0;</span></span>
+<span><span class="st">  transit3 = A[7] + CIRC0;</span></span>
+<span><span class="st">  circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled </span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  // initial condition</span></span>
+<span><span class="st">  dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);</span></span>
+<span><span class="st">  dAdt[5] = ktr * (prol - transit1);</span></span>
+<span><span class="st">  dAdt[6] = ktr * (transit1 - transit2);</span></span>
+<span><span class="st">  dAdt[7] = ktr * (transit2 - transit3);</span></span>
+<span><span class="st">  dAdt[8] = ktr * (transit3 - circ);</span></span>
+<span><span class="st">"</span></span>
+<span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_stan_model.html">new_stan_model</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  parameter_definitions <span class="op">=</span> <span class="va">parameter_definitions</span>,</span>
+<span>  ode <span class="op">=</span> <span class="va">ode</span>,</span>
+<span>  covariate_definitions <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  solver <span class="op">=</span> <span class="st">'pmx_solve_rk45'</span>,</span>
+<span>  obs_types <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pk"</span>, <span class="st">"pd"</span><span class="op">)</span>,</span>
+<span>  custom_ipred <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"pk"</span> <span class="op">=</span> <span class="st">"A[2, ] ./ V;"</span>,</span>
+<span>    <span class="st">"pd"</span> <span class="op">=</span> <span class="st">"A[8, ] + theta[7];"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">T</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">model_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/write_stan_model.html">write_stan_model</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p>and compile the model:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_model.html">load_model</a></span><span class="op">(</span>
-  <span class="va">model_file</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_model.html">load_model</a></span><span class="op">(</span></span>
+<span>  <span class="va">model_file</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Define the input data and prepare for use in Stan. Note that in the definition of <code>tdm_data</code> we use the <code>type</code> argument to distinguish between PK and PD observations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">regimen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_regimen.html" class="external-link">new_regimen</a></span><span class="op">(</span>
-  amt <span class="op">=</span> <span class="fl">1500</span>, 
-  n <span class="op">=</span> <span class="fl">3</span>, 
-  times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">48</span><span class="op">)</span>, 
-  type <span class="op">=</span> <span class="st">'infusion'</span>,
-  cmt <span class="op">=</span> <span class="fl">2</span>,
-  t_inf <span class="op">=</span> <span class="fl">2</span>
-<span class="op">)</span>
-<span class="va">covariates</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
-<span class="va">tdm_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">11.5</span><span class="op">)</span>, 
-  dv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">14</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"pk"</span>
-<span class="op">)</span>
-<span class="va">pd_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span>, <span class="fl">12</span><span class="op">)</span> <span class="op">*</span> <span class="fl">24</span>, 
-  dv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1.5</span>, <span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"pd"</span>
-<span class="op">)</span>
-<span class="va">comb_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>
-  <span class="va">tdm_data</span>, 
-  <span class="va">pd_data</span>
-<span class="op">)</span>
-
-<span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_stan_data.html">new_stan_data</a></span><span class="op">(</span>
-  <span class="va">regimen</span>,
-  covariates <span class="op">=</span> <span class="va">covariates</span>, 
-  data <span class="op">=</span> <span class="va">comb_data</span>,
-  parameters <span class="op">=</span> <span class="va">parameters</span>,
-  iiv <span class="op">=</span> <span class="va">iiv</span>,
-  ltbs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pk <span class="op">=</span> <span class="cn">TRUE</span>, pd <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-  ruv <span class="op">=</span> <span class="va">ruv</span>,
-  dose_cmt <span class="op">=</span> <span class="fl">2</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">regimen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_regimen.html" class="external-link">new_regimen</a></span><span class="op">(</span></span>
+<span>  amt <span class="op">=</span> <span class="fl">1500</span>, </span>
+<span>  n <span class="op">=</span> <span class="fl">3</span>, </span>
+<span>  times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">48</span><span class="op">)</span>, </span>
+<span>  type <span class="op">=</span> <span class="st">'infusion'</span>,</span>
+<span>  cmt <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  t_inf <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="va">tdm_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">11.5</span><span class="op">)</span>, </span>
+<span>  dv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">14</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"pk"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">pd_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span>, <span class="fl">12</span><span class="op">)</span> <span class="op">*</span> <span class="fl">24</span>, </span>
+<span>  dv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1.5</span>, <span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"pd"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">comb_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="va">tdm_data</span>, </span>
+<span>  <span class="va">pd_data</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_stan_data.html">new_stan_data</a></span><span class="op">(</span></span>
+<span>  <span class="va">regimen</span>,</span>
+<span>  covariates <span class="op">=</span> <span class="va">covariates</span>, </span>
+<span>  data <span class="op">=</span> <span class="va">comb_data</span>,</span>
+<span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  iiv <span class="op">=</span> <span class="va">iiv</span>,</span>
+<span>  ltbs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pk <span class="op">=</span> <span class="cn">TRUE</span>, pd <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  ruv <span class="op">=</span> <span class="va">ruv</span>,</span>
+<span>  dose_cmt <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Then, we can sample from the posterior using:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_mcmc_posterior.html">get_mcmc_posterior</a></span><span class="op">(</span>
-  mod <span class="op">=</span> <span class="va">mod</span>,
-  data <span class="op">=</span> <span class="va">data</span>
-<span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Running MCMC with 1 chain...</span>
-<span class="co">## </span>
-<span class="co">## Chain 1 Iteration:   1 / 1000 [  0%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration:  50 / 1000 [  5%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 100 / 1000 [ 10%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 150 / 1000 [ 15%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 200 / 1000 [ 20%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 250 / 1000 [ 25%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 300 / 1000 [ 30%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 350 / 1000 [ 35%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 400 / 1000 [ 40%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 450 / 1000 [ 45%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 500 / 1000 [ 50%]  (Warmup) </span>
-<span class="co">## Chain 1 Iteration: 501 / 1000 [ 50%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 550 / 1000 [ 55%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 600 / 1000 [ 60%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 650 / 1000 [ 65%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 700 / 1000 [ 70%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 750 / 1000 [ 75%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 800 / 1000 [ 80%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 850 / 1000 [ 85%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 900 / 1000 [ 90%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 950 / 1000 [ 95%]  (Sampling) </span>
-<span class="co">## Chain 1 Iteration: 1000 / 1000 [100%]  (Sampling) </span>
-<span class="co">## Chain 1 finished in 58.6 seconds.</span></code></pre>
+<code class="sourceCode R"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_mcmc_posterior.html">get_mcmc_posterior</a></span><span class="op">(</span></span>
+<span>  mod <span class="op">=</span> <span class="va">mod</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">data</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Running MCMC with 1 chain...</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Chain 1 Iteration:   1 / 1000 [  0%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration:  50 / 1000 [  5%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 100 / 1000 [ 10%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 150 / 1000 [ 15%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 200 / 1000 [ 20%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 250 / 1000 [ 25%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 300 / 1000 [ 30%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 350 / 1000 [ 35%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 400 / 1000 [ 40%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 450 / 1000 [ 45%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 500 / 1000 [ 50%]  (Warmup) </span></span>
+<span><span class="co">## Chain 1 Iteration: 501 / 1000 [ 50%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 550 / 1000 [ 55%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 600 / 1000 [ 60%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 650 / 1000 [ 65%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 700 / 1000 [ 70%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 750 / 1000 [ 75%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 800 / 1000 [ 80%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 850 / 1000 [ 85%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 900 / 1000 [ 90%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 950 / 1000 [ 95%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 Iteration: 1000 / 1000 [100%]  (Sampling) </span></span>
+<span><span class="co">## Chain 1 finished in 71.3 seconds.</span></span></code></pre>
 <p>Summary info about the posterior:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">post</span></code></pre></div>
-<pre><code><span class="co">## Parameters:</span>
-<span class="co">##       posterior_mode   mean median    sd     q5     q95  rhat</span>
-<span class="co">## CL             4.069  4.220  4.201 0.539  3.355   5.132 1.006</span>
-<span class="co">## V             34.584 36.997 36.002 7.330 26.283  50.079 1.001</span>
-<span class="co">## SLOPE          0.060  0.059  0.058 0.016  0.035   0.086 0.998</span>
-<span class="co">## MTT           94.742 95.011 94.716 8.627 81.397 109.523 0.999</span>
-<span class="co">## CIRC0          5.014  5.686  5.464 1.440  3.742   8.090 1.003</span>
-<span class="co">## GAMMA          0.186  0.204  0.197 0.041  0.148   0.279 1.004</span>
-<span class="co">## </span>
-<span class="co">## Observed data, posterior:</span>
-<span class="co">##   type  time   dv       mean         loc   pct       pct5     pct95</span>
-<span class="co">## 1   pk   2.5 40.0 35.1969640 -----|---o- 0.808 26.0733850 45.252310</span>
-<span class="co">## 2   pk  11.5 14.0 12.1645054 -----|---o- 0.838  9.3491765 15.305140</span>
-<span class="co">## 3   pd  72.0  5.0  4.5255091 -----|--o-- 0.708  3.1641995  6.190220</span>
-<span class="co">## 4   pd 144.0  1.5  1.7014853 --o--|----- 0.278  1.1376500  2.271029</span>
-<span class="co">## 5   pd 216.0  0.8  0.8655025 ---o-|----- 0.436  0.5374418  1.301487</span>
-<span class="co">## 6   pd 288.0  2.0  2.0045579 -----|-o--- 0.554  1.2407715  3.024030</span></code></pre>
+<code class="sourceCode R"><span><span class="va">post</span></span></code></pre></div>
+<pre><code><span><span class="co">## Parameters:</span></span>
+<span><span class="co">##       posterior_mode   mean median    sd     q5     q95  rhat</span></span>
+<span><span class="co">## CL             4.069  4.220  4.201 0.539  3.355   5.132 1.006</span></span>
+<span><span class="co">## V             34.584 36.997 36.002 7.330 26.283  50.079 1.001</span></span>
+<span><span class="co">## SLOPE          0.060  0.059  0.058 0.016  0.035   0.086 0.998</span></span>
+<span><span class="co">## MTT           94.742 95.011 94.716 8.627 81.397 109.523 0.999</span></span>
+<span><span class="co">## CIRC0          5.014  5.686  5.464 1.440  3.742   8.090 1.003</span></span>
+<span><span class="co">## GAMMA          0.186  0.204  0.197 0.041  0.148   0.279 1.004</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Observed data, posterior:</span></span>
+<span><span class="co">##   type  time   dv       mean         loc   pct       pct5     pct95</span></span>
+<span><span class="co">## 1   pk   2.5 40.0 35.1969640 -----|---o- 0.808 26.0733850 45.252310</span></span>
+<span><span class="co">## 2   pk  11.5 14.0 12.1645054 -----|---o- 0.838  9.3491765 15.305140</span></span>
+<span><span class="co">## 3   pd  72.0  5.0  4.5255091 -----|--o-- 0.708  3.1641995  6.190220</span></span>
+<span><span class="co">## 4   pd 144.0  1.5  1.7014853 --o--|----- 0.278  1.1376500  2.271029</span></span>
+<span><span class="co">## 5   pd 216.0  0.8  0.8655025 ---o-|----- 0.436  0.5374418  1.301487</span></span>
+<span><span class="co">## 6   pd 288.0  2.0  2.0045579 -----|-o--- 0.554  1.2407715  3.024030</span></span></code></pre>
 <p>Plot parameter distributions:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_params.html">plot_params</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_params.html">plot_params</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example-pkpd-neutropenia_files/figure-html/param-dist-1.png" width="700"></p>
   </main>
 </div>
@@ -263,7 +263,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer>
