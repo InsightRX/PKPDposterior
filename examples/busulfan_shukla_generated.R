@@ -3,6 +3,7 @@
 ## Stan model generated using new_stan_model()
 
 library(PKPDposterior)
+library(pkbusulfanucsf)
 
 ## Busulfan model & parameters
 parameters <- list(
@@ -94,3 +95,52 @@ post
 
 ## Plot parameter distributions
 plot_params(post)
+
+## Validate model vs PKPDsim implementation
+validate_stan_model(
+  stan_model = mod,
+  pkpdsim_model = pkbusulfanucsf::model(),
+  add_parameters = list(
+    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135,
+    kappa_CL_1 = 0, kappa_CL_2 = 0, kappa_CL_3 = 0, kappa_CL_4 = 0,
+    kappa_V_1 = 0, kappa_V_2 = 0, kappa_V_3 = 0, kappa_V_4 = 0
+  ),
+  max_abs_delta = 0.1,
+  data = data,
+  mapping = mapping
+)
+
+## simulate
+pred_post <- sim_from_draws(
+  post,
+  model = pkbusulfanucsf::model(),
+  map = mapping,
+  parameters = list(
+    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135
+  ),
+  regimen = regimen,
+  covariates = covariates,
+  n = 200,
+  summarize = TRUE
+)
+pred_prior <- sim_from_draws(
+  post,
+  model = pkbusulfanucsf::model(),
+  map = mapping,
+  parameters = list(
+    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135
+  ),
+  regimen = regimen,
+  covariates = covariates,
+  n = 200,
+  prior = TRUE,
+  summarize = TRUE
+)
+
+plot_predictions(pred_post, obs = tdm_data) +
+  vpc::theme_empty() +
+  ggplot2::scale_y_log10()
+
+plot_predictions(pred_prior, obs = tdm_data) +
+  vpc::theme_empty() +
+  ggplot2::scale_y_log10()

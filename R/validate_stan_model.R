@@ -6,6 +6,7 @@
 #' @param data dataset (see [new_stan_data()])
 #' @param mapping remap model parameters from Stan to PKPDsim syntax, specified 
 #'   as a list. E.g. `map = list(V1 = V)`.
+#' @param add_parameters list of parameters to be added for PKPDsim simulation
 #' @param n number of patient datasets to use in validation. Default is 50.
 #' @param max_abs_delta maximum allowed absolute delta between Stan and PKPDsim
 #' @param max_rel_delta maximum allowed relative delta between Stan and PKPDsim,
@@ -18,10 +19,12 @@ validate_stan_model <- function(
   pkpdsim_model,
   data,
   mapping = NULL,
+  add_parameters = NULL,
   n = 50,
   max_abs_delta = 1e-3,
   max_rel_delta = 1e-5,
-  verbose = FALSE
+  verbose = FALSE,
+  ...
 ) {
   
   if (verbose) message("Sampling from posterior...")
@@ -67,7 +70,7 @@ validate_stan_model <- function(
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
     PKPDsim::sim(
       ode = pkpdsim_model,
-      parameters = as.list(parameters_table[i,]),
+      parameters = c(as.list(parameters_table[i,]), add_parameters),
       covariates = covariates_sim,
       regimen = data[["regimen"]],
       only_obs = TRUE,
