@@ -8,9 +8,6 @@ library(dplyr)
 library(tidyr)
 library(pkvoriconazolefriberg)
 library(posterior)
-cmdstanr::set_cmdstan_path(
-  path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
-)
 
 mapping <- list("V1" = "V")
 

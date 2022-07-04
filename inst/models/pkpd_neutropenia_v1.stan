@@ -8,19 +8,18 @@ functions{
   vector ode(real t, vector A, real[] theta, real[] x_r, int[] x_i) {
     real CL    = theta[1];
     real Q     = theta[2];
-    real V1    = theta[3];
+    real V    = theta[3];
     real V2    = theta[4];
-    real ka    = theta[5];
-    real mtt   = theta[6];
-    real circ0 = theta[7];
-    real gamma = theta[8];
-    real alpha = theta[9];
+    real KA    = theta[5];
+    real MTT   = theta[6];
+    real CIRC0 = theta[7];
+    real GAMMA = theta[8];
+    real SLOPE = theta[9];
     
-    // real ka  = 1;
-    real k10 = CL / V1;
-    real k12 = Q / V1;
+    real k10 = CL / V;
+    real k12 = Q / V;
     real k21 = Q / V2;
-    real ktr = 4 / mtt;
+    real ktr = 4 / MTT;
     
     vector[8] dAdt;
     
@@ -32,20 +31,20 @@ functions{
     real circ;
     real prol;
     
-    dAdt[1] = -ka * A[1];
-    dAdt[2] =  ka * A[1] - (k10 + k12) * A[2] + k21 * A[3];
+    dAdt[1] = -KA * A[1];
+    dAdt[2] =  KA * A[1] - (k10 + k12) * A[2] + k21 * A[3];
     dAdt[3] = k12 * A[2] - k21 * A[3];
-    conc = A[2] / V1;
+    conc = A[2] / V;
     
-    EDrug = alpha * conc; // slope model, not Emax
-    prol = A[4] + circ0;
-    transit1 = A[5] + circ0;
-    transit2 = A[6] + circ0;
-    transit3 = A[7] + circ0;
-    circ = fmax(machine_precision(), A[8] + circ0); // Device for implementing a modeled 
+    EDrug = SLOPE * conc; // slope model, not Emax
+    prol = A[4] + CIRC0;
+    transit1 = A[5] + CIRC0;
+    transit2 = A[6] + CIRC0;
+    transit3 = A[7] + CIRC0;
+    circ = fmax(machine_precision(), A[8] + CIRC0); // Device for implementing a modeled 
     
     // initial condition
-    dAdt[4] = ktr * prol * ((1 - EDrug) * ((circ0 / circ)^gamma) - 1);
+    dAdt[4] = ktr * prol * ((1 - EDrug) * ((CIRC0 / circ)^GAMMA) - 1);
     dAdt[5] = ktr * (prol - transit1);
     dAdt[6] = ktr * (transit1 - transit2);
     dAdt[7] = ktr * (transit2 - transit3);
@@ -64,19 +63,25 @@ data {
   
   // population parameters
   real<lower = 0> theta_CL;
-  real<lower = 0> theta_V1;
-  real<lower = 0> theta_mtt;
-  real<lower = 0> theta_circ0;
-  real<lower = 0> theta_alpha;
-  // real<lower = 0> theta_gamma;  
+  real<lower = 0> theta_V;
+  real<lower = 0> theta_MTT;
+  real<lower = 0> theta_CIRC0;
+  real<lower = 0> theta_SLOPE;
+  real<lower = 0> theta_GAMMA;
+  real<lower = 0> theta_Q;
+  real<lower = 0> theta_V2;
+  real<lower = 0> theta_KA;
   
   // inter-individual variability (SD scale)
   real<lower = 0> omega_CL;
-  real<lower = 0> omega_V1;
-  real<lower = 0> omega_mtt;
-  real<lower = 0> omega_circ0;
-  real<lower = 0> omega_alpha;
-  // real<lower = 0> omega_gamma;  
+  real<lower = 0> omega_V;
+  real<lower = 0> omega_MTT;
+  real<lower = 0> omega_CIRC0;
+  real<lower = 0> omega_SLOPE;
+  real<lower = 0> omega_GAMMA;
+  real<lower = 0> omega_Q;
+  real<lower = 0> omega_V2;
+  real<lower = 0> omega_KA;
 
   // error model
   int<lower = 0, upper = 1> ltbs_pk; // should log-transform-both-sides be used for observations? (boolean)
@@ -113,13 +118,13 @@ transformed data{
 parameters{
   real<lower = 0> CL;
   // real<lower = 0> Q;
-  real<lower = 0> V1;
+  real<lower = 0> V;
   // real<lower = 0> V2;
-  // real<lower = 0> ka;
-  real<lower = 0> mtt;
-  real<lower = 0> circ0;
-  real<lower = 0> alpha;
-  // real<lower = 0> gamma;
+  // real<lower = 0> KA;
+  real<lower = 0> MTT;
+  real<lower = 0> CIRC0;
+  real<lower = 0> SLOPE;
+  // real<lower = 0> GAMMA;
 }
 
 transformed parameters{
@@ -130,20 +135,25 @@ transformed parameters{
   row_vector<lower = 0>[n_obs_pk] ipred_obs_pk;
   row_vector<lower = 0>[n_obs_pd] ipred_obs_pd;
   matrix[n_cmt, n_t] A;
+  
+  real<lower = 0> GAMMA = theta_GAMMA;
+  real<lower = 0> Q = theta_Q;
+  real<lower = 0> V2 = theta_V2;
+  real<lower = 0> KA = theta_KA;
 
   theta[1] = CL;
-  theta[2] = 5; // Q;
-  theta[3] = V1;
-  theta[4] = 100; // V2;
-  theta[5] = 1; // ka;
-  theta[6] = mtt;   //  mean transit time
-  theta[7] = circ0; // baseline level of neutrophils
-  theta[8] = 0.2; // feedback, gamma
-  theta[9] = alpha; // slope
+  theta[2] = Q; // Q;
+  theta[3] = V;
+  theta[4] = V2; // V2;
+  theta[5] = KA; // KA;
+  theta[6] = MTT;   //  mean transit time
+  theta[7] = CIRC0; // baseline level of neutrophils
+  theta[8] = GAMMA; // feedback, GAMMA
+  theta[9] = SLOPE; // slope
 
   A = pmx_solve_rk45(ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5);
 
-  ipred_pk = A[2, ] ./ V1; // vector will all observation times, for PK
+  ipred_pk = A[2, ] ./ V; // vector will all observation times, for PK
   ipred_pd = A[8, ] + theta[7]; // vector will all observation times, for PK
 
   ipred_obs_pk = ipred_pk[i_obs_pk]; // vector with only PK observations
@@ -154,12 +164,11 @@ model{
 
   // Priors
   CL    ~ lognormal(log(theta_CL), omega_CL);
-  V1    ~ lognormal(log(theta_V1), omega_V1);
+  V    ~ lognormal(log(theta_V), omega_V);
 
-  mtt     ~ lognormal(log(theta_mtt), omega_mtt);
-  circ0   ~ lognormal(log(theta_circ0), omega_circ0);
-  alpha   ~ lognormal(log(theta_alpha), omega_alpha);
-  // gamma   ~ lognormal(log(theta_gamma), omega_gamma);
+  MTT     ~ lognormal(log(theta_MTT), omega_MTT);
+  CIRC0   ~ lognormal(log(theta_CIRC0), omega_CIRC0);
+  SLOPE   ~ lognormal(log(theta_SLOPE), omega_SLOPE);
 
   // observed data likelihood
   if(ltbs_pk) {
@@ -183,13 +192,13 @@ generated quantities{
   // Sample from prior:
   // PK
   real prior_CL = lognormal_rng(log(theta_CL), omega_CL);
-  real prior_V1 = lognormal_rng(log(theta_V1), omega_V1);
+  real prior_V = lognormal_rng(log(theta_V), omega_V);
 
   // PD
-  real prior_mtt = lognormal_rng(log(theta_mtt), omega_mtt);
-  real prior_circ0 = lognormal_rng(log(theta_circ0), omega_circ0);
-  real prior_alpha = lognormal_rng(log(theta_alpha), omega_alpha);
-  // real prior_gamma = lognormal_rng(log(theta_gamma), omega_gamma);
+  real prior_MTT = lognormal_rng(log(theta_MTT), omega_MTT);
+  real prior_CIRC0 = lognormal_rng(log(theta_CIRC0), omega_CIRC0);
+  real prior_SLOPE = lognormal_rng(log(theta_SLOPE), omega_SLOPE);
+  // real prior_GAMMA = lognormal_rng(log(theta_GAMMA), omega_GAMMA);
   
   if(ltbs_pk) {
     for(i in 1:n_obs_pk) {

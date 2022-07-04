@@ -6,9 +6,6 @@ library(PKPDposterior)
 library(pkpdneutropeniatemplate1)
 library(dplyr)
 library(ggplot2)
-cmdstanr::set_cmdstan_path(
-  path = file.path(Sys.getenv("STAN_PATH"), "cmdstan")
-)
 
 mapping <- list( # mapping between parameter names Stan vs PKPDsim
   "V1" = "V", 

@@ -20,6 +20,7 @@ Imports: cmdstanr, posterior, PKPDsim, dplyr, purrr, magrittr, rlang, tidyr,
   ggplot2, crayon
 Suggests: 
     mockery,
+    knitr,
     testthat (>= 3.0.0)
 Remotes:
   stan-dev/cmdstanr
