@@ -7,7 +7,7 @@
 #' @param dose_cmt Specify what dose compartment. Observation compartment in 
 #' dataset is irrelevant, handled in model.
 #' @param parameters list of population parameters, e.g. `list(CL = 5, V = 50)`
-#' @param fix optional, vector of parameters to fix. These parameters will 
+#' @param fixed optional, vector of parameters to fix. These parameters will 
 #' be sampled from the posterior with negligibly narrow distribution. This is 
 #' considered a quick-and-dirty way to fix a parameter, and will slow down HMC 
 #' sampling. It should therefore only be used for testing purposes. To 
@@ -66,7 +66,7 @@ new_stan_data <- function(
   covariates, 
   data,
   parameters,
-  fix = NULL,
+  fixed = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -79,7 +79,7 @@ new_stan_data <- function(
     covariates = covariates, 
     data = data,
     parameters = parameters,
-    fix = fix,
+    fixed = fixed,
     iiv = iiv,
     ruv = ruv,
     dose_cmt = dose_cmt,
@@ -89,7 +89,7 @@ new_stan_data <- function(
   
   list(
     parameters = parameters,
-    fix = fix,
+    fixed = fixed,
     regimen = regimen,
     covariates = covariates,
     data = data,

@@ -54,6 +54,7 @@
 new_stan_model <- function(
   parameters,
   parameter_definitions,
+  fixed = NULL,
   variable_definitions = NULL,
   ode = NULL,
   covariate_definitions = NULL,
@@ -108,6 +109,7 @@ new_stan_model <- function(
   def <- parse_model_definitions(
     parameters = parameters,
     parameter_definitions = parameter_definitions,
+    fixed = fixed,
     variable_definitions = variable_definitions,
     ode = ode,
     covariate_definitions = covariate_definitions,

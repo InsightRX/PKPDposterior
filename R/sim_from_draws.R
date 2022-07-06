@@ -4,10 +4,6 @@
 #' @param model PKPDsim model function
 #' @param map list with parameter name remapping between Stan model and 
 #'   PKPDsim model.
-#' @param parameters list of parameter estimates that are used in simulation if 
-#'   not already present in either the posterior or the prior draws. I.e. 
-#'   specified parameters in this named list will not override parameters with 
-#'   the same name in the samples.
 #' @param prior simulate from prior (`TRUE`) or posterior (`FALSE`) 
 #' @param n number of parameter draws / simulations to do. A value of `NULL` 
 #'   indicates all draws should be used.
@@ -23,7 +19,6 @@ sim_from_draws <- function(
   post,
   model,
   map = NULL,
-  parameters = NULL,
   prior = FALSE,
   n = NULL,
   variable = "y",
@@ -49,60 +44,40 @@ sim_from_draws <- function(
     }
   }
   
-  parameter_names <- c(names(par_table$posterior), names(parameters))
+  fixed <- post$data$fixed
   pkpdsim_parameter_names <- attr(model, "parameters")
   if(length(grep("kappa_", pkpdsim_parameter_names)) > 0) { ## filter out IOV parameters
     pkpdsim_parameter_names <- pkpdsim_parameter_names[-grep("kappa_", pkpdsim_parameter_names)]
   }
-  if(! all(pkpdsim_parameter_names %in% parameter_names)) {
-    stop(
-      "Not all parameters are available in posterior draws or specified using ", 
-      "the `parameters` argument. If parameter names are different in Stan vs ",
-      "PKPDsim model, please use `map` argument to translate parameter names."
-    )
-  }
 
   ## add IOV parameters, if not already specified
   iov <- attr(model, "iov")
+  par_type <- ifelse(prior, "prior", "posterior")
   if(!is.null(iov)) {
     for(key in names(iov$cv)) {
       for(i in seq(1, length(iov$bins)-1)) {
-        if(is.null(parameters[[paste0("kappa_", key, "_", i)]])) {
-          parameters[[paste0("kappa_", key, "_", i)]] <- 0
+        if(is.null(par_table[[par_type]][[paste0("kappa_", key, "_", i)]])) {
+          par_table[[par_type]][[paste0("kappa_", key, "_", i)]] <- 0
         }
       }
+    }
+  }
+  ## add fixed parameters
+  if(!is.null(fixed)) {
+    for(key in fixed) {
+      message(paste0("Using fixed estimate for ", key))
+      par_table[[par_type]][[key]] <- post$data$parameters[[key]]
     }
   }
   
-  if(prior) {
-    for(key in names(parameters)) {
-      if(is.null(par_table$prior[[key]])) {
-        message(paste0("Using fixed estimate for ", key))
-        par_table$prior[[key]] <- parameters[[key]]
-      }
-    }
-    res <- PKPDsim::sim(
-      ode = model,
-      parameters_table = as.data.frame(par_table$prior),
-      ...
-    )
-  } else {
-    if(!is.null(parameters)) {
-      for(key in names(parameters)) {
-        if(is.null(par_table$posterior[[key]])) {
-          message(paste0("Using fixed estimate for ", key))
-          par_table$posterior[[key]] <- parameters[[key]]
-        }
-      }
-    }
-    res <- PKPDsim::sim(
-      ode = model,
-      parameters_table = as.data.frame(par_table$posterior),
-      output_include = list(variables = TRUE),
-      parameters = NULL,
-      ...
-    )
-  }
+  res <- PKPDsim::sim(
+    ode = model,
+    parameters_table = as.data.frame(par_table[[par_type]]),
+    output_include = list(variables = TRUE),
+    parameters = NULL,
+    ...
+  )
+  
   res$y <- res[[variable]]
   
   if(!summarize) {

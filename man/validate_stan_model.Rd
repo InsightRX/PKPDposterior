@@ -13,7 +13,8 @@ validate_stan_model(
   n = 50,
   max_abs_delta = 0.001,
   max_rel_delta = 1e-05,
-  verbose = FALSE
+  verbose = FALSE,
+  ...
 )
 }
 \arguments{

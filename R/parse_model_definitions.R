@@ -6,6 +6,7 @@
 parse_model_definitions <- function(
   parameters,
   parameter_definitions,
+  fixed,
   variable_definitions,
   ode,
   covariate_definitions,
@@ -41,8 +42,13 @@ parse_model_definitions <- function(
   )
 
   ## define model parameters in data section
-  def[["population_parameters"]] <- paste0("real<lower=0> theta_", names(parameters), ";")
-  def[["iiv_parameters"]] <- paste0("real<lower=0> omega_", names(parameters), ";")
+  if(!is.null(fixed)) { # fixed parameters need to be defined differently, to avoid being sampled
+    parameters_sampled <- parameters[! names(parameters) %in% fixed]
+  } else {
+    parameters_sampled <- parameters
+  }
+  def[["population_parameters"]] <- paste0("real theta_", names(parameters), ";")
+  def[["iiv_parameters"]] <- paste0("real<lower=0> omega_", names(parameters_sampled), ";")
   def[["error_parameters"]] <- paste0(
     "int<lower = 0, upper = 1> ltbs_", obs_types, ";", cr, "  ",
     "real<lower = 0> ruv_prop_", obs_types, ";", cr, "  ",
@@ -94,7 +100,7 @@ parse_model_definitions <- function(
   )
   
   ## parameters block
-  def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters), ";")
+  def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters_sampled), ";")
 
   ## Transformed parameters block:
   solver_args <- switch(
@@ -140,6 +146,10 @@ parse_model_definitions <- function(
     "matrix[n_cmt, n_t] A;"
   )
   
+  def[["fixed_parameters"]] <- paste0(
+    "real ", fixed, " = theta_", fixed, ";"
+  )
+
   if(is.null(ode)) {
     # make sure to have the order correct for the analytic solver to understand
     pk_equations <- parameter_definitions[unlist(param_req[solver])] 
@@ -171,9 +181,9 @@ parse_model_definitions <- function(
   }
   
   def[["likelihood_parameters"]] <- paste0(
-    names(parameters), " ~ lognormal(log(theta_", 
-    names(parameters), "), omega_", 
-    names(parameters), ");"
+    names(parameters_sampled), " ~ lognormal(log(theta_", 
+    names(parameters_sampled), "), omega_", 
+    names(parameters_sampled), ");"
   )
 
   def[["likelihood_observed_data"]] <- paste0(
@@ -185,9 +195,9 @@ parse_model_definitions <- function(
   )
   
   def[["sample_prior"]] <- paste0(
-    "real prior_", names(parameters),
-    " = lognormal_rng(log(theta_", names(parameters), 
-    "), omega_", names(parameters), ");"
+    "real prior_", names(parameters_sampled),
+    " = lognormal_rng(log(theta_", names(parameters_sampled), 
+    "), omega_", names(parameters_sampled), ");"
   )
 
   def[["simulate_posterior_ruv"]] <- c(

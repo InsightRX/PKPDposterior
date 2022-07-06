@@ -8,7 +8,6 @@ sim_from_draws(
   post,
   model,
   map = NULL,
-  parameters = NULL,
   prior = FALSE,
   n = NULL,
   variable = "y",
@@ -24,11 +23,6 @@ sim_from_draws(
 
 \item{map}{list with parameter name remapping between Stan model and
 PKPDsim model.}
-
-\item{parameters}{list of parameter estimates that are used in simulation if
-not already present in either the posterior or the prior draws. I.e.
-specified parameters in this named list will not override parameters with
-the same name in the samples.}
 
 \item{prior}{simulate from prior (\code{TRUE}) or posterior (\code{FALSE})}
 

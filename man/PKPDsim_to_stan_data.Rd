@@ -9,7 +9,7 @@ PKPDsim_to_stan_data(
   covariates,
   data,
   parameters,
-  fix = NULL,
+  fixed = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -27,7 +27,7 @@ PKPDsim_to_stan_data(
 
 \item{parameters}{list of population parameters, e.g. \code{list(CL = 5, V = 50)}}
 
-\item{fix}{optional, vector of parameters to fix. These parameters will
+\item{fixed}{optional, vector of parameters to fix. These parameters will
 be sampled from the posterior with negligibly narrow distribution. This is
 considered a quick-and-dirty way to fix a parameter, and will slow down HMC
 sampling. It should therefore only be used for testing purposes. To

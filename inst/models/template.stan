@@ -36,6 +36,8 @@ parameters{
 
 transformed parameters{
   
+  // fixed_parameters
+  
   // transformed_parameters_definitions
 
   // variable_definitions

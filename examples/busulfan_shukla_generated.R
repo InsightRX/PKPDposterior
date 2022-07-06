@@ -2,19 +2,25 @@
 ## Implemented using analytic equation
 ## Stan model generated using new_stan_model()
 
+library(PKPDsim)
 library(PKPDposterior)
 library(pkbusulfanucsf)
 
 ## Busulfan model & parameters
 parameters <- list(
   CL = 3.96,
-  V = 10.8
+  V = 10.8,
+  MAT_MAG = 0.451, 
+  K_MAT = 1.37, 
+  TH_REGI = -0.2, 
+  TH_DAY = -0.135
 )
 iiv <- list(CL = 0.24, V = 0.17)
 ruv <- list(prop = 0.106, add = 22.2)
 
 model <- new_stan_model(
   parameters = parameters,
+  fixed = c("MAT_MAG", "K_MAT", "TH_REGI", "TH_DAY"),
   variable_definitions = list(
     "BMI" = "WT[j]/(HT[j]*HT[j]/10000)",
     "FFM" = "(SEX[j] * (0.88 + ((1-0.88)/(1+(AGE[j]/13.4)^-12.7))) * ((9270 * WT[j])/(6680 + (216 * BMI)))) + ((1-SEX[j])*(1.11 + ((1-1.11)/(1+(AGE[j]/7.1)^-1.1))) * ((9270 * WT[j])/(8780 + (244 * BMI))))"
@@ -49,7 +55,7 @@ mod <- load_model(
 mapping <- list()
 
 ## Define regimen, covariates, and TDM data
-regimen <- PKPDsim::new_regimen(
+regimen <- new_regimen(
   amt = 150, 
   n = 4, 
   times = c(0, 24, 48, 72), 
@@ -76,6 +82,7 @@ data <- new_stan_data(
   tdm_data,
   dose_cmt = 2,
   parameters = parameters,
+  fixed = c("MAT_MAG", "K_MAT", "TH_REGI", "TH_DAY"),
   iiv = iiv,
   ruv = ruv,
   ltbs = FALSE
@@ -100,11 +107,6 @@ plot_params(post)
 validate_stan_model(
   stan_model = mod,
   pkpdsim_model = pkbusulfanucsf::model(),
-  add_parameters = list(
-    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135,
-    kappa_CL_1 = 0, kappa_CL_2 = 0, kappa_CL_3 = 0, kappa_CL_4 = 0,
-    kappa_V_1 = 0, kappa_V_2 = 0, kappa_V_3 = 0, kappa_V_4 = 0
-  ),
   max_abs_delta = 0.1,
   data = data,
   mapping = mapping
@@ -115,9 +117,6 @@ pred_post <- sim_from_draws(
   post,
   model = pkbusulfanucsf::model(),
   map = mapping,
-  parameters = list(
-    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135
-  ),
   regimen = regimen,
   covariates = covariates,
   n = 200,
@@ -127,9 +126,6 @@ pred_prior <- sim_from_draws(
   post,
   model = pkbusulfanucsf::model(),
   map = mapping,
-  parameters = list(
-    MAT_MAG = 0.451, K_MAT = 1.37, TH_REGI = -0.2, TH_DAY = -0.135
-  ),
   regimen = regimen,
   covariates = covariates,
   n = 200,
