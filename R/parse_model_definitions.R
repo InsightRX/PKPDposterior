@@ -139,26 +139,35 @@ parse_model_definitions <- function(
     }
   }
   
-  def[["variable_definitions"]] <- paste0("real ", names(variable_definitions), ";")
+  if(!is.null(variable_definitions)) {
+    def[["variable_definitions"]] <- paste0("real ", names(variable_definitions), ";")
+  }
+  
   def[["transformed_parameters_definitions"]] <- c(
     paste0("row_vector<lower = 0>[n_t] ipred_", obs_types, ";"),
     paste0("vector<lower = 0>[n_obs_", obs_types, "] ipred_obs_", obs_types, ";"),
     "matrix[n_cmt, n_t] A;"
   )
   
-  def[["fixed_parameters"]] <- paste0(
-    "real ", fixed, " = theta_", fixed, ";"
-  )
+  if(!is.null(fixed)) {
+    def[["fixed_parameters"]] <- paste0(
+      "real ", fixed, " = theta_", fixed, ";"
+    )
+  }
 
   if(is.null(ode)) {
     # make sure to have the order correct for the analytic solver to understand
     pk_equations <- parameter_definitions[unlist(param_req[solver])] 
+    variable_definitions_code <- NULL
+    if(!is.null(variable_definitions)) {
+      variable_definitions_code <- paste0(
+        "  ", names(variable_definitions), " = ", as.character(variable_definitions), ";" 
+      )
+    }
     def[["pk_block"]] <- c(
       "array[n_t, n_theta] real theta;",
       "for(j in 1:n_t) {",
-      paste0(
-        "  ", names(variable_definitions), " = ", as.character(variable_definitions), ";" 
-      ),
+      variable_definitions_code,
       paste0(
         "  theta[j, ", seq(pk_equations), "] = ",
         pk_equations,
