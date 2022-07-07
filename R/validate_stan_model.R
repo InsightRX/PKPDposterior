@@ -35,17 +35,6 @@ validate_stan_model <- function(
   )
   draws <- as.data.frame(post$draws_df)
 
-  # test <- sim_from_draws(
-  #   post,
-  #   model = pkpdsim_model,
-  #   map = mapping,
-  #   regimen = regimen,
-  #   covariates = covariates,
-  #   only_obs = TRUE,
-  #   n_ind = n,
-  #   summarize = FALSE
-  # )
-  
   # Convert sampled posterior parameters into parameters_table for PKPDsim
   par_stan <- gsub(
     "theta_", 

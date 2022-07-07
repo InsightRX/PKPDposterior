@@ -42,6 +42,7 @@ parse_model_definitions <- function(
   )
 
   ## define model parameters in data section
+  # parameters_sampled <- setdiff(parameters, fixed)
   if(!is.null(fixed)) { # fixed parameters need to be defined differently, to avoid being sampled
     parameters_sampled <- parameters[! names(parameters) %in% fixed]
   } else {

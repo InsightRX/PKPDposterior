@@ -26,7 +26,7 @@ model <- new_stan_model(
     "FFM" = "(SEX[j] * (0.88 + ((1-0.88)/(1+(AGE[j]/13.4)^-12.7))) * ((9270 * WT[j])/(6680 + (216 * BMI)))) + ((1-SEX[j])*(1.11 + ((1-1.11)/(1+(AGE[j]/7.1)^-1.1))) * ((9270 * WT[j])/(8780 + (244 * BMI))))"
   ),
   parameter_definitions = list(
-    "CL" = "CL * (FFM/12)^0.75 * (0.451 + (1-0.451)*(1-exp(-AGE[j]*1.37))) * (1 + (-0.2 * REGI[j])) * (1 -0.135*(time[j]>24))",
+    "CL" = "CL * (FFM/12)^0.75 * (MAT_MAG + (1-MAT_MAG)*(1-exp(-AGE[j]*K_MAT))) * (1 + (-TH_REGI * REGI[j])) * (1 -TH_DAY*(time[j]>24))",
     "V"  = "V * FFM/12",
     "KA" = "0" 
   ),
@@ -134,9 +134,7 @@ pred_prior <- sim_from_draws(
 )
 
 plot_predictions(pred_post, obs = tdm_data) +
-  vpc::theme_empty() +
   ggplot2::scale_y_log10()
 
 plot_predictions(pred_prior, obs = tdm_data) +
-  vpc::theme_empty() +
   ggplot2::scale_y_log10()
