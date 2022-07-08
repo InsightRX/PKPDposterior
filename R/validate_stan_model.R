@@ -21,7 +21,8 @@ validate_stan_model <- function(
   n = 50,
   max_abs_delta = 1e-3,
   max_rel_delta = 1e-5,
-  verbose = FALSE
+  verbose = FALSE,
+  ...
 ) {
   
   if (verbose) message("Sampling from posterior...")
@@ -33,7 +34,7 @@ validate_stan_model <- function(
     verbose = FALSE
   )
   draws <- as.data.frame(post$draws_df)
-  
+
   # Convert sampled posterior parameters into parameters_table for PKPDsim
   par_stan <- gsub(
     "theta_", 
@@ -64,6 +65,7 @@ validate_stan_model <- function(
   
   ## Simulate
   covariates_sim <- data[["covariates"]]
+
   simdata <- purrr::map_dfr(1:nrow(parameters_table), function(i) {
     PKPDsim::sim(
       ode = pkpdsim_model,

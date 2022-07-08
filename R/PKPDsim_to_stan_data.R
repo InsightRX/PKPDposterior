@@ -7,7 +7,7 @@ PKPDsim_to_stan_data <- function(
   covariates, 
   data,
   parameters,
-  fix = NULL,
+  fixed = NULL,
   iiv,
   ruv,
   dose_cmt = 1,
@@ -46,18 +46,18 @@ PKPDsim_to_stan_data <- function(
   ## Population parameters and IIV
   for(key in names(parameters)) {
     out[[paste0("theta_", key)]] <- parameters[[key]]
-    if(is.null(iiv[[key]])) {
-      stop("`iiv` object requires same list elements as `parameters` object.")
+    if(is.null(iiv[[key]]) && ! key %in% fixed) {
+      stop("`iiv` object requires same list elements as `parameters` object, unless fixed.")
     }
-    if(key %in% fix) {
-      message(
-        "Fixing ", key, " parameter. ", 
-        "Please note that this slows down HMC sampling and should be used only ",
-        "for testing. For production models, remove the parameter from the ",
-        "likelihood definition and hardcode it in the model definition."
-      )
-      out[[paste0("omega_", key)]] <- 0.001 # fixed, negligibly narrow distribution. See https://groups.google.com/g/stan-users/c/UMl1jWLGkx0?pli=1
-    } else {
+    if(is.null(fixed) || ! key %in% fixed) {
+      # message(
+      #   "Fixing ", key, " parameter. ",
+      #   "Please note that this slows down HMC sampling and should be used only ",
+      #   "for testing. For production models, remove the parameter from the ",
+      #   "likelihood definition and hardcode it in the model definition."
+      # )
+      # out[[paste0("omega_", key)]] <- 0.001 # fixed, negligibly narrow distribution. See https://groups.google.com/g/stan-users/c/UMl1jWLGkx0?pli=1
+    # } else {
       out[[paste0("omega_", key)]] <- iiv[[key]]
     }
   }

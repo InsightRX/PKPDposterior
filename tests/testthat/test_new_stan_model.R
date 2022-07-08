@@ -73,3 +73,36 @@ test_that("Neutropenia model correctly generates", {
   # saveRDS(code, test_path("data", "neutropenia_model_code.rds"))
   expect_equal(code, code_ref)
 })
+
+test_that("variable_definitions argument works", {
+  parameters <- list(
+    CL = 3.96,
+    V = 10.8
+  )
+  iiv <- list(CL = 0.24, V = 0.17)
+  ruv <- list(prop = 0.106, add = 22.2)
+  model <- new_stan_model(
+    parameters = parameters,
+    variable_definitions = list(
+      "BMI" = "WT[j]/(HT[j]*HT[j]/10000)",
+      "FFM" = "(SEX[j] * (0.88 + ((1-0.88)/(1+(AGE[j]/13.4)^-12.7))) * ((9270 * WT[j])/(6680 + (216 * BMI)))) + ((1-SEX[j])*(1.11 + ((1-1.11)/(1+(AGE[j]/7.1)^-1.1))) * ((9270 * WT[j])/(8780 + (244 * BMI))))"
+    ),
+    parameter_definitions = list(
+      "CL" = "CL * (FFM/12)^0.75 * (0.451 + (1-0.451)*(1-exp(-AGE[j]*1.37))) * (1 + (-0.2 * REGI[j])) * (1 -0.135*(time[j]>24))",
+      "V"  = "V * FFM/12",
+      "KA" = "0" 
+    ),
+    covariate_definitions = list(
+      "SEX" = "int",
+      "WT" = "real",
+      "HT" = "real",
+      "AGE" = "real",
+      "REGI" = "int"
+    ),
+    solver = "pmx_solve_onecpt",
+    scale = "((V * FFM/12)/1000)",
+    verbose = T
+  )
+  expect_true(length(grep("BMI = ", model)) == 1)
+  expect_true(length(grep("FFM = ", model)) == 1)
+})

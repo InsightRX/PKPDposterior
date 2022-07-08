@@ -13,7 +13,7 @@ get_parameter_tables <- function(
   }
   params <- setdiff(
     names(post$settings$init),
-    post$data$fix # remove fixed parameters
+    post$data$fixed # remove fixed parameters
   )
   prior_params <- paste0("prior_", params)
   suppressWarnings({

@@ -3,6 +3,9 @@
 #' @param parameters list of parameter values, e.g. `list(CL = 5, V = 50)`.
 #' @param parameter_definitions list of parameter definitions. See example 
 #' below.
+#' @param variable_definitions for models using the analytical solvers, extra 
+#' variable definitions evaluated at each step through the event table. 
+#' See busulfan example in vignettes for example.
 #' @param ode code for differential equation system, if not the analytic solver
 #' is used.
 #' @param covariate_definitions list of covariate definitions. See example
@@ -51,6 +54,8 @@
 new_stan_model <- function(
   parameters,
   parameter_definitions,
+  fixed = NULL,
+  variable_definitions = NULL,
   ode = NULL,
   covariate_definitions = NULL,
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", "pmx_solve_adams", "pmx_solve_bdf"),
@@ -104,6 +109,8 @@ new_stan_model <- function(
   def <- parse_model_definitions(
     parameters = parameters,
     parameter_definitions = parameter_definitions,
+    fixed = fixed,
+    variable_definitions = variable_definitions,
     ode = ode,
     covariate_definitions = covariate_definitions,
     solver = solver,

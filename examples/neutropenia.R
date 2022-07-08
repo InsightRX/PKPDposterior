@@ -102,7 +102,6 @@ pred <- sim_from_draws(
   post, 
   model = pkpdneutropeniatemplate1::model(),
   map = mapping,
-  parameters = list(KA = 0, Q = 0, V2 = 1),
   regimen = regimen,
   n = 200,
   t_obs = seq(0, 15*24, 6),
