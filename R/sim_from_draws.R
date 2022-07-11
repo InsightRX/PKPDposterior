@@ -74,7 +74,6 @@ sim_from_draws <- function(
     ode = model,
     parameters_table = as.data.frame(par_table[[par_type]]),
     output_include = list(variables = TRUE),
-    parameters = NULL,
     ...
   )
   
