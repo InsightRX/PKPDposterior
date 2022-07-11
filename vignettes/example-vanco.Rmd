@@ -134,11 +134,14 @@ covariates$CL_HEMO <- new_covariate(0) # required covariate for PKPDsim model
 ```
 
 The PKPDsim model package `pkvancothomson` that is used in this example can be 
-installed using the `PKPDmodels` repository available [here](https://github.com/InsightRX/PKPDmodels). After cloning this repository,
-install the `pkvancothomson` package using:
+installed using:
 
 ```{r vanco-pkg, eval=F}
-model_from_api("models/pk_vanco_thomson.json5", to_package = TRUE, install_all = TRUE)
+model_from_api(
+  system.file("models", "pk_vanco_thomson.json5", package = "PKPDsim"),
+  to_package = TRUE,
+  install_all = TRUE
+)
 ```
 
 Then we can simulate the posterior of the dependent variable: 
