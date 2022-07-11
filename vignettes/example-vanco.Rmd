@@ -25,7 +25,9 @@ parameters <- list(
   CL = 2.99, 
   Q = 2.28, 
   V2 = 0.732, 
-  V1 = 0.675
+  V1 = 0.675,
+  TH_CRCL = 0.0154,
+  TDM_INIT = 0
 )
 iiv <- list(
   CL = 0.27,
@@ -38,12 +40,13 @@ ruv <- list(add = 1.6, prop = 0.15)
 model <- new_stan_model(
   parameters = parameters,
   parameter_definitions = list(
-    "CL" = "CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))",
+    "CL" = "CL * (1.0 + TH_CRCL * ((CRCL[j] * 16.6667) - 66.0))",
     "Q"  = "Q",
     "V1" = "V1 * WT[j]",
     "V2" = "V2 * WT[j]",
     "KA" = "0" 
   ),
+  fixed = c("TH_CRCL", "TDM_INIT"),
   covariate_definitions = list(
     "CRCL" = "real", # CrCl in L/hr
     "WT" = "real"    # WT in kg
@@ -93,6 +96,7 @@ data <- new_stan_data(
   tdm_data,
   dose_cmt = 2,
   parameters = parameters,
+  fixed = c("TH_CRCL", "TDM_INIT"),
   iiv = iiv,
   ruv = list(
     prop = 0.15,
