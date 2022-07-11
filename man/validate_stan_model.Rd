@@ -13,7 +13,8 @@ validate_stan_model(
   n = 50,
   max_abs_delta = 0.001,
   max_rel_delta = 1e-05,
-  verbose = FALSE
+  verbose = FALSE,
+  ...
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ validate_stan_model(
 
 \item{pkpdsim_model}{PKPDsim implementation}
 
-\item{data}{dataset (see \code{\link[=PKPDsim_to_stan_data]{PKPDsim_to_stan_data()}})}
+\item{data}{dataset (see \code{\link[=new_stan_data]{new_stan_data()}})}
 
 \item{mapping}{remap model parameters from Stan to PKPDsim syntax, specified
 as a list. E.g. \code{map = list(V1 = V)}.}

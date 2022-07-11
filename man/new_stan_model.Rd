@@ -7,6 +7,8 @@
 new_stan_model(
   parameters,
   parameter_definitions,
+  fixed = NULL,
+  variable_definitions = NULL,
   ode = NULL,
   covariate_definitions = NULL,
   solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45",
@@ -24,6 +26,10 @@ new_stan_model(
 
 \item{parameter_definitions}{list of parameter definitions. See example
 below.}
+
+\item{variable_definitions}{for models using the analytical solvers, extra
+variable definitions evaluated at each step through the event table.
+See busulfan example in vignettes for example.}
 
 \item{ode}{code for differential equation system, if not the analytic solver
 is used.}
