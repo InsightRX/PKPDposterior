@@ -58,7 +58,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://ds.insight-rx.com/" aria-label="Home">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -87,7 +94,9 @@
 <span>  CL <span class="op">=</span> <span class="fl">2.99</span>, </span>
 <span>  Q <span class="op">=</span> <span class="fl">2.28</span>, </span>
 <span>  V2 <span class="op">=</span> <span class="fl">0.732</span>, </span>
-<span>  V1 <span class="op">=</span> <span class="fl">0.675</span></span>
+<span>  V1 <span class="op">=</span> <span class="fl">0.675</span>,</span>
+<span>  TH_CRCL <span class="op">=</span> <span class="fl">0.0154</span>,</span>
+<span>  TDM_INIT <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">iiv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  CL <span class="op">=</span> <span class="fl">0.27</span>,</span>
@@ -100,12 +109,13 @@
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_stan_model.html">new_stan_model</a></span><span class="op">(</span></span>
 <span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
 <span>  parameter_definitions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="st">"CL"</span> <span class="op">=</span> <span class="st">"CL * (1.0 + 0.0154 * ((CRCL[j] * 16.6667) - 66.0))"</span>,</span>
+<span>    <span class="st">"CL"</span> <span class="op">=</span> <span class="st">"CL * (1.0 + TH_CRCL * ((CRCL[j] * 16.6667) - 66.0))"</span>,</span>
 <span>    <span class="st">"Q"</span>  <span class="op">=</span> <span class="st">"Q"</span>,</span>
 <span>    <span class="st">"V1"</span> <span class="op">=</span> <span class="st">"V1 * WT[j]"</span>,</span>
 <span>    <span class="st">"V2"</span> <span class="op">=</span> <span class="st">"V2 * WT[j]"</span>,</span>
 <span>    <span class="st">"KA"</span> <span class="op">=</span> <span class="st">"0"</span> </span>
 <span>  <span class="op">)</span>,</span>
+<span>  fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TH_CRCL"</span>, <span class="st">"TDM_INIT"</span><span class="op">)</span>,</span>
 <span>  covariate_definitions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="st">"CRCL"</span> <span class="op">=</span> <span class="st">"real"</span>, <span class="co"># CrCl in L/hr</span></span>
 <span>    <span class="st">"WT"</span> <span class="op">=</span> <span class="st">"real"</span>    <span class="co"># WT in kg</span></span>
@@ -149,6 +159,7 @@
 <span>  <span class="va">tdm_data</span>,</span>
 <span>  dose_cmt <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TH_CRCL"</span>, <span class="st">"TDM_INIT"</span><span class="op">)</span>,</span>
 <span>  iiv <span class="op">=</span> <span class="va">iiv</span>,</span>
 <span>  ruv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    prop <span class="op">=</span> <span class="fl">0.15</span>,</span>
@@ -191,11 +202,13 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post</span></span></code></pre></div>
 <pre><code><span><span class="co">## Parameters:</span></span>
-<span><span class="co">##    posterior_mode  mean median    sd    q5   q95  rhat</span></span>
-<span><span class="co">## CL          2.477 2.508  2.484 0.500 1.730 3.396 0.999</span></span>
-<span><span class="co">## Q           1.595 2.015  1.822 0.919 0.949 3.760 0.999</span></span>
-<span><span class="co">## V2          0.263 1.191  0.467 2.103 0.081 4.274 1.000</span></span>
-<span><span class="co">## V1          0.567 0.582  0.579 0.063 0.482 0.691 1.003</span></span>
+<span><span class="co">##          posterior_mode  mean median    sd    q5   q95  rhat</span></span>
+<span><span class="co">## CL                2.477 2.508  2.484 0.500 1.730 3.396 0.999</span></span>
+<span><span class="co">## Q                 1.595 2.015  1.822 0.919 0.949 3.760 0.999</span></span>
+<span><span class="co">## V2                0.263 1.191  0.467 2.103 0.081 4.274 1.000</span></span>
+<span><span class="co">## V1                0.567 0.582  0.579 0.063 0.482 0.691 1.003</span></span>
+<span><span class="co">## TH_CRCL           0.015 0.015  0.015 0.000 0.015 0.015    NA</span></span>
+<span><span class="co">## TDM_INIT         -0.002 0.000  0.000 0.000 0.000 0.000    NA</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Observed data, posterior:</span></span>
 <span><span class="co">##   type time dv     mean         loc   pct      pct5    pct95</span></span>
@@ -210,9 +223,13 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapping</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"V1"</span> <span class="op">=</span> <span class="st">"V"</span><span class="op">)</span> <span class="co"># mapping between parameters in the </span></span>
 <span><span class="va">covariates</span><span class="op">$</span><span class="va">CL_HEMO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/new_covariate.html" class="external-link">new_covariate</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="co"># required covariate for PKPDsim model</span></span></code></pre></div>
-<p>The PKPDsim model package <code>pkvancothomson</code> that is used in this example can be installed using the <code>PKPDmodels</code> repository available <a href="https://github.com/InsightRX/PKPDmodels" class="external-link">here</a>. After cloning this repository, install the <code>pkvancothomson</code> package using:</p>
+<p>The PKPDsim model package <code>pkvancothomson</code> that is used in this example can be installed using:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/model_from_api.html" class="external-link">model_from_api</a></span><span class="op">(</span><span class="st">"models/pk_vanco_thomson.json5"</span>, to_package <span class="op">=</span> <span class="cn">TRUE</span>, install_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://insightrx.github.io/PKPDsim/reference/model_from_api.html" class="external-link">model_from_api</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"models"</span>, <span class="st">"pk_vanco_thomson.json5"</span>, package <span class="op">=</span> <span class="st">"PKPDsim"</span><span class="op">)</span>,</span>
+<span>  to_package <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  install_all <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Then we can simulate the posterior of the dependent variable:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">pkvancothomson</span><span class="op">)</span></span>
@@ -220,10 +237,6 @@
 <span>  <span class="va">post</span>, </span>
 <span>  model <span class="op">=</span> <span class="fu">pkvancothomson</span><span class="fu">::</span><span class="fu">model</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  map <span class="op">=</span> <span class="va">mapping</span>,</span>
-<span>  parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span> <span class="co"># required additional parameters for PKPDsim-model</span></span>
-<span>    TH_CRCL <span class="op">=</span> <span class="fl">0.0154</span>, </span>
-<span>    TDM_INIT <span class="op">=</span> <span class="fl">0</span></span>
-<span>  <span class="op">)</span>,</span>
 <span>  regimen <span class="op">=</span> <span class="va">regimen</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="va">covariates</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">200</span>,</span>
@@ -233,7 +246,6 @@
 <span>  <span class="va">post</span>, </span>
 <span>  model <span class="op">=</span> <span class="fu">pkvancothomson</span><span class="fu">::</span><span class="fu">model</span><span class="op">(</span><span class="op">)</span>, </span>
 <span>  map <span class="op">=</span> <span class="va">mapping</span>,</span>
-<span>  parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TH_CRCL <span class="op">=</span> <span class="fl">0.0154</span>, TDM_INIT <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  regimen <span class="op">=</span> <span class="va">regimen</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="va">covariates</span>,</span>
 <span>  prior <span class="op">=</span> <span class="cn">TRUE</span>,</span>
