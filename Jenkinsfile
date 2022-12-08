@@ -5,7 +5,7 @@ pipeline {
     label 'docker-runner'
   }
   stages{
-    stage('Run docker container') {
+    stage('Build docker image') {
       environment {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
@@ -19,9 +19,9 @@ pipeline {
       }
 
     }
-    stage('Build & test PKPDsim') {
+    stage('Test PKPDposterior') {
       steps {
-        echo 'Installing and checking PKPDsim'
+        echo 'Installing and checking PKPDposterior'
         /*
         The command to Sys.setlocale('LC_ALL','C') is required due to a bug in processx, which has
         already been fixed in the dev version as of May 26th 2021, but is not yet in the CRAN version.
