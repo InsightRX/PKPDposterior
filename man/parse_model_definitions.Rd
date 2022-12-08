@@ -25,6 +25,8 @@ parse_model_definitions(
 \item{parameter_definitions}{list of parameter definitions. See example
 below.}
 
+\item{fixed}{optional, vector of parameters to fix and not sample.}
+
 \item{variable_definitions}{for models using the analytical solvers, extra
 variable definitions evaluated at each step through the event table.
 See busulfan example in vignettes for example.}
