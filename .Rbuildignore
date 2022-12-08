@@ -6,3 +6,4 @@ examples
 ^docs$
 ^pkgdown$
 ^\.github$
+Dockerfile
