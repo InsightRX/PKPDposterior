@@ -22,11 +22,6 @@ pipeline {
     stage('Test PKPDposterior') {
       steps {
         echo 'Installing and checking PKPDposterior'
-        /*
-        The command to Sys.setlocale('LC_ALL','C') is required due to a bug in processx, which has
-        already been fixed in the dev version as of May 26th 2021, but is not yet in the CRAN version.
-        This line can be removed when processx (called by rcmdcheck) is updated.
-        */
         sh """
         docker run -d -t --name ${BUILD_TAG} pkpdposterior:latest
         docker exec -i ${BUILD_TAG} Rscript -e "devtools::check(vignettes = FALSE)"
