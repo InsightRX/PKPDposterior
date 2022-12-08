@@ -1,5 +1,5 @@
-pandoc: 2.14.2
-pkgdown: 2.0.5
+pandoc: 2.19.2
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   PKPDposterior: PKPDposterior.html
@@ -7,7 +7,7 @@ articles:
   example-vanco: example-vanco.html
   model-syntax: model-syntax.html
   sampler-settings: sampler-settings.html
-last_built: 2022-07-11T20:49Z
+last_built: 2022-12-08T18:26Z
 urls:
   reference: https://insightrx.github.io/PKPDposterior/reference
   article: https://insightrx.github.io/PKPDposterior/articles

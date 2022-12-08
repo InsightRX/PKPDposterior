@@ -8,8 +8,8 @@
 <meta name="description" content="PKPDposterior">
 <title>Model syntax • PKPDposterior</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Model syntax">
 <meta property="og:description" content="PKPDposterior">
@@ -86,9 +86,14 @@
 
     
     
-<p>As shown in the various examples, models are generated using <code><a href="../reference/new_stan_model.html">new_stan_model()</a></code>. The main requirement is that the ODE model <code>dAdt</code> is defined.</p>
-<p>The variable names in the table below are reserved, i.e. they cannot be used in the ODE model code, since PKPDposterior adds these to each model so that it is possible to perform structured analyses.</p>
-<p>The following variables are recognized, with their approximate equivalent in NONMEM, if available.</p>
+<p>As shown in the various examples, models are generated using
+<code><a href="../reference/new_stan_model.html">new_stan_model()</a></code>. The main requirement is that the ODE
+model <code>dAdt</code> is defined.</p>
+<p>The variable names in the table below are reserved, i.e. they cannot
+be used in the ODE model code, since PKPDposterior adds these to each
+model so that it is possible to perform structured analyses.</p>
+<p>The following variables are recognized, with their approximate
+equivalent in NONMEM, if available.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -117,12 +122,14 @@
 <td><code>ipred_obs</code></td>
 <td>Vector of predicted values for observation records only</td>
 <td>
-<code>IPRED</code> column in output for records where <code>EVID==0</code>
+<code>IPRED</code> column in output for records where
+<code>EVID==0</code>
 </td>
 </tr>
 <tr class="even">
 <td><code>ipred_ruv</code></td>
-<td>Vector of predicted values for observation records only, with residual variability simulated</td>
+<td>Vector of predicted values for observation records only, with
+residual variability simulated</td>
 <td>
 <code>Y</code> in model file, <code>DV</code> in output table</td>
 </tr>
@@ -177,8 +184,16 @@
 </tr>
 </tbody>
 </table>
-<p>For models with more than one observation type, such as PK-PD models, or a parent-metabolite model, the variables related to observations (i.e. the variables listed in the first 8 rows) are appended with a tag for the respective observation type, e.g. <code>dv_pk</code> and <code>dv_pd</code>, or <code>dv_parent</code> and <code>dv_metab</code>, etc. See the neutropenia model for an example.</p>
-<p>If you want to leverage functionality within PKPDposterior, but you cannot (or prefer not to) use <code><a href="../reference/new_stan_model.html">new_stan_model()</a></code> to create the model, you should use the above variable names as well, so that output can be parsed appropriately by PKPDposterior functions.</p>
+<p>For models with more than one observation type, such as PK-PD models,
+or a parent-metabolite model, the variables related to observations
+(i.e. the variables listed in the first 8 rows) are appended with a tag
+for the respective observation type, e.g. <code>dv_pk</code> and
+<code>dv_pd</code>, or <code>dv_parent</code> and <code>dv_metab</code>,
+etc. See the neutropenia model for an example.</p>
+<p>If you want to leverage functionality within PKPDposterior, but you
+cannot (or prefer not to) use <code><a href="../reference/new_stan_model.html">new_stan_model()</a></code> to create
+the model, you should use the above variable names as well, so that
+output can be parsed appropriately by PKPDposterior functions.</p>
   </main>
 </div>
 
@@ -191,7 +206,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>
