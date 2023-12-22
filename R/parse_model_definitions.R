@@ -200,7 +200,7 @@ parse_model_definitions <- function(
     "if(ltbs_", obs_types, ") {", cr, "  ",
     "  log_dv_", obs_types, " ~ normal(log(ipred_obs_", obs_types, "), ruv_add_", obs_types, "); ", cr, "  ",
     "} else {", cr, "  ",
-    "  dv_", obs_types, " ~ normal(ipred_obs_", obs_types, ", (sqrt(pow(ruv_prop_", obs_types, " * ipred_obs_", obs_types, ", 2) + pow(ruv_add_", obs_types,", 2)));", cr, "  ",
+    "  dv_", obs_types, " ~ normal(ipred_obs_", obs_types, ", (sqrt(pow(ruv_prop_", obs_types, " * ipred_obs_", obs_types, ", 2) + pow(ruv_add_", obs_types,", 2))));", cr, "  ",
     "}"
   )
   
@@ -214,7 +214,7 @@ parse_model_definitions <- function(
     paste0("real ipred_ruv_", obs_types, "[n_obs_", obs_types, "];"),
     paste0(
        "for(i in 1:n_obs_", obs_types, "){", cr, "  ",
-       "  ipred_ruv_", obs_types, "[i] = normal_rng(ipred_obs_", obs_types, "[i], (sqrt(pow(ruv_prop_", obs_types, " * ipred_obs_", obs_types, "[i], 2) + pow(ruv_add_", obs_types, ", 2)));", cr, "  ",
+       "  ipred_ruv_", obs_types, "[i] = normal_rng(ipred_obs_", obs_types, "[i], (sqrt(pow(ruv_prop_", obs_types, " * ipred_obs_", obs_types, "[i], 2) + pow(ruv_add_", obs_types, ", 2))));", cr, "  ",
        "}"
     ) 
   )
