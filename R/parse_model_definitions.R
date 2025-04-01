@@ -55,8 +55,8 @@ parse_model_definitions <- function(
     "real<lower = 0> ruv_prop_", obs_types, ";", cr, "  ",
     "real<lower = 0> ruv_add_", obs_types, ";"
   )
-  x_error <- TRUE
-  if(x_error) {
+  idv_error <- TRUE
+  if(idv_error) {
     def[["parameters_idv"]] <- paste0(
       paste0(
         "array[n_t] real x;"), # will use uniform distribution by defaults
@@ -75,7 +75,7 @@ parse_model_definitions <- function(
     "real rate[n_t];",
     "real ii[n_t];"
   )
-  if(x_error) {
+  if(idv_error) {
     def[["input_data"]] <- c(
       def[["input_data"]],
       "real time_sd[n_t];"
@@ -118,7 +118,7 @@ parse_model_definitions <- function(
   def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters_sampled), ";")
 
   ## Transformed parameters block:
-  time <- ifelse(x_error, "x", "time")
+  time <- ifelse(idv_error, "x", "time")
   solver_args <- switch(
     solver,
     "pmx_solve_onecpt" = paste0(time, ", amt, rate, ii, evid, cmt, addl, ss, theta"),
@@ -210,7 +210,7 @@ parse_model_definitions <- function(
     names(parameters_sampled), "), omega_", 
     names(parameters_sampled), ");"
   )
-  if(x_error) {
+  if(idv_error) {
     def[["likelihood_idv"]] <- paste0(
       "time ~ normal(x, time_sd);",
       sep = "\n"

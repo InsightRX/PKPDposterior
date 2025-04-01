@@ -63,7 +63,6 @@ new_stan_model <- function(
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
-  obs_error = FALSE,
   scale = NULL,
   custom_ipred = NULL,
   verbose = FALSE
