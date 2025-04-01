@@ -16,7 +16,8 @@ parse_model_definitions(
   obs_types,
   obs_cmt,
   scale,
-  custom_ipred
+  custom_ipred,
+  errors_in_variables
 )
 }
 \arguments{
@@ -50,6 +51,9 @@ for each observation type when multiple observation types. E.g. \code{2} or
 \item{custom_ipred}{list of custom definitions for individual predictions for
 each observation type. Sometimes this is needed when more flexibility is
 needed than the \code{scale} parameter provides.}
+
+\item{errors_in_variables}{Either \code{TRUE} or \code{FALSE}, should EiV code be
+implemented in the model to probabilistically interpret the time variable?}
 }
 \description{
 Parse model definitions into a list that can be used to generate a Stan

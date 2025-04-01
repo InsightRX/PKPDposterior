@@ -14,7 +14,8 @@ parse_model_definitions <- function(
   obs_types,
   obs_cmt,
   scale,
-  custom_ipred
+  custom_ipred,
+  errors_in_variables
 ) {
   
   def <- list()
@@ -55,8 +56,8 @@ parse_model_definitions <- function(
     "real<lower = 0> ruv_prop_", obs_types, ";", cr, "  ",
     "real<lower = 0> ruv_add_", obs_types, ";"
   )
-  idv_error <- TRUE
-  if(idv_error) {
+
+  if(errors_in_variables) {
     def[["parameters_idv"]] <- paste0(
       paste0(
         "array[n_t] real x;"), # will use uniform distribution by defaults
@@ -75,7 +76,7 @@ parse_model_definitions <- function(
     "real rate[n_t];",
     "real ii[n_t];"
   )
-  if(idv_error) {
+  if(errors_in_variables) {
     def[["input_data"]] <- c(
       def[["input_data"]],
       "real time_sd[n_t];"
@@ -118,7 +119,7 @@ parse_model_definitions <- function(
   def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters_sampled), ";")
 
   ## Transformed parameters block:
-  time <- ifelse(idv_error, "x", "time")
+  time <- ifelse(errors_in_variables, "x", "time")
   solver_args <- switch(
     solver,
     "pmx_solve_onecpt" = paste0(time, ", amt, rate, ii, evid, cmt, addl, ss, theta"),
@@ -210,7 +211,7 @@ parse_model_definitions <- function(
     names(parameters_sampled), "), omega_", 
     names(parameters_sampled), ");"
   )
-  if(idv_error) {
+  if(errors_in_variables) {
     def[["likelihood_idv"]] <- paste0(
       "time ~ normal(x, time_sd);",
       sep = "\n"

@@ -21,6 +21,8 @@
 #' @param custom_ipred list of custom definitions for individual predictions for 
 #' each observation type. Sometimes this is needed when more flexibility is 
 #' needed than the `scale` parameter provides.
+#' @param errors_in_variables Either `TRUE` or `FALSE`, should EiV code be 
+#' implemented in the model to probabilistically interpret the time variable?
 #' @param verbose verbosity
 #' @inheritParams new_stan_data
 #' 
@@ -65,6 +67,7 @@ new_stan_model <- function(
   obs_cmt = NULL,
   scale = NULL,
   custom_ipred = NULL,
+  errors_in_variables = FALSE,
   verbose = FALSE
 ) {
   solver <- match.arg(solver)
@@ -118,7 +121,8 @@ new_stan_model <- function(
     obs_types = obs_types,
     obs_cmt = obs_cmt,
     scale = scale,
-    custom_ipred
+    custom_ipred,
+    errors_in_variables = errors_in_variables
   )
 
   model_code <- generate_stan_code(

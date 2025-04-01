@@ -6,10 +6,13 @@
 If the model also supplies prior parameters, specified e.g. as \code{prior_CL}
 for the \code{CL} parameter, it will plot them as well.}
 \usage{
-plot_params(post)
+plot_params(post, params = NULL)
 }
 \arguments{
 \item{post}{posterior object from \code{get_mcmc_posterior()}}
+
+\item{params}{vector of parameter names to extract from table with
+posterior draws. If \code{NULL}, will take default parameters from \code{init} object.}
 }
 \value{
 a ggplot2 object with posterior distributions (histograms) faceted

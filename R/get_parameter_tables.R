@@ -1,20 +1,23 @@
 #' Get parameter tables from posterior and prior
 #' 
-#' @param post posterior object from `get_mcmc_posterior`
-#' @param long return tables in long format? Default is `FALSE`
+#' @inheritParams plot_params
 #' 
 #' @export
+#' 
 get_parameter_tables <- function(
   post,
+  params = NULL,
   long = FALSE
 ) {
   if(is.null(post$settings) || is.null(post$draws_df)) {
     stop("Provided posterior object does not contain expected info.")
   }
-  params <- setdiff(
-    names(post$settings$init),
-    post$data$fixed # remove fixed parameters
-  )
+  if(is.null(params)) {
+    params <- setdiff(
+      names(post$settings$init),
+      post$data$fixed # remove fixed parameters
+    )
+  }
   prior_params <- paste0("prior_", params)
   suppressWarnings({
     par_table <- post$draws_df %>% 

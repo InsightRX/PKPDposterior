@@ -4,12 +4,13 @@
 \alias{get_parameter_tables}
 \title{Get parameter tables from posterior and prior}
 \usage{
-get_parameter_tables(post, long = FALSE)
+get_parameter_tables(post, params = NULL, long = FALSE)
 }
 \arguments{
-\item{post}{posterior object from \code{get_mcmc_posterior}}
+\item{post}{posterior object from \code{get_mcmc_posterior()}}
 
-\item{long}{return tables in long format? Default is \code{FALSE}}
+\item{params}{vector of parameter names to extract from table with
+posterior draws. If \code{NULL}, will take default parameters from \code{init} object.}
 }
 \description{
 Get parameter tables from posterior and prior
