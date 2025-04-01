@@ -17,6 +17,8 @@
 #' log-scale (which then becomes an approximate proportional error).
 #' @param ltbs use log-transform-both-sides approach for observations? Default 
 #' is `FALSE`.
+#' @param error_in_variables vector of length 3 with sd for observation and 
+#' dose / other event types (evid = 0, 1+).
 #' @param verbose verbosity
 #' 
 #' @return Named list suitable for passing on to Torsten.
@@ -66,6 +68,7 @@ new_stan_data <- function(
   ruv,
   dose_cmt = 1,
   ltbs = FALSE,
+  errors_in_variables = NULL,
   verbose = FALSE
 ) {
   
@@ -79,6 +82,7 @@ new_stan_data <- function(
     ruv = ruv,
     dose_cmt = dose_cmt,
     ltbs = ltbs,
+    errors_in_variables = errors_in_variables,
     verbose = verbose
   )
   

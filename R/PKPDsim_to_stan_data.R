@@ -12,6 +12,7 @@ PKPDsim_to_stan_data <- function(
   ruv,
   dose_cmt = 1,
   ltbs = FALSE,
+  errors_in_variables = NULL,
   verbose = FALSE
 ) {
   ## Convert regimen, covariates, tdm data
@@ -42,6 +43,17 @@ PKPDsim_to_stan_data <- function(
     c("TIME", "EVID", "AMT", "CMT", "SS", "II", "ADDL", "RATE")
   )
   names(out)[which(names(out) %in% lowercase)] <- tolower(lowercase)
+  
+  if(!is.null(errors_in_variables)) {
+    if(length(errors_in_variables) != 2) {
+      stop("Argument `errors_in_variables` needs to be a numeric vector of length 2.")
+    }
+    out$time_sd <- dplyr::if_else(
+      out$evid == 0, 
+      errors_in_variables[1], 
+      errors_in_variables[2]
+    )
+  }
 
   ## Population parameters and IIV
   for(key in names(parameters)) {
