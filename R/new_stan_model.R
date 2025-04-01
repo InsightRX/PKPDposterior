@@ -22,8 +22,9 @@
 #' each observation type. Sometimes this is needed when more flexibility is 
 #' needed than the `scale` parameter provides.
 #' @param verbose verbosity
+#' @inheritParams new_stan_data
 #' 
-#' @returns filename
+#' @return filename
 #' 
 #' @examples
 #' 

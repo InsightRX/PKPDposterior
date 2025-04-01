@@ -11,8 +11,8 @@ new_stan_model(
   variable_definitions = NULL,
   ode = NULL,
   covariate_definitions = NULL,
-  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45",
-    "pmx_solve_adams", "pmx_solve_bdf"),
+  solver = c("pmx_solve_onecpt", "pmx_solve_twocpt", "pmx_solve_rk45", "pmx_solve_adams",
+    "pmx_solve_bdf"),
   template = "template.stan",
   obs_types = NULL,
   obs_cmt = NULL,
@@ -26,6 +26,8 @@ new_stan_model(
 
 \item{parameter_definitions}{list of parameter definitions. See example
 below.}
+
+\item{fixed}{optional, vector of parameters to fix and not sample.}
 
 \item{variable_definitions}{for models using the analytical solvers, extra
 variable definitions evaluated at each step through the event table.

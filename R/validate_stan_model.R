@@ -21,8 +21,7 @@ validate_stan_model <- function(
   n = 50,
   max_abs_delta = 1e-3,
   max_rel_delta = 1e-5,
-  verbose = FALSE,
-  ...
+  verbose = FALSE
 ) {
   
   if (verbose) message("Sampling from posterior...")
