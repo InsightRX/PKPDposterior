@@ -18,6 +18,7 @@ new_stan_model(
   obs_cmt = NULL,
   scale = NULL,
   custom_ipred = NULL,
+  errors_in_variables = FALSE,
   verbose = FALSE
 )
 }
@@ -55,6 +56,9 @@ for each observation type when multiple observation types. E.g. \code{2} or
 \item{custom_ipred}{list of custom definitions for individual predictions for
 each observation type. Sometimes this is needed when more flexibility is
 needed than the \code{scale} parameter provides.}
+
+\item{errors_in_variables}{Either \code{TRUE} or \code{FALSE}, should EiV code be
+implemented in the model to probabilistically interpret the time variable?}
 
 \item{verbose}{verbosity}
 }

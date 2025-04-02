@@ -31,6 +31,8 @@ transformed data{
 parameters{
 
   // parameter_definitions
+  
+  // parameters_idv
 
 }
 
@@ -55,6 +57,8 @@ model{
   // likelihood_parameters
 
   // likelihood_observed_data
+
+  // likelihood_idv
 
 }
 

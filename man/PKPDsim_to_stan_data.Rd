@@ -14,6 +14,7 @@ PKPDsim_to_stan_data(
   ruv,
   dose_cmt = 1,
   ltbs = FALSE,
+  eiv_sd = NULL,
   verbose = FALSE
 )
 }
@@ -43,6 +44,9 @@ dataset is irrelevant, handled in model.}
 
 \item{ltbs}{use log-transform-both-sides approach for observations? Default
 is \code{FALSE}.}
+
+\item{eiv_sd}{vector of length 2 with sd for observation and
+dose / other event types respectively (evid = 0, 1+).}
 
 \item{verbose}{verbosity}
 }

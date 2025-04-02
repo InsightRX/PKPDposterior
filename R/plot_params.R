@@ -3,15 +3,22 @@
 #' for the `CL` parameter, it will plot them as well.
 #' 
 #' @param post posterior object from `get_mcmc_posterior()`
+#' @param params vector of parameter names to extract from table with 
+#' posterior draws. If `NULL`, will take default parameters from `init` object.
 #' 
 #' @return a ggplot2 object with posterior distributions (histograms) faceted 
 #' by parameter.
 #'  
 #' @export
-plot_params <- function(post) {
+#' 
+plot_params <- function(
+  post,
+  params = NULL
+) {
   
   par_table_long <- get_parameter_tables(
-    post, 
+    post,
+    params = params,
     long = TRUE
   )
   pars <- par_table_long$posterior %>%

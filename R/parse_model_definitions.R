@@ -14,7 +14,8 @@ parse_model_definitions <- function(
   obs_types,
   obs_cmt,
   scale,
-  custom_ipred
+  custom_ipred,
+  errors_in_variables
 ) {
   
   def <- list()
@@ -55,7 +56,15 @@ parse_model_definitions <- function(
     "real<lower = 0> ruv_prop_", obs_types, ";", cr, "  ",
     "real<lower = 0> ruv_add_", obs_types, ";"
   )
-  
+
+  if(errors_in_variables) {
+    def[["parameters_idv"]] <- paste0(
+      paste0(
+        "array[n_t] real x;"), # will use uniform distribution by defaults
+        sep = "\n"
+      )
+  }
+
   ## Input data, hardcoded
   def[["input_data"]] <- c(
     "int<lower = 1> cmt[n_t];",
@@ -67,7 +76,13 @@ parse_model_definitions <- function(
     "real rate[n_t];",
     "real ii[n_t];"
   )
-  
+  if(errors_in_variables) {
+    def[["input_data"]] <- c(
+      def[["input_data"]],
+      "real time_sd[n_t];"
+    )
+  }
+
   ## Parse covariates
   if(!is.null(covariate_definitions)) {
     def[["covariate_data"]] <- paste0(
@@ -104,13 +119,14 @@ parse_model_definitions <- function(
   def[["parameter_definitions"]] <- paste0("real<lower=0> ", names(parameters_sampled), ";")
 
   ## Transformed parameters block:
+  time <- ifelse(errors_in_variables, "x", "time")
   solver_args <- switch(
     solver,
-    "pmx_solve_onecpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
-    "pmx_solve_twocpt" = "time, amt, rate, ii, evid, cmt, addl, ss, theta",
-    "pmx_solve_rk45" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
-    "pmx_solve_adams" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5",
-    "pmx_solve_bdf" = "ode, n_cmt, time, amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"
+    "pmx_solve_onecpt" = paste0(time, ", amt, rate, ii, evid, cmt, addl, ss, theta"),
+    "pmx_solve_twocpt" = paste0(time, ", amt, rate, ii, evid, cmt, addl, ss, theta"),
+    "pmx_solve_rk45" = paste0("ode, n_cmt, ", time, ", amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"),
+    "pmx_solve_adams" = paste0("ode, n_cmt, ", time, ", amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5"),
+    "pmx_solve_bdf" = paste0("ode, n_cmt, ", time,", amt, rate, ii, evid, cmt, addl, ss, theta, 1e-5, 1e-8, 1e5")
   )
   def[["solver_call"]] <- paste0("A = ", solver, "(", solver_args, ");")
   if(!is.null(custom_ipred)) { # custom definition of individual predictions
@@ -195,6 +211,12 @@ parse_model_definitions <- function(
     names(parameters_sampled), "), omega_", 
     names(parameters_sampled), ");"
   )
+  if(errors_in_variables) {
+    def[["likelihood_idv"]] <- paste0(
+      "time ~ normal(x, time_sd);",
+      sep = "\n"
+    )
+  }
 
   def[["likelihood_observed_data"]] <- paste0(
     "if(ltbs_", obs_types, ") {", cr, "  ",
